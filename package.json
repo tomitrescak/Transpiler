@@ -1,0 +1,17 @@
+{
+  "name": "Transpiler",
+  "private": true,
+  "scripts": {
+    "start": "meteor run"
+  },
+  "dependencies": {
+    "java-parser": "0.0.1",
+    "left-pad": "^1.1.0",
+    "meteor-node-stubs": "~0.2.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "expect": "^1.20.1",
+    "yamljs": "^0.2.7"
+  }
+}
