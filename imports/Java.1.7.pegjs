@@ -1895,9 +1895,9 @@ Literal
       / CharLiteral
       / StringLiteral
       / "true"  !LetterOrDigit
-      { return { node: 'BooleanLiteral', booleanValue: true }; }
+      { return { node: 'BooleanLiteral', booleanValue: true, location: simpleLocation() }; }
       / "false" !LetterOrDigit
-      { return { node: 'BooleanLiteral', booleanValue: false }; }
+      { return { node: 'BooleanLiteral', booleanValue: false, location: simpleLocation() }; }
       / "null"  !LetterOrDigit
       { return { node: 'NullLiteral' }; }
       ) Spacing
@@ -1927,7 +1927,7 @@ OctalNumeral
 FloatLiteral
     = ( HexFloat
     / DecimalFloat )
-    { return { node: 'NumberLiteral', token: text() }; }
+    { return { node: 'NumberLiteral', token: text(), location: simpleLocation() }; }
 
 DecimalFloat
     = Digits "." Digits?  Exponent? [fFdD]?
@@ -1959,11 +1959,11 @@ HexDigit
 
 CharLiteral
     = "'" (Escape / !['\\\n\r] _) "'"                      // this " keeps the editor happy
-    { return { node: 'CharacterLiteral', escapedValue: text() }; }
+    { return { node: 'CharacterLiteral', escapedValue: text(), location: simpleLocation() }; }
 
 StringLiteral
     = "\"" (Escape / !["\\\n\r] _)* "\""                   // this " keeps the editor happy
-    { return { node: 'StringLiteral', escapedValue: text() }; }
+    { return { node: 'StringLiteral', escapedValue: text(), location: simpleLocation() }; }
 
 Escape
     = "\\" ([btnfr"'\\] / OctalEscape / UnicodeEscape)     // this " keeps the editor happy

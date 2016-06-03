@@ -137,3 +137,24 @@
       a: number = 4 + 5;
     }
   sourceMap: [0,1]
+
+- name: Expressions > Logical and unary
+  input: |
+    class tomi {
+      boolean a = true && false || !a;
+    }
+  output: |
+    class tomi {
+      a: boolean = true && false || !a;
+    }
+  sourceMap: [0,1]
+
+- name: Expressions > Parenthesis
+  input: |
+    class tomi {
+      int a = ((4 + 5) * 2) / (4 * 5);
+    }
+  output: |
+    class tomi {
+      a: number = ((4 + 5) * 2) / (4 * 5);
+    }
