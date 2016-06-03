@@ -25,7 +25,29 @@ var InfixExpressionVisitor = (function (_super) {
     }
     InfixExpressionVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'InfixExpression');
+        ExpressionVisitor.visit(this, node.leftOperand);
+        Builder_1.default.add(' ' + node.operator + ' ');
+        ExpressionVisitor.visit(this, node.rightOperand);
     };
     return InfixExpressionVisitor;
 }(Visitor_1.default));
 exports.InfixExpressionVisitor = InfixExpressionVisitor;
+var ExpressionVisitor = (function () {
+    function ExpressionVisitor() {
+    }
+    ExpressionVisitor.visit = function (parent, node) {
+        switch (node.node) {
+            case 'NumberLiteral':
+                new NumberLiteralVisitor(parent).visit(node);
+                break;
+            case 'InfixExpression':
+                new InfixExpressionVisitor(parent).visit(node);
+                break;
+            default:
+                throw new Error(node.node + ' is not implemented');
+        }
+    };
+    return ExpressionVisitor;
+}());
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = ExpressionVisitor;

@@ -16,22 +16,22 @@ export class TypeParameterVisitor extends Visitor {
     super.check(type, 'TypeParameter');
 
     // draw name
-    new NameVisitor(this).visit(type.name);
+    NameVisitor.visit(this, type.name);
 
     if (type.typeBounds.length) {
       Builder.add(' extends ');
-      Builder.join(type.typeBounds, (b: Types) => new TypeVisitor(this).visit(b), ' & ');
+      Builder.join(type.typeBounds, (b: Types) => TypeVisitor.visit(this, b), ' & ');
     }
     return this;
   }
 }
 
-export class TypeParametersVisitor extends Visitor {
-  visit(types: TypeParameter[]) {
+export class TypeParametersVisitor {
+  static visit(parent: Visitor, types: TypeParameter[]) {
 
     if (types.length) {
       Builder.add('<');
-      Builder.join(types, (type: TypeParameter) => new TypeParameterVisitor(this.parent).visit(type),',');
+      Builder.join(types, (type: TypeParameter) => new TypeParameterVisitor(parent).visit(type),',');
       Builder.add('>');
     }
     return this;

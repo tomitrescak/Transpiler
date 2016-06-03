@@ -44,7 +44,7 @@ var QualifiedNameVisitor = (function (_super) {
     }
     QualifiedNameVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'QualifiedName');
-        new NameVisitor(this).visit(node.qualifier);
+        NameVisitor.visit(this, node.qualifier);
         Builder_1.default.add('.');
         // remember name
         this.name = new SimpleNameVisitor(this).visit(node.name).name;
@@ -53,33 +53,22 @@ var QualifiedNameVisitor = (function (_super) {
     return QualifiedNameVisitor;
 }(BaseNameVisitor));
 exports.QualifiedNameVisitor = QualifiedNameVisitor;
-var NameVisitor = (function (_super) {
-    __extends(NameVisitor, _super);
+var NameVisitor = (function () {
     function NameVisitor() {
-        _super.apply(this, arguments);
     }
-    Object.defineProperty(NameVisitor.prototype, "name", {
-        get: function () {
-            return this.visitor.name;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    NameVisitor.prototype.visit = function (node, substitutions) {
+    NameVisitor.visit = function (parent, node, substitutions) {
         if (substitutions === void 0) { substitutions = null; }
         if (node.node === 'SimpleName') {
-            this.visitor = new SimpleNameVisitor(this.parent).visit(node, substitutions);
+            return new SimpleNameVisitor(parent).visit(node, substitutions);
         }
         else if (node.node === 'QualifiedName') {
-            this.visitor = new QualifiedNameVisitor(this.parent).visit(node);
+            return new QualifiedNameVisitor(parent).visit(node);
         }
         else {
             throw new Error('Unsupported node: ' + node.node);
         }
-        //console.log(this.visitor);
-        return this;
     };
     return NameVisitor;
-}(Visitor_1.default));
+}());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = NameVisitor;

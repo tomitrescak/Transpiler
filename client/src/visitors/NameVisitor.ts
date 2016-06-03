@@ -44,7 +44,7 @@ export class SimpleNameVisitor extends BaseNameVisitor {
 export class QualifiedNameVisitor extends BaseNameVisitor {
   visit(node: QualifiedName) {
     super.check(node, 'QualifiedName');
-    new NameVisitor(this).visit(node.qualifier);
+    NameVisitor.visit(this, node.qualifier);
     Builder.add('.');
 
     // remember name
@@ -53,23 +53,14 @@ export class QualifiedNameVisitor extends BaseNameVisitor {
   }
 }
 
-export default class NameVisitor extends Visitor {
-  visitor: SimpleNameVisitor | QualifiedNameVisitor;
-
-  get name() {
-    return this.visitor.name;
-  }
-
-  visit(node: SimpleName | QualifiedName, substitutions: string[] = null) {
-
+export default class NameVisitor {
+  static visit(parent: Visitor, node: SimpleName | QualifiedName, substitutions: string[] = null): BaseNameVisitor {
     if (node.node === 'SimpleName') {
-      this.visitor = new SimpleNameVisitor(this.parent).visit(<SimpleName>node, substitutions);
+      return new SimpleNameVisitor(parent).visit(<SimpleName>node, substitutions);
     } else if (node.node === 'QualifiedName') {
-      this.visitor = new QualifiedNameVisitor(this.parent).visit(<QualifiedName>node);
+      return new QualifiedNameVisitor(parent).visit(<QualifiedName>node);
     } else {
       throw new Error('Unsupported node: ' + node.node);
     }
-    //console.log(this.visitor);
-    return this;
   }
 }

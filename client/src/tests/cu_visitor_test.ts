@@ -65,8 +65,9 @@ describe('Parser', function() {
 
       if (testCase.sourceMap) {
         for (let i = 0; i < testCase.sourceMap.length; i++) {
-          console.log(Builder.sourceMap)
-          expect(Builder.sourceMap.getLine(i), `Test (${index}) - ${testCase.name}: Source map matching failed`).to.equal(testCase.sourceMap[i])
+          const line = Builder.sourceMap.getLine(i);
+          const filtered = line.filter((l) => l.mapping.row === testCase.sourceMap[i]);
+          expect(filtered.length, `Test (${index}) - ${testCase.name}: Source map matching failed`).to.be.least(1);
         }
       }
     }

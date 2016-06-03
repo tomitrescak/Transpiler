@@ -7,13 +7,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 var Visitor_1 = require('./Visitor');
 var Builder_1 = require('../config/Builder');
 var MarkerVisitor_1 = require('./MarkerVisitor');
-var ModifiersVisitor = (function (_super) {
-    __extends(ModifiersVisitor, _super);
+var ModifiersVisitor = (function () {
     function ModifiersVisitor() {
-        _super.apply(this, arguments);
     }
-    ModifiersVisitor.prototype.visit = function (nodes, allowedModifiers, errorModifiers, allowAnnotations) {
-        var _this = this;
+    ModifiersVisitor.visit = function (parent, nodes, allowedModifiers, errorModifiers, allowAnnotations) {
         if (allowAnnotations === void 0) { allowAnnotations = false; }
         if (!nodes) {
             return;
@@ -23,13 +20,13 @@ var ModifiersVisitor = (function (_super) {
         nodes.forEach(function (node) {
             switch (node.node) {
                 case 'Modifier':
-                    new ModifierVisitor(_this).visit(node, allowedModifiers, errorModifiers);
+                    new ModifierVisitor(parent).visit(node, allowedModifiers, errorModifiers);
                     break;
                 case 'MarkerAnnotation':
-                    new MarkerVisitor_1.default(_this).visit(node, allowAnnotations);
+                    new MarkerVisitor_1.default(parent).visit(node, allowAnnotations);
                     break;
                 default:
-                    _this.check(node, ['Modifier', 'MarkerAnnotation']);
+                    throw new Error(node.node + ' not implemented');
             }
         });
         // check for duplicate identifiers
@@ -48,7 +45,7 @@ var ModifiersVisitor = (function (_super) {
         var _a;
     };
     return ModifiersVisitor;
-}(Visitor_1.default));
+}());
 exports.ModifiersVisitor = ModifiersVisitor;
 var ModifierVisitor = (function (_super) {
     __extends(ModifierVisitor, _super);

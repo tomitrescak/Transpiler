@@ -31,6 +31,7 @@ var PrimitiveTypeVisitor = (function (_super) {
             this.name = type.primitiveTypeCode;
         }
         Builder_1.default.add(this.name, type);
+        return this;
     };
     PrimitiveTypeVisitor.numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
     return PrimitiveTypeVisitor;
@@ -43,8 +44,9 @@ var SimpleTypeVisitor = (function (_super) {
     }
     SimpleTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'SimpleType');
-        var nameVisitor = new NameVisitor_1.default(this).visit(type.name, ['String', 'string']);
+        var nameVisitor = NameVisitor_1.default.visit(this, type.name, ['String', 'string']);
         this.name = nameVisitor.name;
+        return this;
     };
     return SimpleTypeVisitor;
 }(BaseTypeVisitor));
@@ -56,6 +58,7 @@ var ParametrizedTypeVisitor = (function (_super) {
     }
     ParametrizedTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'ParametrizedType');
+        return this;
     };
     return ParametrizedTypeVisitor;
 }(BaseTypeVisitor));
@@ -67,62 +70,43 @@ var ArrayTypeVisitor = (function (_super) {
     }
     ArrayTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'ArrayType');
-        this.name = new TypeVisitor(this).visit(type.componentType).name;
+        this.name = TypeVisitor.visit(this, type.componentType).name;
         this.name += '[]'; // add it to the local name
         Builder_1.default.add('[]'); // add it to the builder
+        return this;
     };
     return ArrayTypeVisitor;
 }(BaseTypeVisitor));
 exports.ArrayTypeVisitor = ArrayTypeVisitor;
-var TypesVisitor = (function (_super) {
-    __extends(TypesVisitor, _super);
+var TypesVisitor = (function () {
     function TypesVisitor() {
-        _super.apply(this, arguments);
     }
-    TypesVisitor.prototype.visit = function (types) {
-        var _this = this;
-        types.forEach(function (type) { return new TypeVisitor(_this.parent).visit(type); });
+    TypesVisitor.visit = function (parent, types) {
+        types.forEach(function (type) { return TypeVisitor.visit(parent, type); });
     };
     return TypesVisitor;
-}(Visitor_1.default));
+}());
 exports.TypesVisitor = TypesVisitor;
-var TypeVisitor = (function (_super) {
-    __extends(TypeVisitor, _super);
+var TypeVisitor = (function () {
     function TypeVisitor() {
-        _super.apply(this, arguments);
     }
-    Object.defineProperty(TypeVisitor.prototype, "name", {
-        get: function () {
-            return this.typeNode.name;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    TypeVisitor.prototype.visit = function (type) {
+    TypeVisitor.visit = function (parent, type) {
+        console.log(type);
         switch (type.node) {
             case 'PrimitiveType':
-                this.typeNode = new PrimitiveTypeVisitor(this.parent);
-                this.typeNode.visit(type);
-                break;
+                return new PrimitiveTypeVisitor(parent).visit(type);
             case 'SimpleType':
-                this.typeNode = new SimpleTypeVisitor(this.parent);
-                this.typeNode.visit(type);
-                break;
+                return new SimpleTypeVisitor(parent).visit(type);
             case 'ParametrizedType':
-                this.typeNode = new ParametrizedTypeVisitor(this.parent);
-                this.typeNode.visit(type);
-                break;
+                return new ParametrizedTypeVisitor(parent).visit(type);
             case 'ArrayType':
-                this.typeNode = new ArrayTypeVisitor(this.parent);
-                this.typeNode.visit(type);
-                break;
+                return new ArrayTypeVisitor(parent).visit(type);
             default:
                 throw 'Unsupported node' + type.node;
         }
-        return this;
     };
     return TypeVisitor;
-}(Visitor_1.default));
+}());
 exports.TypeVisitor = TypeVisitor;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TypeVisitor;

@@ -9,7 +9,7 @@ var Builder_1 = require('../config/Builder');
 var ModifiersVisitor_1 = require('./ModifiersVisitor');
 var TypesVisitor_1 = require('./TypesVisitor');
 var NameVisitor_1 = require('./NameVisitor');
-var InitializerVisitor_1 = require('./InitializerVisitor');
+var ExpressionsVisitors_1 = require('./ExpressionsVisitors');
 var FieldDeclarationVisitor = (function (_super) {
     __extends(FieldDeclarationVisitor, _super);
     function FieldDeclarationVisitor() {
@@ -18,7 +18,7 @@ var FieldDeclarationVisitor = (function (_super) {
     FieldDeclarationVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'FieldDeclaration');
         Builder_1.default.add(this.pad());
-        new ModifiersVisitor_1.default(this).visit(node.modifiers);
+        ModifiersVisitor_1.default.visit(this, node.modifiers);
         new FragmentsVisitor(this).visit(node.fragments, node.type);
         Builder_1.default.add(';\n');
     };
@@ -46,11 +46,11 @@ var FragmentVisitor = (function (_super) {
             }
         }
         // prefix name : type = initialiser;
-        new NameVisitor_1.default(this).visit(fragment.name);
+        NameVisitor_1.default.visit(this, fragment.name);
         // add :
         Builder_1.default.add(': ');
         // add type
-        var type = new TypesVisitor_1.default(this).visit(typeDefinition).name;
+        var type = TypesVisitor_1.default.visit(this, typeDefinition).name;
         // add extra dimension
         Builder_1.default.add(extraDimensions);
         // add iniitliser
@@ -68,7 +68,7 @@ var FragmentVisitor = (function (_super) {
             Builder_1.default.add(initialiser);
         }
         else {
-            new InitializerVisitor_1.default(this).visit(fragment.initializer);
+            ExpressionsVisitors_1.default.visit(this, fragment.initializer);
         }
     };
     return FragmentVisitor;

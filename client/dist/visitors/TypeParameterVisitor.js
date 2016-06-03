@@ -17,30 +17,27 @@ var TypeParameterVisitor = (function (_super) {
         var _this = this;
         _super.prototype.check.call(this, type, 'TypeParameter');
         // draw name
-        new NameVisitor_1.default(this).visit(type.name);
+        NameVisitor_1.default.visit(this, type.name);
         if (type.typeBounds.length) {
             Builder_1.default.add(' extends ');
-            Builder_1.default.join(type.typeBounds, function (b) { return new TypesVisitor_1.default(_this).visit(b); }, ' & ');
+            Builder_1.default.join(type.typeBounds, function (b) { return TypesVisitor_1.default.visit(_this, b); }, ' & ');
         }
         return this;
     };
     return TypeParameterVisitor;
 }(Visitor_1.default));
 exports.TypeParameterVisitor = TypeParameterVisitor;
-var TypeParametersVisitor = (function (_super) {
-    __extends(TypeParametersVisitor, _super);
+var TypeParametersVisitor = (function () {
     function TypeParametersVisitor() {
-        _super.apply(this, arguments);
     }
-    TypeParametersVisitor.prototype.visit = function (types) {
-        var _this = this;
+    TypeParametersVisitor.visit = function (parent, types) {
         if (types.length) {
             Builder_1.default.add('<');
-            Builder_1.default.join(types, function (type) { return new TypeParameterVisitor(_this.parent).visit(type); }, ',');
+            Builder_1.default.join(types, function (type) { return new TypeParameterVisitor(parent).visit(type); }, ',');
             Builder_1.default.add('>');
         }
         return this;
     };
     return TypeParametersVisitor;
-}(Visitor_1.default));
+}());
 exports.TypeParametersVisitor = TypeParametersVisitor;

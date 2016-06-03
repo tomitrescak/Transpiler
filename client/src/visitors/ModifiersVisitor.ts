@@ -9,21 +9,21 @@ declare global {
   }
 }
 
-export class ModifiersVisitor extends Visitor {
-  visit(nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], errorModifiers?: string[], allowAnnotations = false) {
+export class ModifiersVisitor {
+  static visit(parent: Visitor, nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], errorModifiers?: string[], allowAnnotations = false) {
     if (!nodes) { return };
 
     // we create a list of all modifiers
     nodes.forEach((node) => {
       switch (node.node) {
         case 'Modifier':
-          new ModifierVisitor(this).visit(<Modifier>node, allowedModifiers, errorModifiers);
+          new ModifierVisitor(parent).visit(<Modifier>node, allowedModifiers, errorModifiers);
           break;
         case 'MarkerAnnotation':
-          new MarkerVisitor(this).visit(<MarkerAnnotation>node, allowAnnotations);
+          new MarkerVisitor(parent).visit(<MarkerAnnotation>node, allowAnnotations);
           break;
         default:
-          this.check(node, ['Modifier', 'MarkerAnnotation']);
+          throw new Error(node.node + ' not implemented');
       }
     });
 

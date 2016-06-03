@@ -4,7 +4,7 @@ import Builder from '../config/Builder';
 import ModifiersVisitor from './ModifiersVisitor';
 import TypesVisitor from './TypesVisitor';
 import NameVisitor from './NameVisitor';
-import InitialiserVisitor from './InitializerVisitor';
+import ExpressionVisitor from './ExpressionsVisitors';
 
 declare global {
   interface VariableDeclarationFragment extends AstNode {
@@ -27,7 +27,7 @@ export default class FieldDeclarationVisitor extends Visitor {
     super.check(node, 'FieldDeclaration');
 
     Builder.add(this.pad());
-    new ModifiersVisitor(this).visit(node.modifiers);
+    ModifiersVisitor.visit(this, node.modifiers);
     new FragmentsVisitor(this).visit(node.fragments, node.type);
     Builder.add(';\n');
   }
@@ -50,11 +50,14 @@ class FragmentVisitor extends Visitor {
     }
 
     // prefix name : type = initialiser;
-    new NameVisitor(this).visit(fragment.name);
+    NameVisitor.visit(this, fragment.name);
+
     // add :
     Builder.add(': ');
+
     // add type
-    let type = new TypesVisitor(this).visit(typeDefinition).name;
+    let type = TypesVisitor.visit(this, typeDefinition).name;
+
     // add extra dimension
     Builder.add(extraDimensions);
     // add iniitliser
@@ -72,7 +75,7 @@ class FragmentVisitor extends Visitor {
       }
       Builder.add(initialiser);
     } else {
-      new InitialiserVisitor(this).visit(fragment.initializer);
+      ExpressionVisitor.visit(this, fragment.initializer);
     }
   }
 }

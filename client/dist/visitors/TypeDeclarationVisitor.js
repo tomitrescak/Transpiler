@@ -35,22 +35,22 @@ var TypeDeclarationVisitor = (function (_super) {
         // render header
         var pad = Builder_1.default.add(this.parent.pad());
         // add modifiers
-        new ModifiersVisitor_1.ModifiersVisitor(this).visit(node.modifiers, ['abstract'], ['static']);
+        ModifiersVisitor_1.ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['static']);
         // add descriptors
         Builder_1.default.add(node.interface ? 'interface ' : 'class ');
         // add name
-        new NameVisitor_1.default(this).visit(node.name);
+        NameVisitor_1.default.visit(this, node.name);
         // add type parameters
-        new TypeParameterVisitor_1.TypeParametersVisitor(this).visit(node.typeParameters);
+        TypeParameterVisitor_1.TypeParametersVisitor.visit(this, node.typeParameters);
         // add superclass
         if (node.superClassType) {
             Builder_1.default.add(' extends ');
-            new TypesVisitor_1.TypeVisitor(this).visit(node.superClassType);
+            TypesVisitor_1.TypeVisitor.visit(this, node.superClassType);
         }
         // add interfaces
         if (node.superInterfaceTypes.length) {
             Builder_1.default.add(' implements ');
-            new TypesVisitor_1.TypesVisitor(this).visit(node.superInterfaceTypes);
+            TypesVisitor_1.TypesVisitor.visit(this, node.superInterfaceTypes);
         }
         // visit all children
         if (node.bodyDeclarations.length) {

@@ -37,26 +37,26 @@ export class TypeDeclarationVisitor extends Visitor {
     const pad = Builder.add(this.parent.pad());
 
     // add modifiers
-    new ModifiersVisitor(this).visit(node.modifiers, ['abstract'], ['static']);
+    ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['static']);
 
     // add descriptors
     Builder.add(node.interface ? 'interface ' : 'class ');
 
     // add name
-    new NameVisitor(this).visit(node.name);
+    NameVisitor.visit(this, node.name);
 
     // add type parameters
-    new TypeParametersVisitor(this).visit(node.typeParameters);
+    TypeParametersVisitor.visit(this, node.typeParameters);
 
     // add superclass
     if (node.superClassType) {
       Builder.add(' extends ');
-      new TypeVisitor(this).visit(node.superClassType);
+      TypeVisitor.visit(this, node.superClassType);
     }
     // add interfaces
     if (node.superInterfaceTypes.length) {
       Builder.add(' implements ');
-      new TypesVisitor(this).visit(node.superInterfaceTypes);
+      TypesVisitor.visit(this, node.superInterfaceTypes);
     }
 
     // visit all children

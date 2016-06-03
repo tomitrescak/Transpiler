@@ -13,14 +13,14 @@ var BodyDeclarationsVisitor = (function (_super) {
     }
     BodyDeclarationsVisitor.prototype.visit = function (types) {
         var _this = this;
-        return types.map(function (type) {
+        types.forEach(function (type) {
             switch (type.node) {
                 case 'FieldDeclaration':
                     return new FieldDeclarationVisitor_1.default(_this.parent).visit(type);
                 default:
                     throw type.node + ' is not implemented';
             }
-        }).join('');
+        });
     };
     return BodyDeclarationsVisitor;
 }(Visitor_1.default));

@@ -25,5 +25,23 @@ export class NumberLiteralVisitor extends Visitor {
 export class InfixExpressionVisitor extends Visitor {
   visit(node: InfixExpression) {
     super.check(node, 'InfixExpression');
+    ExpressionVisitor.visit(this, node.leftOperand);
+    Builder.add(' ' + node.operator + ' ');
+    ExpressionVisitor.visit(this, node.rightOperand);
+  }
+}
+
+export default class ExpressionVisitor {
+  static visit(parent: Visitor, node: AstNode) {
+    switch (node.node) {
+      case 'NumberLiteral':
+        new NumberLiteralVisitor(parent).visit(<NumberLiteral> node);
+        break
+      case 'InfixExpression':
+        new InfixExpressionVisitor(parent).visit(<InfixExpression> node);
+        break;
+      default:
+        throw new Error(node.node + ' is not implemented');
+    }
   }
 }
