@@ -15,6 +15,10 @@ var InitialiserVisitor = (function (_super) {
         switch (node.node) {
             case 'NumberLiteral':
                 return new ExpressionsVisitors_1.NumberLiteralVisitor(this).visit(node);
+            case 'InfixExpression':
+                return new ExpressionsVisitors_1.InfixExpressionVisitor(this).visit(node);
+            default:
+                throw new Error(node.node + ' is not implemented');
         }
     };
     return InitialiserVisitor;

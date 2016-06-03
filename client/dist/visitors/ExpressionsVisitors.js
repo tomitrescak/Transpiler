@@ -17,3 +17,15 @@ var NumberLiteralVisitor = (function (_super) {
     return NumberLiteralVisitor;
 }(Visitor_1.default));
 exports.NumberLiteralVisitor = NumberLiteralVisitor;
+var InfixExpressionVisitor = (function (_super) {
+    __extends(InfixExpressionVisitor, _super);
+    function InfixExpressionVisitor() {
+        _super.apply(this, arguments);
+    }
+    InfixExpressionVisitor.prototype.visit = function (node) {
+        _super.prototype.check.call(this, node, 'InfixExpression');
+        return '';
+    };
+    return InfixExpressionVisitor;
+}(Visitor_1.default));
+exports.InfixExpressionVisitor = InfixExpressionVisitor;

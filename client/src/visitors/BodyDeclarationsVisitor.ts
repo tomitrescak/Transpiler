@@ -6,7 +6,9 @@ export default class BodyDeclarationsVisitor extends Visitor {
     return types.map((type) => {
       switch (type.node) {
         case 'FieldDeclaration':
-          return new FieldDeclarationsVisitor(this.parent).visit(type)
+          return new FieldDeclarationsVisitor(this.parent).visit(type);
+        default:
+          throw type.node + ' is not implemented';
       }
     }).join('');
   }

@@ -113,3 +113,16 @@
   input: class tomi<T extends U & V> {}
   output: |
     class tomi<T extends U & V> {}
+
+# Test Cases - Expressions
+
+- name: Expressions > Simple Binary
+  input: |
+    class tomi {
+      int a = 4 + 5;
+    }
+  output: |
+    class tomi {
+      a: number = 4 + 5;
+    }
+  sourceMap: [0,1,1]

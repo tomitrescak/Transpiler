@@ -17,6 +17,8 @@ var BodyDeclarationsVisitor = (function (_super) {
             switch (type.node) {
                 case 'FieldDeclaration':
                     return new FieldDeclarationVisitor_1.default(_this.parent).visit(type);
+                default:
+                    throw type.node + ' is not implemented';
             }
         }).join('');
     };

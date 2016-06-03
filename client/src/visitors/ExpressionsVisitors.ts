@@ -20,3 +20,10 @@ export class NumberLiteralVisitor extends Visitor {
     return node.token;
   }
 }
+
+export class InfixExpressionVisitor extends Visitor {
+  visit(node: NumberLiteral): string {
+    super.check(node, 'InfixExpression');
+    return '';
+  }
+}
