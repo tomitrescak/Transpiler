@@ -9,6 +9,8 @@ declare global {
 
 export default class MarkerVisitor extends Visitor {
   visit(node: MarkerAnnotation, allowAnnotations = true) {
+    Visitor.checkNode(node, 'MarkerAnnotation');
+
     if (!allowAnnotations) {
       Visitor.addWarning(Visitor.messages.Warnings.IgnoredAnnotation(), node.line);
       return '';

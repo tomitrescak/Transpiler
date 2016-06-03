@@ -58,7 +58,8 @@ var ModifierVisitor = (function (_super) {
     ModifierVisitor.prototype.visit = function (node, allowedModifiers, errorModifiers) {
         if (allowedModifiers === void 0) { allowedModifiers = []; }
         if (errorModifiers === void 0) { errorModifiers = []; }
-        Visitor_1.default.checkNode(node, 'Modifier');
+        _super.prototype.check.call(this, node, 'Modifier');
+        // we only return modifier if it is allowed, otherwise we throw warning
         if (allowedModifiers.indexOf(node.keyword) === -1 && errorModifiers.indexOf(node.keyword) === -1) {
             Visitor_1.default.addWarning(Visitor_1.default.Warnigns.IgnoredModifier(node.keyword), node.line);
         }

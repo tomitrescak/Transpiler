@@ -12,7 +12,7 @@ declare global {
 
 export class TypeParameterVisitor extends Visitor {
   visit(type: TypeParameter): string {
-    Visitor.checkNode(type, 'TypeParameter');
+    super.check(type, 'TypeParameter');
 
     let bounds = '';
     if (type.typeBounds.length) {

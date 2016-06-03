@@ -15,13 +15,11 @@ var FieldDeclarationVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     FieldDeclarationVisitor.prototype.visit = function (node) {
-        Visitor_1.default.checkNode(node, 'FieldDeclaration');
-        Visitor_1.default.sourceMap.setLine(node);
+        _super.prototype.check.call(this, node, 'FieldDeclaration');
         var modifiers = new ModifiersVisitor_1.default(this).visit(node.modifiers);
         var type = new TypesVisitor_1.default(this).visit(node.type);
         var fragments = new FragmentsVisitor(this).visit(node.fragments, type);
-        Visitor_1.default.sourceMap.inc();
-        return "" + this.pad() + modifiers + fragments + ";\n";
+        return "" + this.pad() + modifiers + fragments + ";" + Visitor_1.default.newLine();
     };
     return FieldDeclarationVisitor;
 }(Visitor_1.default));

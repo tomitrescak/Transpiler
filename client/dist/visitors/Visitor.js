@@ -36,23 +36,9 @@ var Visitor = (function () {
         if (column === void 0) { column = 0; }
         Visitor.handler.addWarning(message, line, column);
     };
-    Visitor.prototype.build = function (node, text) {
-        if (node.line !== undefined && node.line !== null) {
-            Visitor.sourceMap.setLine(node);
-        }
-        for (var i = 0; i < text.length; i++) {
-            if (text[i] === '\n') {
-                Visitor.sourceMap.inc();
-            }
-        }
-        return text;
-    };
-    Visitor.prototype.pad = function (text) {
-        if (text === void 0) { text = ''; }
-        return LeftPad_1.default(text, this.indent);
-    };
-    Visitor.prototype.incIndent = function () {
-        this.indent += 2;
+    Visitor.newLine = function () {
+        Visitor.sourceMap.inc();
+        return '\n';
     };
     Object.defineProperty(Visitor.prototype, "indent", {
         get: function () {
@@ -64,12 +50,35 @@ var Visitor = (function () {
             }
             return 0;
         },
+        // properties
         set: function (ind) {
             this._indent = ind;
         },
         enumerable: true,
         configurable: true
     });
+    // methods
+    Visitor.prototype.pad = function (text) {
+        if (text === void 0) { text = ''; }
+        return LeftPad_1.default(text, this.indent);
+    };
+    Visitor.prototype.incIndent = function () {
+        this.indent += 2;
+    };
+    Visitor.prototype.check = function (node, nodeName) {
+        var args = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            args[_i - 2] = arguments[_i];
+        }
+        if (Array.isArray(node)) {
+            return;
+        }
+        // check on the correct node name
+        Visitor.checkNode(node, nodeName);
+        if (node.line !== null && node.line !== undefined) {
+            Visitor.sourceMap.setLine(node);
+        }
+    };
     Visitor.messages = Messages_1.default;
     Visitor.Warnigns = Messages_1.default.Warnings;
     Visitor.Errors = Messages_1.default.Errors;

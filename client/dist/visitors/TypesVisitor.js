@@ -12,6 +12,7 @@ var PrimitiveTypeVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     PrimitiveTypeVisitor.prototype.visit = function (type) {
+        _super.prototype.check.call(this, type, 'PrimitiveType');
         if (PrimitiveTypeVisitor.numbers.indexOf(type.primitiveTypeCode) > -1) {
             return 'number';
         }
@@ -30,6 +31,7 @@ var SimpleTypeVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     SimpleTypeVisitor.prototype.visit = function (type) {
+        _super.prototype.check.call(this, type, 'SimpleType');
         var name = new NameVisitor_1.default(this).visit(type.name);
         if (name === 'String') {
             return 'string';
@@ -45,6 +47,7 @@ var ParametrizedTypeVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     ParametrizedTypeVisitor.prototype.visit = function (type) {
+        _super.prototype.check.call(this, type, 'ParametrizedType');
         return '';
     };
     return ParametrizedTypeVisitor;
@@ -56,6 +59,7 @@ var ArrayTypeVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     ArrayTypeVisitor.prototype.visit = function (type) {
+        _super.prototype.check.call(this, type, 'ArrayType');
         return new TypeVisitor(this).visit(type.componentType) + '[]';
     };
     return ArrayTypeVisitor;

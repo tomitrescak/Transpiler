@@ -39,7 +39,7 @@
     "typings/index.d.ts",
     "typings/java-parser.d.ts",
     "typings/modules/chai/index.d.ts",
-    "visitors/BodyDeclareationsVisitor.ts",
+    "visitors/BodyDeclarationsVisitor.ts",
     "visitors/CompilationUnitVisitor.ts",
     "visitors/ExpressionsVisitors.ts",
     "visitors/FieldDeclarationVisitor.ts",

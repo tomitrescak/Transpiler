@@ -45,8 +45,9 @@ export class ModifiersVisitor extends Visitor {
 
 export class ModifierVisitor extends Visitor {
   visit(node: Modifier, allowedModifiers: string[] = [], errorModifiers: string[] = []) {
-    Visitor.checkNode(node, 'Modifier');
+    super.check(node, 'Modifier');
 
+    // we only return modifier if it is allowed, otherwise we throw warning
     if (allowedModifiers.indexOf(node.keyword) === -1 && errorModifiers.indexOf(node.keyword) === -1) {
       Visitor.addWarning(Visitor.Warnigns.IgnoredModifier(node.keyword), node.line);
     }

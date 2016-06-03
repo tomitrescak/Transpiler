@@ -5,7 +5,7 @@ export default class InitialiserVisitor extends Visitor {
   visit(node: AstNode): string {
     switch (node.node) {
       case 'NumberLiteral':
-        return NumberLiteralVisitor.visit(<NumberLiteral> node);
+        return new NumberLiteralVisitor(this).visit(<NumberLiteral> node);
     }
   }
 }

@@ -25,6 +25,7 @@ declare global {
 export class PrimitiveTypeVisitor extends Visitor {
   static numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
   visit(type: PrimitiveType): string {
+    super.check(type, 'PrimitiveType');
     if (PrimitiveTypeVisitor.numbers.indexOf(type.primitiveTypeCode) > -1) {
       return 'number';
     } else if (type.primitiveTypeCode === 'char') {
@@ -36,6 +37,8 @@ export class PrimitiveTypeVisitor extends Visitor {
 
 export class SimpleTypeVisitor extends Visitor {
   visit(type: SimpleType): string {
+    super.check(type, 'SimpleType');
+
     const name = new NameVisitor(this).visit(type.name);
     if (name === 'String') {
       return 'string';
@@ -46,12 +49,15 @@ export class SimpleTypeVisitor extends Visitor {
 
 export class ParametrizedTypeVisitor extends Visitor {
   visit(type: ParametrizedType): string {
+    super.check(type, 'ParametrizedType');
+
     return '';
   }
 }
 
 export class ArrayTypeVisitor extends Visitor {
   visit(type: ArrayType): string {
+    super.check(type, 'ArrayType');
     return new TypeVisitor(this).visit(type.componentType) + '[]';
   }
 }

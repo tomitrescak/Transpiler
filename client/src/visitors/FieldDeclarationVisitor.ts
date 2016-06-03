@@ -22,16 +22,13 @@ declare global {
 
 export default class FieldDeclarationVisitor extends Visitor {
   visit(node: FieldDeclaration) {
-    Visitor.checkNode(node, 'FieldDeclaration');
-
-    Visitor.sourceMap.setLine(node);
+    super.check(node, 'FieldDeclaration');
 
     const modifiers: string = new ModifiersVisitor(this).visit(node.modifiers);
     const type = new TypesVisitor(this).visit(node.type);
     const fragments: string = new FragmentsVisitor(this).visit(node.fragments, type);
 
-    Visitor.sourceMap.inc();
-    return `${this.pad()}${modifiers}${fragments};\n`;
+    return `${this.pad()}${modifiers}${fragments};${Visitor.newLine()}`;
   }
 }
 

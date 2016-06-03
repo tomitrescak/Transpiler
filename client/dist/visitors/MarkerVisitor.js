@@ -12,6 +12,7 @@ var MarkerVisitor = (function (_super) {
     }
     MarkerVisitor.prototype.visit = function (node, allowAnnotations) {
         if (allowAnnotations === void 0) { allowAnnotations = true; }
+        Visitor_1.default.checkNode(node, 'MarkerAnnotation');
         if (!allowAnnotations) {
             Visitor_1.default.addWarning(Visitor_1.default.messages.Warnings.IgnoredAnnotation(), node.line);
             return '';

@@ -11,8 +11,9 @@ var SourceMap = (function () {
     };
     SourceMap.prototype.inc = function (num) {
         if (num === void 0) { num = 1; }
-        console.log('Increasing');
         this.currentLine += num;
+        console.log("Increasing and setting line on " + this.currentLine + " to " + this.currentLine);
+        this.map[this.currentLine] = this.nodeLine;
     };
     SourceMap.prototype.getLine = function (transpiledLine) {
         return this.map[transpiledLine];
@@ -20,7 +21,8 @@ var SourceMap = (function () {
     SourceMap.prototype.setLine = function (node) {
         console.log("Setting line on " + node.node + ": " + (node.line - 1) + " to " + this.currentLine);
         //console.trace();
-        this.map[this.currentLine] = node.line - 1;
+        this.nodeLine = node.line - 1;
+        this.map[this.currentLine] = this.nodeLine;
         if (this.max < this.currentLine) {
             this.max = this.currentLine;
         }

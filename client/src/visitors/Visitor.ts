@@ -21,6 +21,7 @@ abstract class Visitor {
   static Infos = Messages.Infos;
 
   parent: Visitor;
+
   _indent: number;
 
   // static bits
@@ -55,17 +56,16 @@ abstract class Visitor {
     Visitor.handler.addWarning(message, line, column);
   }
 
+  static newLine() {
+    Visitor.sourceMap.inc();
+    return '\n';
+  }
+
   constructor(parent: Visitor) {
     this.parent = parent;
   }
 
-  pad(text = '') {
-    return leftPad(text, this.indent);
-  }
-
-  incIndent() {
-    this.indent += 2;
-  }
+  // properties
 
   set indent(ind: number) {
     this._indent = ind;
@@ -80,7 +80,32 @@ abstract class Visitor {
     return 0;
   }
 
-  abstract visit(node: AstNode | AstNode[]): string;
+  // methods
+
+  public pad(text = '') {
+    return leftPad(text, this.indent);
+  }
+
+  public incIndent() {
+    this.indent += 2;
+  }
+
+  protected check(node: AstNode | AstNode[], nodeName: string, ...args: any[]): string {
+    if (Array.isArray(node)) {
+      return;
+    }
+
+    // check on the correct node name
+    Visitor.checkNode(node, nodeName);
+
+    if (node.line !== null && node.line !== undefined) {
+      Visitor.sourceMap.setLine(node);
+    }
+  }
+
+  abstract visit(node: AstNode | AstNode[], ...args: any[]): string;
 }
+
+
 
 export default Visitor;

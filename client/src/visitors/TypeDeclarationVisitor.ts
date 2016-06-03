@@ -3,7 +3,7 @@ import { ModifiersVisitor } from './ModifiersVisitor';
 import NameVisitor from './NameVisitor';
 import { TypeParametersVisitor } from './TypeParameterVisitor';
 import { TypeVisitor, TypesVisitor } from './TypesVisitor';
-import BodyDeclarationsVisitor from './BodyDeclareationsVisitor';
+import BodyDeclarationsVisitor from './BodyDeclarationsVisitor';
 
 declare global {
   interface TypeDeclaration extends AstNode {
@@ -26,24 +26,12 @@ export class TypeDeclarationsVisitor extends Visitor {
 
 export class TypeDeclarationVisitor extends Visitor {
   visit(node: TypeDeclaration): string {
-    // assign source map
-    Visitor.sourceMap.setLine(node);
+    super.check(node, 'TypeDeclaration');
 
     // increase padding
     this.incIndent();
 
-    // visit all children
-
-    let children = '';
-    if (node.bodyDeclarations.length) {
-      // we append new line after the initial bracket '{\n'
-      children = '\n';
-      // let sourcemap know
-      Visitor.sourceMap.inc();
-      // render children
-      children += new BodyDeclarationsVisitor(this).visit(node.bodyDeclarations); // wrap children with new lines
-    }
-
+    // render header
     const modifiers = node.modifiers ? new ModifiersVisitor(this).visit(node.modifiers, ['abstract'], ['static']) : '';
     const declarationType = node.interface ? 'interface' : 'class';
     const name = new NameVisitor(this).visit(node.name);
@@ -51,12 +39,21 @@ export class TypeDeclarationVisitor extends Visitor {
     const superClass = node.superClassType ? (' extends ' + new TypeVisitor(this).visit(node.superClassType)) : '';
     const superInterfaceTypes = node.superInterfaceTypes.length ? (' implements ' + new TypesVisitor(this).visit(node.superInterfaceTypes)) : '';
 
-    // the type declaration edns with a new line
-    Visitor.sourceMap.inc();
-
     /**
      * abstract class Foo<M extends T> extends Bar implements IBar, IMar
      */
-    return `${this.parent.pad()}${modifiers}${declarationType} ${name}${typeParameters}${superClass}${superInterfaceTypes} {${children}}\n`;
+    const header = `${this.parent.pad()}${modifiers}${declarationType} ${name}${typeParameters}${superClass}${superInterfaceTypes}`;
+
+    // visit all children
+    let children = '';
+    if (node.bodyDeclarations.length) {
+      // we append new line after the initial bracket '{\n'
+      children = Visitor.newLine();
+      // render children
+      children += new BodyDeclarationsVisitor(this).visit(node.bodyDeclarations); // wrap children with new lines
+
+    }
+
+    return `${header} {${children}}${Visitor.newLine()}`
   }
 }

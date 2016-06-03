@@ -14,7 +14,7 @@ var TypeParameterVisitor = (function (_super) {
     }
     TypeParameterVisitor.prototype.visit = function (type) {
         var _this = this;
-        Visitor_1.default.checkNode(type, 'TypeParameter');
+        _super.prototype.check.call(this, type, 'TypeParameter');
         var bounds = '';
         if (type.typeBounds.length) {
             bounds = Visitor_1.default.join(type.typeBounds.map(function (b) { return new TypesVisitor_1.default(_this).visit(b); }), ' & ');

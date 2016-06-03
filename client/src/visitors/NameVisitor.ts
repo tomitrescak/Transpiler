@@ -15,12 +15,14 @@ declare global {
 
 export class SimpleNameVisitor extends Visitor {
   visit(node: SimpleName): string {
+    super.check(node, 'SimpleName');
     return node.identifier;
   }
 }
 
 export class QualifiedNameVisitor extends Visitor {
   visit(node: QualifiedName): string {
+    super.check(node, 'QualifiedName');
     return new NameVisitor(this).visit(node.qualifier) + '.' + new SimpleNameVisitor(this).visit(node.name);
   }
 }

@@ -33,7 +33,7 @@
       gg: string = null;
       hh: string = null, ii: string = null;
     }
-  sourceMap: [0,1,2,3,4,5,6,7,8,9]
+  sourceMap: [0,1,2,3,4,5,6,7,8,8,8]
 
 # TEST Case
 - name: ArrayTypes
@@ -53,7 +53,7 @@
       bb: string[][] = null;
       d: T[][] = null;
     }
-  sourceMap: [0,1,2,3,4,5,6]
+  sourceMap: [0,1,2,3,4,5,5,5]
 
 # TEST Case
 - name: Initialisers
@@ -97,14 +97,15 @@
     class tomi<T extends U & V> {}
 
 # TEST Case Annotation
-- input: |
+- name: Annotations
+  input: |
     @annotation1
     class tomi {}
   output: |
     class tomi {}
   warnings:
     - IgnoredAnnotation|1
-  sourceMap: [1] # line[0] = 0, line[1] = 0
+  sourceMap: [1,1] # line[0] = 0, line[1] = 0
 
 # Test Case - Class Variables
 

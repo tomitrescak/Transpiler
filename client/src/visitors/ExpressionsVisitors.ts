@@ -10,12 +10,13 @@ declare global {
     node: 'NumberLiteral';
     operator: string;
     leftOperand: NumberLiteral;
-    rightOperand: NumberLiteral
+    rightOperand: NumberLiteral;
   }
 }
 
-export class NumberLiteralVisitor {
-  static visit(node: NumberLiteral): string {
+export class NumberLiteralVisitor extends Visitor {
+  visit(node: NumberLiteral): string {
+    super.check(node, 'NumberLiteral');
     return node.token;
   }
 }

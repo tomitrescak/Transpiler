@@ -27,11 +27,12 @@ describe('Parser', function() {
   it('parses classes', function() {
     let index = 0;
     for (let testCase of cases) {
+      index++;
       let parsed = parser.parse(testCase.input);
       let cuVisitor = new CUVisitor(null);
       let result = cuVisitor.visit(parsed);
 
-      expect(result).to.equal(testCase.output, `Test (${index++}) - ${testCase.name}\n`);
+      expect(result).to.equal(testCase.output, `Test (${index}) - ${testCase.name}\n`);
 
       if (testCase.warnings) {
         expect(testCase.warnings.length).to.equal(Visitor.handler.warnings.length);
@@ -44,7 +45,7 @@ describe('Parser', function() {
           let message = messageName.apply(null, parts);
           let filtered = Visitor.handler.warnings.filter((w => w.line === messageLine && w.message === message));
 
-          expect(filtered.length).be.equal(1, `Test (${index++}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nWarnings only contain:\n${Visitor.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
+          expect(filtered.length).be.equal(1, `Test (${index}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nWarnings only contain:\n${Visitor.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
         }
       }
 
@@ -59,14 +60,14 @@ describe('Parser', function() {
           let message = messageName.apply(null, parts);
           let filtered = Visitor.handler.errors.filter((w => w.line === messageLine && w.message === message));
 
-          expect(filtered.length).be.equal(1, `Test (${index++}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nErrors only contain:\n${Visitor.handler.errors.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
+          expect(filtered.length).be.equal(1, `Test (${index}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nErrors only contain:\n${Visitor.handler.errors.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
         }
       }
 
       if (testCase.sourceMap) {
         for (let i = 0; i < testCase.sourceMap.length; i++) {
           console.log(Visitor.sourceMap)
-          expect(Visitor.sourceMap.getLine(i), `Source map matching failed`).to.equal(testCase.sourceMap[i])
+          expect(Visitor.sourceMap.getLine(i), `Test (${index}) - ${testCase.name}: Source map matching failed`).to.equal(testCase.sourceMap[i])
         }
       }
     }

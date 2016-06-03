@@ -11,6 +11,7 @@ var SimpleNameVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     SimpleNameVisitor.prototype.visit = function (node) {
+        _super.prototype.check.call(this, node, 'SimpleName');
         return node.identifier;
     };
     return SimpleNameVisitor;
@@ -22,6 +23,7 @@ var QualifiedNameVisitor = (function (_super) {
         _super.apply(this, arguments);
     }
     QualifiedNameVisitor.prototype.visit = function (node) {
+        _super.prototype.check.call(this, node, 'QualifiedName');
         return new NameVisitor(this).visit(node.qualifier) + '.' + new SimpleNameVisitor(this).visit(node.name);
     };
     return QualifiedNameVisitor;

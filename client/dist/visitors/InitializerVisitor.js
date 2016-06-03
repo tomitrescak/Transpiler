@@ -14,7 +14,7 @@ var InitialiserVisitor = (function (_super) {
     InitialiserVisitor.prototype.visit = function (node) {
         switch (node.node) {
             case 'NumberLiteral':
-                return ExpressionsVisitors_1.NumberLiteralVisitor.visit(node);
+                return new ExpressionsVisitors_1.NumberLiteralVisitor(this).visit(node);
         }
     };
     return InitialiserVisitor;
