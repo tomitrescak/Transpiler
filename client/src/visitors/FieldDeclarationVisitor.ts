@@ -1,4 +1,6 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
+
 import ModifiersVisitor from './ModifiersVisitor';
 import TypesVisitor from './TypesVisitor';
 import NameVisitor from './NameVisitor';
@@ -24,11 +26,10 @@ export default class FieldDeclarationVisitor extends Visitor {
   visit(node: FieldDeclaration) {
     super.check(node, 'FieldDeclaration');
 
-    const modifiers: string = new ModifiersVisitor(this).visit(node.modifiers);
-    const type = new TypesVisitor(this).visit(node.type);
-    const fragments: string = new FragmentsVisitor(this).visit(node.fragments, type);
-
-    return `${this.pad()}${modifiers}${fragments};${Visitor.newLine()}`;
+    Builder.add(this.pad());
+    new ModifiersVisitor(this).visit(node.modifiers);
+    new FragmentsVisitor(this).visit(node.fragments, node.type);
+    Builder.add(';\n');
   }
 }
 
@@ -41,18 +42,27 @@ export default class FieldDeclarationVisitor extends Visitor {
 // fragments
 
 class FragmentVisitor extends Visitor {
-  visit(fragment: VariableDeclarationFragment, type = ''): string {
+  visit(fragment: VariableDeclarationFragment, typeDefinition: Types) {
     let extraDimensions = '';
     if (fragment.extraDimensions) {
       // adds [] from variable a[][] to type
       for (let i = 0; i < fragment.extraDimensions; i++) { extraDimensions += '[]' }
     }
 
-    const name = new NameVisitor(this).visit(fragment.name);
+    // prefix name : type = initialiser;
+    new NameVisitor(this).visit(fragment.name);
+    // add :
+    Builder.add(': ');
+    // add type
+    let type = new TypesVisitor(this).visit(typeDefinition).name;
+    // add extra dimension
+    Builder.add(extraDimensions);
+    // add iniitliser
+    Builder.add(' = ');
 
     // initialise types to default values
-    let initialiser: String = '';
     if (fragment.initializer === null || fragment.initializer === undefined) {
+      let initialiser = '';
       switch (type) {
         case 'number':
           initialiser = '0';
@@ -60,17 +70,16 @@ class FragmentVisitor extends Visitor {
         default:
           initialiser = 'null';
       }
+      Builder.add(initialiser);
     } else {
-      initialiser = new InitialiserVisitor(this).visit(fragment.initializer);
+      new InitialiserVisitor(this).visit(fragment.initializer);
     }
-
-    const finalType = type + extraDimensions;
-    return `${name}: ${finalType} = ${initialiser}`;
   }
 }
 
 class FragmentsVisitor extends Visitor {
-  visit(fragments: VariableDeclarationFragment[], type = ''): string {
-    return fragments.map((fragment) => new FragmentVisitor(this.parent).visit(fragment, type)).join(', ');
+  visit(fragments: VariableDeclarationFragment[], type: Types) {
+    Builder.join(fragments, (fragment: VariableDeclarationFragment) =>
+      new FragmentVisitor(this.parent).visit(fragment, type), ', ');
   }
 }

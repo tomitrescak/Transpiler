@@ -1,4 +1,5 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
 import MarkerVisitor from './MarkerVisitor';
 
 declare global {
@@ -9,36 +10,37 @@ declare global {
 }
 
 export class ModifiersVisitor extends Visitor {
-  visit(nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], errorModifiers?: string[], allowAnnotations = false): string {
+  visit(nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], errorModifiers?: string[], allowAnnotations = false) {
+    if (!nodes) { return };
+
     // we create a list of all modifiers
-    let modifiers: string[] = [];
     nodes.forEach((node) => {
       switch (node.node) {
         case 'Modifier':
-          modifiers.push(new ModifierVisitor(this).visit(<Modifier> node, allowedModifiers, errorModifiers));
+          new ModifierVisitor(this).visit(<Modifier>node, allowedModifiers, errorModifiers);
           break;
         case 'MarkerAnnotation':
-          new MarkerVisitor(this).visit(<MarkerAnnotation> node, allowAnnotations);
+          new MarkerVisitor(this).visit(<MarkerAnnotation>node, allowAnnotations);
           break;
         default:
-          Visitor.checkNode(node, ['Modifier', 'MarkerAnnotation']);
+          this.check(node, ['Modifier', 'MarkerAnnotation']);
       }
     });
 
     // check for duplicate identifiers
     let accessors: string[] = [];
-    if (modifiers.indexOf('public') > -1 ) { accessors.push('public'); }
-    if (modifiers.indexOf('private') > -1 ) { accessors.push('private'); }
-    if (modifiers.indexOf('protected') > -1 ) { accessors.push('protected'); }
-
-    // filter modifiers by allowed ones
-    modifiers = modifiers.filter((m) => allowedModifiers.indexOf(m) > -1);
-
-    if (accessors.length > 1) {
-      Visitor.addError(Visitor.messages.Errors.DuplicateAccessor(...accessors), nodes[0].line);
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].node === 'Modifier') {
+        const n = <Modifier> nodes[i];
+        if (n.keyword === 'public' || n.keyword === 'protected' || n.keyword === 'private') {
+          accessors.push(n.keyword);
+        }
+      }
     }
 
-    return Visitor.join(modifiers, ' ', ' ');
+    if (accessors.length > 1) {
+      Builder.addError(Builder.Errors.DuplicateAccessor(...accessors), nodes[0].location);
+    }
   }
 
 }
@@ -49,15 +51,16 @@ export class ModifierVisitor extends Visitor {
 
     // we only return modifier if it is allowed, otherwise we throw warning
     if (allowedModifiers.indexOf(node.keyword) === -1 && errorModifiers.indexOf(node.keyword) === -1) {
-      Visitor.addWarning(Visitor.Warnigns.IgnoredModifier(node.keyword), node.line);
+      Builder.addWarning(Builder.Warnigns.IgnoredModifier(node.keyword), node.location);
+      return;
     }
 
     if (errorModifiers.indexOf(node.keyword) > -1) {
-      Visitor.addError(Visitor.Errors.UnexpectedModifier(node.keyword), node.line);
+      Builder.addError(Builder.Errors.UnexpectedModifier(node.keyword), node.location);
       return '';
     }
 
-    return node.keyword;
+    Builder.add(node.keyword + ' ', node);
   }
 }
 

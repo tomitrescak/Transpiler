@@ -1,4 +1,5 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
 
 declare global {
   interface MarkerAnnotation extends AstNode {
@@ -9,10 +10,10 @@ declare global {
 
 export default class MarkerVisitor extends Visitor {
   visit(node: MarkerAnnotation, allowAnnotations = true) {
-    Visitor.checkNode(node, 'MarkerAnnotation');
+    super.check(node, 'MarkerAnnotation');
 
     if (!allowAnnotations) {
-      Visitor.addWarning(Visitor.messages.Warnings.IgnoredAnnotation(), node.line);
+      Builder.addWarning(Builder.Warnigns.IgnoredAnnotation(), node.location);
       return '';
     }
     throw new Error('Not implemented');

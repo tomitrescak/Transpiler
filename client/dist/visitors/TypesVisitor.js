@@ -5,7 +5,15 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Builder_1 = require('../config/Builder');
 var NameVisitor_1 = require('./NameVisitor');
+var BaseTypeVisitor = (function (_super) {
+    __extends(BaseTypeVisitor, _super);
+    function BaseTypeVisitor() {
+        _super.apply(this, arguments);
+    }
+    return BaseTypeVisitor;
+}(Visitor_1.default));
 var PrimitiveTypeVisitor = (function (_super) {
     __extends(PrimitiveTypeVisitor, _super);
     function PrimitiveTypeVisitor() {
@@ -14,16 +22,19 @@ var PrimitiveTypeVisitor = (function (_super) {
     PrimitiveTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'PrimitiveType');
         if (PrimitiveTypeVisitor.numbers.indexOf(type.primitiveTypeCode) > -1) {
-            return 'number';
+            this.name = 'number';
         }
         else if (type.primitiveTypeCode === 'char') {
-            return 'string';
+            this.name = 'string';
         }
-        return type.primitiveTypeCode;
+        else {
+            this.name = type.primitiveTypeCode;
+        }
+        Builder_1.default.add(this.name, type);
     };
     PrimitiveTypeVisitor.numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
     return PrimitiveTypeVisitor;
-}(Visitor_1.default));
+}(BaseTypeVisitor));
 exports.PrimitiveTypeVisitor = PrimitiveTypeVisitor;
 var SimpleTypeVisitor = (function (_super) {
     __extends(SimpleTypeVisitor, _super);
@@ -32,14 +43,11 @@ var SimpleTypeVisitor = (function (_super) {
     }
     SimpleTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'SimpleType');
-        var name = new NameVisitor_1.default(this).visit(type.name);
-        if (name === 'String') {
-            return 'string';
-        }
-        return name;
+        var nameVisitor = new NameVisitor_1.default(this).visit(type.name, ['String', 'string']);
+        this.name = nameVisitor.name;
     };
     return SimpleTypeVisitor;
-}(Visitor_1.default));
+}(BaseTypeVisitor));
 exports.SimpleTypeVisitor = SimpleTypeVisitor;
 var ParametrizedTypeVisitor = (function (_super) {
     __extends(ParametrizedTypeVisitor, _super);
@@ -48,10 +56,9 @@ var ParametrizedTypeVisitor = (function (_super) {
     }
     ParametrizedTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'ParametrizedType');
-        return '';
     };
     return ParametrizedTypeVisitor;
-}(Visitor_1.default));
+}(BaseTypeVisitor));
 exports.ParametrizedTypeVisitor = ParametrizedTypeVisitor;
 var ArrayTypeVisitor = (function (_super) {
     __extends(ArrayTypeVisitor, _super);
@@ -60,10 +67,12 @@ var ArrayTypeVisitor = (function (_super) {
     }
     ArrayTypeVisitor.prototype.visit = function (type) {
         _super.prototype.check.call(this, type, 'ArrayType');
-        return new TypeVisitor(this).visit(type.componentType) + '[]';
+        this.name = new TypeVisitor(this).visit(type.componentType).name;
+        this.name += '[]'; // add it to the local name
+        Builder_1.default.add('[]'); // add it to the builder
     };
     return ArrayTypeVisitor;
-}(Visitor_1.default));
+}(BaseTypeVisitor));
 exports.ArrayTypeVisitor = ArrayTypeVisitor;
 var TypesVisitor = (function (_super) {
     __extends(TypesVisitor, _super);
@@ -72,7 +81,7 @@ var TypesVisitor = (function (_super) {
     }
     TypesVisitor.prototype.visit = function (types) {
         var _this = this;
-        return types.map(function (type) { return new TypeVisitor(_this.parent).visit(type); }).join();
+        types.forEach(function (type) { return new TypeVisitor(_this.parent).visit(type); });
     };
     return TypesVisitor;
 }(Visitor_1.default));
@@ -82,19 +91,35 @@ var TypeVisitor = (function (_super) {
     function TypeVisitor() {
         _super.apply(this, arguments);
     }
+    Object.defineProperty(TypeVisitor.prototype, "name", {
+        get: function () {
+            return this.typeNode.name;
+        },
+        enumerable: true,
+        configurable: true
+    });
     TypeVisitor.prototype.visit = function (type) {
         switch (type.node) {
             case 'PrimitiveType':
-                return new PrimitiveTypeVisitor(this.parent).visit(type);
+                this.typeNode = new PrimitiveTypeVisitor(this.parent);
+                this.typeNode.visit(type);
+                break;
             case 'SimpleType':
-                return new SimpleTypeVisitor(this.parent).visit(type);
+                this.typeNode = new SimpleTypeVisitor(this.parent);
+                this.typeNode.visit(type);
+                break;
             case 'ParametrizedType':
-                return new ParametrizedTypeVisitor(this.parent).visit(type);
+                this.typeNode = new ParametrizedTypeVisitor(this.parent);
+                this.typeNode.visit(type);
+                break;
             case 'ArrayType':
-                return new ArrayTypeVisitor(this.parent).visit(type);
+                this.typeNode = new ArrayTypeVisitor(this.parent);
+                this.typeNode.visit(type);
+                break;
             default:
                 throw 'Unsupported node' + type.node;
         }
+        return this;
     };
     return TypeVisitor;
 }(Visitor_1.default));

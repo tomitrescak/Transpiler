@@ -1,4 +1,5 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
 import NameVisitor from './NameVisitor';
 import TypeVisitor from './TypesVisitor';
 
@@ -11,24 +12,28 @@ declare global {
 }
 
 export class TypeParameterVisitor extends Visitor {
-  visit(type: TypeParameter): string {
+  visit(type: TypeParameter) {
     super.check(type, 'TypeParameter');
 
-    let bounds = '';
-    if (type.typeBounds.length) {
-      bounds = Visitor.join(type.typeBounds.map((b) => new TypeVisitor(this).visit(b)), ' & ');
-      bounds = ' extends ' + bounds;
-    }
+    // draw name
+    new NameVisitor(this).visit(type.name);
 
-    return `${new NameVisitor(this).visit(type.name)}${bounds}`;
+    if (type.typeBounds.length) {
+      Builder.add(' extends ');
+      Builder.join(type.typeBounds, (b: Types) => new TypeVisitor(this).visit(b), ' & ');
+    }
+    return this;
   }
 }
 
 export class TypeParametersVisitor extends Visitor {
-  visit(types: TypeParameter[]): string {
-    if (!types.length) {
-      return '';
+  visit(types: TypeParameter[]) {
+
+    if (types.length) {
+      Builder.add('<');
+      Builder.join(types, (type: TypeParameter) => new TypeParameterVisitor(this.parent).visit(type),',');
+      Builder.add('>');
     }
-    return '<' + types.map((type) => new TypeParameterVisitor(this.parent).visit(type)).join() + '>';
+    return this;
   }
 }

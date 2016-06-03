@@ -1,6 +1,5 @@
 "use strict";
-var CompilationUnitVisitor_1 = require('./visitors/CompilationUnitVisitor');
-var Visitor_1 = require('./visitors/Visitor');
+var Builder_1 = require('./config/Builder');
 var parser = require('../../imports/parser');
 function parseTree(source) {
     return parser.parse(source);
@@ -8,8 +7,8 @@ function parseTree(source) {
 exports.parseTree = parseTree;
 function transpile(source) {
     var tree = parseTree(source);
-    var cu = new CompilationUnitVisitor_1.default(null).visit(tree);
-    console.log(Visitor_1.default.sourceMap);
+    var cu = Builder_1.default.build(tree);
+    console.log(Builder_1.default.sourceMap);
     return cu;
 }
 exports.transpile = transpile;

@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import CUVisitor from '../visitors/CompilationUnitVisitor';
+import Builder from '../config/Builder';
 import Messages from '../config/Messages';
 import Visitor from '../visitors/Visitor';
 
@@ -29,45 +29,44 @@ describe('Parser', function() {
     for (let testCase of cases) {
       index++;
       let parsed = parser.parse(testCase.input);
-      let cuVisitor = new CUVisitor(null);
-      let result = cuVisitor.visit(parsed);
+      let result = Builder.build(parsed);
 
       expect(result).to.equal(testCase.output, `Test (${index}) - ${testCase.name}\n`);
 
       if (testCase.warnings) {
-        expect(testCase.warnings.length).to.equal(Visitor.handler.warnings.length);
+        expect(testCase.warnings.length).to.equal(Builder.handler.warnings.length);
         for (let warning of testCase.warnings) {
           let parts = warning.split('|');
-          let messageName = Visitor.Warnigns[parts[0]];
+          let messageName = Builder.Warnigns[parts[0]];
           let messageLine = parseInt(parts[1], 10);
 
           parts.splice(0, 2); // remove the first element that is message descriptor
           let message = messageName.apply(null, parts);
-          let filtered = Visitor.handler.warnings.filter((w => w.line === messageLine && w.message === message));
+          let filtered = Builder.handler.warnings.filter((w => w.line === messageLine && w.message === message));
 
-          expect(filtered.length).be.equal(1, `Test (${index}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nWarnings only contain:\n${Visitor.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
+          expect(filtered.length).be.equal(1, `Test (${index}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nWarnings only contain:\n${Builder.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
         }
       }
 
       if (testCase.errors) {
-        expect(testCase.errors.length).to.equal(Visitor.handler.errors.length);
+        expect(testCase.errors.length).to.equal(Builder.handler.errors.length);
         for (let error of testCase.errors) {
           let parts = error.split('|');
-          let messageName = Visitor.Errors[parts[0]];
+          let messageName = Builder.Errors[parts[0]];
           let messageLine = parseInt(parts[1], 10);
 
           parts.splice(0, 2); // remove the first element that is message descriptor
           let message = messageName.apply(null, parts);
-          let filtered = Visitor.handler.errors.filter((w => w.line === messageLine && w.message === message));
+          let filtered = Builder.handler.errors.filter((w => w.line === messageLine && w.message === message));
 
-          expect(filtered.length).be.equal(1, `Test (${index}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nErrors only contain:\n${Visitor.handler.errors.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
+          expect(filtered.length).be.equal(1, `Test (${index}) - ${testCase.name}: Did not find [${messageLine}] ${message}\nErrors only contain:\n${Builder.handler.errors.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`);
         }
       }
 
       if (testCase.sourceMap) {
         for (let i = 0; i < testCase.sourceMap.length; i++) {
-          console.log(Visitor.sourceMap)
-          expect(Visitor.sourceMap.getLine(i), `Test (${index}) - ${testCase.name}: Source map matching failed`).to.equal(testCase.sourceMap[i])
+          console.log(Builder.sourceMap)
+          expect(Builder.sourceMap.getLine(i), `Test (${index}) - ${testCase.name}: Source map matching failed`).to.equal(testCase.sourceMap[i])
         }
       }
     }

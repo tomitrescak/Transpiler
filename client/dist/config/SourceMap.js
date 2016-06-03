@@ -5,27 +5,16 @@ var SourceMap = (function () {
     }
     SourceMap.prototype.init = function () {
         this.map = [];
-        this.max = -1;
-        this.currentLine = 0;
-        this.text = '';
-    };
-    SourceMap.prototype.inc = function (num) {
-        if (num === void 0) { num = 1; }
-        this.currentLine += num;
-        console.log("Increasing and setting line on " + this.currentLine + " to " + this.currentLine);
-        this.map[this.currentLine] = this.nodeLine;
     };
     SourceMap.prototype.getLine = function (transpiledLine) {
         return this.map[transpiledLine];
     };
-    SourceMap.prototype.setLine = function (node) {
-        console.log("Setting line on " + node.node + ": " + (node.line - 1) + " to " + this.currentLine);
-        //console.trace();
-        this.nodeLine = node.line - 1;
-        this.map[this.currentLine] = this.nodeLine;
-        if (this.max < this.currentLine) {
-            this.max = this.currentLine;
+    SourceMap.prototype.setLine = function (builtLine, builtColumn, originalLine, originalColumn) {
+        //console.log(`Setting mapping from [${builtLine},${builtColumn}] --> [${originalLine - 1},${originalColumn - 1}]`);
+        if (!this.map[builtLine]) {
+            this.map[builtLine] = [];
         }
+        this.map[builtLine].push({ column: builtColumn, mapping: { row: originalLine - 1, column: originalColumn - 1 } });
     };
     return SourceMap;
 }());

@@ -1,4 +1,5 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
 import NameVisitor from './NameVisitor';
 
 declare global {
@@ -20,68 +21,88 @@ declare global {
       node: 'ArrayType';
       componentType: PrimitiveType | SimpleType | ParametrizedType | ArrayType;
   }
+
+  type Types = PrimitiveType | SimpleType | ParametrizedType | ArrayType;
 }
 
-export class PrimitiveTypeVisitor extends Visitor {
+abstract class BaseTypeVisitor extends Visitor {
+  name: string;
+}
+
+export class PrimitiveTypeVisitor extends BaseTypeVisitor {
   static numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
-  visit(type: PrimitiveType): string {
+  visit(type: PrimitiveType) {
     super.check(type, 'PrimitiveType');
+
     if (PrimitiveTypeVisitor.numbers.indexOf(type.primitiveTypeCode) > -1) {
-      return 'number';
+      this.name = 'number';
     } else if (type.primitiveTypeCode === 'char') {
-      return 'string';
+      this.name = 'string';
+    } else {
+      this.name = type.primitiveTypeCode;
     }
-    return type.primitiveTypeCode;
+
+    Builder.add(this.name, type);
   }
 }
 
-export class SimpleTypeVisitor extends Visitor {
-  visit(type: SimpleType): string {
+export class SimpleTypeVisitor extends BaseTypeVisitor {
+  visit(type: SimpleType) {
     super.check(type, 'SimpleType');
 
-    const name = new NameVisitor(this).visit(type.name);
-    if (name === 'String') {
-      return 'string';
-    }
-    return name;
+    const nameVisitor = new NameVisitor(this).visit(type.name, ['String', 'string']);
+    this.name = nameVisitor.name;
   }
 }
 
-export class ParametrizedTypeVisitor extends Visitor {
-  visit(type: ParametrizedType): string {
+export class ParametrizedTypeVisitor extends BaseTypeVisitor {
+  visit(type: ParametrizedType) {
     super.check(type, 'ParametrizedType');
-
-    return '';
   }
 }
 
-export class ArrayTypeVisitor extends Visitor {
-  visit(type: ArrayType): string {
+export class ArrayTypeVisitor extends BaseTypeVisitor {
+  visit(type: ArrayType) {
     super.check(type, 'ArrayType');
-    return new TypeVisitor(this).visit(type.componentType) + '[]';
+    this.name = new TypeVisitor(this).visit(type.componentType).name;
+    this.name += '[]'; // add it to the local name
+    Builder.add('[]'); // add it to the builder
   }
 }
 
 export class TypesVisitor extends Visitor {
-  visit(types: (SimpleType | ParametrizedType)[]): string {
-    return types.map((type) => new TypeVisitor(this.parent).visit(type)).join();
+  visit(types: (SimpleType | ParametrizedType)[]) {
+    types.forEach((type) => new TypeVisitor(this.parent).visit(type));
   }
 }
 
 export class TypeVisitor extends Visitor {
-  visit(type: SimpleType | ParametrizedType | PrimitiveType | ArrayType): string {
+  typeNode: BaseTypeVisitor;
+  get name() {
+    return this.typeNode.name;
+  }
+  visit(type: SimpleType | ParametrizedType | PrimitiveType | ArrayType) {
     switch (type.node) {
       case 'PrimitiveType':
-        return new PrimitiveTypeVisitor(this.parent).visit(<PrimitiveType> type);
+        this.typeNode = new PrimitiveTypeVisitor(this.parent);
+        this.typeNode.visit(<PrimitiveType> type);
+        break;
       case 'SimpleType':
-        return new SimpleTypeVisitor(this.parent).visit(<SimpleType> type);
+        this.typeNode = new SimpleTypeVisitor(this.parent);
+        this.typeNode.visit(<SimpleType> type);
+        break;
       case 'ParametrizedType':
-        return new ParametrizedTypeVisitor(this.parent).visit(<ParametrizedType> type);
+        this.typeNode = new ParametrizedTypeVisitor(this.parent);
+        this.typeNode.visit(<ParametrizedType> type);
+        break;
       case 'ArrayType':
-        return new ArrayTypeVisitor(this.parent).visit(<ArrayType> type);
+        this.typeNode = new ArrayTypeVisitor(this.parent);
+        this.typeNode.visit(<ArrayType> type);
+        break;
       default:
         throw 'Unsupported node' + type.node;
     }
+    return this;
   }
 }
 

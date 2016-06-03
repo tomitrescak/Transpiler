@@ -1,4 +1,5 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
 
 declare global {
   interface NumberLiteral extends AstNode {
@@ -15,15 +16,14 @@ declare global {
 }
 
 export class NumberLiteralVisitor extends Visitor {
-  visit(node: NumberLiteral): string {
+  visit(node: NumberLiteral) {
     super.check(node, 'NumberLiteral');
-    return node.token;
+    Builder.add(node.token, node);
   }
 }
 
 export class InfixExpressionVisitor extends Visitor {
-  visit(node: NumberLiteral): string {
+  visit(node: InfixExpression) {
     super.check(node, 'InfixExpression');
-    return '';
   }
 }

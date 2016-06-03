@@ -10,17 +10,14 @@ var Handler = (function () {
         this.infos = [];
         this.errors = [];
     }
-    Handler.prototype.addInfo = function (message, line, column) {
-        if (column === void 0) { column = 0; }
-        this.infos.push({ message: message, line: line, column: column });
+    Handler.prototype.addInfo = function (message, location) {
+        this.infos.push({ message: message, line: location.line, column: location.column });
     };
-    Handler.prototype.addError = function (message, line, column) {
-        if (column === void 0) { column = 0; }
-        this.errors.push({ message: message, line: line, column: column });
+    Handler.prototype.addError = function (message, location) {
+        this.errors.push({ message: message, line: location.line, column: location.column });
     };
-    Handler.prototype.addWarning = function (message, line, column) {
-        if (column === void 0) { column = 0; }
-        this.warnings.push({ message: message, line: line, column: column });
+    Handler.prototype.addWarning = function (message, location) {
+        this.warnings.push({ message: message, line: location.line, column: location.column });
     };
     return Handler;
 }());

@@ -15,15 +15,15 @@ export default class Handler {
       this.errors = [];
   }
 
-  addInfo(message: string, line: number, column = 0) {
-    this.infos.push({ message, line, column });
+  addInfo(message: string, location: AstLocation) {
+    this.infos.push({ message, line: location.line, column: location.column });
   }
 
-  addError(message: string, line: number, column = 0) {
-    this.errors.push({ message, line, column });
+  addError(message: string, location: AstLocation) {
+    this.errors.push({ message, line: location.line, column: location.column });
   }
 
-  addWarning(message: string, line: number, column = 0) {
-    this.warnings.push({ message, line, column });
+  addWarning(message: string, location: AstLocation) {
+    this.warnings.push({ message, line: location.line, column: location.column });
   }
 }

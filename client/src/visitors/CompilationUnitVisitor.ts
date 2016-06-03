@@ -14,17 +14,14 @@ declare global {
 
 export default class CompilationUnitVisitor extends Visitor {
 
-  visit(node: CompilationUnit, sourceMapIn?: SourceMap, handlerIn?: Handler): string {
-    Visitor.sourceMap = sourceMapIn ? sourceMapIn : new SourceMap();
-    Visitor.handler = handlerIn ? handlerIn : new Handler();
+  constructor() {
+    super(null);
+  }
 
-    // init source map, reset previous run
-    Visitor.sourceMap.init();
-
+  visit(node: CompilationUnit) {
     // TODO: Handle imports
     // TODO: Handle packages
-
-    return new TypeDeclarationsVisitor(this).visit(node.types);
+    new TypeDeclarationsVisitor(this).visit(node.types);
 
   }
 }

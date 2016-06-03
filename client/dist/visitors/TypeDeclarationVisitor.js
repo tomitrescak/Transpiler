@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Builder_1 = require('../config/Builder');
 var ModifiersVisitor_1 = require('./ModifiersVisitor');
 var NameVisitor_1 = require('./NameVisitor');
 var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
@@ -17,7 +18,7 @@ var TypeDeclarationsVisitor = (function (_super) {
     }
     TypeDeclarationsVisitor.prototype.visit = function (types) {
         var _this = this;
-        return types.map(function (type) { return new TypeDeclarationVisitor(_this.parent).visit(type); }).join('\n');
+        Builder_1.default.join(types, function (type) { return new TypeDeclarationVisitor(_this.parent).visit(type); }, '\n');
     };
     return TypeDeclarationsVisitor;
 }(Visitor_1.default));
@@ -32,25 +33,38 @@ var TypeDeclarationVisitor = (function (_super) {
         // increase padding
         this.incIndent();
         // render header
-        var modifiers = node.modifiers ? new ModifiersVisitor_1.ModifiersVisitor(this).visit(node.modifiers, ['abstract'], ['static']) : '';
-        var declarationType = node.interface ? 'interface' : 'class';
-        var name = new NameVisitor_1.default(this).visit(node.name);
-        var typeParameters = node.typeParameters ? new TypeParameterVisitor_1.TypeParametersVisitor(this).visit(node.typeParameters) : '';
-        var superClass = node.superClassType ? (' extends ' + new TypesVisitor_1.TypeVisitor(this).visit(node.superClassType)) : '';
-        var superInterfaceTypes = node.superInterfaceTypes.length ? (' implements ' + new TypesVisitor_1.TypesVisitor(this).visit(node.superInterfaceTypes)) : '';
-        /**
-         * abstract class Foo<M extends T> extends Bar implements IBar, IMar
-         */
-        var header = "" + this.parent.pad() + modifiers + declarationType + " " + name + typeParameters + superClass + superInterfaceTypes;
+        var pad = Builder_1.default.add(this.parent.pad());
+        // add modifiers
+        new ModifiersVisitor_1.ModifiersVisitor(this).visit(node.modifiers, ['abstract'], ['static']);
+        // add descriptors
+        Builder_1.default.add(node.interface ? 'interface ' : 'class ');
+        // add name
+        new NameVisitor_1.default(this).visit(node.name);
+        // add type parameters
+        new TypeParameterVisitor_1.TypeParametersVisitor(this).visit(node.typeParameters);
+        // add superclass
+        if (node.superClassType) {
+            Builder_1.default.add(' extends ');
+            new TypesVisitor_1.TypeVisitor(this).visit(node.superClassType);
+        }
+        // add interfaces
+        if (node.superInterfaceTypes.length) {
+            Builder_1.default.add(' implements ');
+            new TypesVisitor_1.TypesVisitor(this).visit(node.superInterfaceTypes);
+        }
         // visit all children
-        var children = '';
         if (node.bodyDeclarations.length) {
             // we append new line after the initial bracket '{\n'
-            children = Visitor_1.default.newLine();
+            Builder_1.default.add(this.parent.pad() + ' {');
+            Builder_1.default.addLine();
             // render children
-            children += new BodyDeclarationsVisitor_1.default(this).visit(node.bodyDeclarations); // wrap children with new lines
+            new BodyDeclarationsVisitor_1.default(this).visit(node.bodyDeclarations); // wrap children with new lines
+            Builder_1.default.add(this.parent.pad() + '}');
+            Builder_1.default.addLine();
         }
-        return header + " {" + children + "}" + Visitor_1.default.newLine();
+        else {
+            Builder_1.default.add(' {}\n');
+        }
     };
     return TypeDeclarationVisitor;
 }(Visitor_1.default));

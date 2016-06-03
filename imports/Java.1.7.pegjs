@@ -207,8 +207,8 @@
 //---------------------------------------------------------------------------
 
 {
-  function line() {
-    return location().start.line;
+  function simpleLocation() {
+    return { line: location().start.line, column: location().start.column };
   }
 
   function extractOptional(optional, index, def) {
@@ -246,7 +246,8 @@
         node:        'InfixExpression',
         operator:     element[0][0], // remove ending Spacing
         leftOperand:  result,
-        rightOperand: element[1]
+        rightOperand: element[1],
+        location: simpleLocation()
       };
     });
   }
@@ -257,7 +258,8 @@
         return {
           node:     'QualifiedName',
           qualifier: result,
-          name:      element[index]
+          name:      element[index],
+          location: simpleLocation()
         };
       }
     );
@@ -286,7 +288,8 @@
       function(result, element) {
       return {
         node:         'ArrayType',
-        componentType: result
+        componentType: result,
+        location: simpleLocation()
       };
     });
   }
@@ -306,7 +309,8 @@
   function makePrimitive(code) {
     return {
       node:             'PrimitiveType',
-      primitiveTypeCode: code
+      primitiveTypeCode: code,
+      location: simpleLocation()
     }
   }
 
@@ -314,26 +318,30 @@
     return {
       node:   'Modifier',
       keyword: keyword,
-      line: location().start.line
+      line: location().start.line,
+      location: simpleLocation()
     };
   }
 
   function makeCatchFinally(catchClauses, finallyBlock) {
       return {
         catchClauses: catchClauses,
-        finally:      finallyBlock
+        finally:      finallyBlock,
+        location: simpleLocation()
       };
   }
 
   function buildTypeName(qual, args, rest) {
     var first = args === null ? {
       node: 'SimpleType',
-      name:  qual
+      name:  qual,
+      location: simpleLocation()
     } : {
       node: 'ParameterizedType',
       type:  {
           node: 'SimpleType',
-          name:  qual
+          name:  qual,
+          location: simpleLocation()
       },
       typeArguments: args
     };
@@ -344,14 +352,16 @@
         return args === null ? {
           node:     'QualifiedType',
           name:      element[1],
-          qualifier: result
+          qualifier: result,
+          location: simpleLocation()
         } :
         {
           node: 'ParameterizedType',
           type:  {
             node:     'QualifiedType',
             name:      element[1],
-            qualifier: result
+            qualifier: result,
+            location: simpleLocation()
           },
           typeArguments: args
         };
@@ -374,6 +384,7 @@
         }
       }
     }
+    obj[location] = simpleLocation()
     return obj;
   }
 
@@ -414,7 +425,7 @@ CompilationUnit
         types:   skipNulls(types),
         package: pack,
         imports: skipNulls(imports),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -425,7 +436,7 @@ PackageDeclaration
         node:       'PackageDeclaration',
         name:        name,
         annotations: annot,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -437,7 +448,7 @@ ImportDeclaration
         name:     name,
         static:   !!stat,
         onDemand: !!extractOptional(asterisk, 1),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / SEMI
@@ -473,7 +484,7 @@ ClassDeclaration
         bodyDeclarations:    body,
         typeParameters:      optionalList(gen),
         interface:           false,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -490,7 +501,7 @@ ClassBodyDeclaration
         node:     'Initializer',
         body:      body,
         modifiers: modifier === null ? [] : [makeModifier('static')],
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / modifiers:Modifier* member:MemberDecl            // ClassMemberDeclaration
@@ -521,7 +532,7 @@ MemberDecl
         node:     'FieldDeclaration',
         fragments: decls,
         type:      type,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / VOID id:Identifier rest:VoidMethodDeclaratorRest // Void method
@@ -569,7 +580,7 @@ MethodDeclaratorRest
         extraDimensions:  dims.length,
         body:             body,
         constructor:      false,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -584,7 +595,7 @@ VoidMethodDeclaratorRest
         body:             body,
         extraDimensions:  0,
         typeParameters:   [],
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -598,7 +609,7 @@ ConstructorDeclaratorRest
         returnType2:      null,
         constructor:      true,
         extraDimensions:  0,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -620,7 +631,7 @@ InterfaceDeclaration
           bodyDeclarations:    body,
           typeParameters:      optionalList(gen),
           interface:           true,
-          line : location().start.line
+          location: simpleLocation()
         };
     }
 
@@ -674,7 +685,7 @@ InterfaceMethodDeclaratorRest
         extraDimensions:  dims.length,
         body:             null,
         constructor:      false,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -700,7 +711,7 @@ VoidInterfaceMethodDeclaratorRest
         typeParameters:   [],
         body:             null,
         constructor:      false,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -719,7 +730,7 @@ ConstantDeclaratorRest
           node:           'VariableDeclarationFragment',
           extraDimensions: dims.length,
           initializer:     init,
-          line : location().start.line
+          location: simpleLocation()
       };
     }
 
@@ -743,7 +754,7 @@ EnumBody
       return {
         enumConstants:    optionalList(consts),
         bodyDeclarations: optionalList(body),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -763,7 +774,7 @@ EnumConstant
         arguments:                 optionalList(args),
         modifiers:                 annot,
         name:                      name,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -784,7 +795,7 @@ LocalVariableDeclarationStatement
         fragments:    decls,
         modifiers:    modifiers,
         type:         type,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -800,7 +811,7 @@ VariableDeclarator
         name:            name,
         extraDimensions: dims.length,
         initializer:     extractOptional(init, 1),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -849,7 +860,7 @@ VariableDeclaratorId
         node:           'SingleVariableDeclaration',
         name:            id,
         extraDimensions: dims.length,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -876,7 +887,7 @@ BlockStatement
       return {
         node:       'TypeDeclarationStatement',
         declaration: mergeProps(decl,  { modifiers: modifiers }),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / Statement
@@ -889,7 +900,7 @@ Statement
         node:      'AssertStatement',
         expression: expr,
         message:    extractOptional(message, 1),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / IF expr:ParExpression then:Statement alt:(ELSE Statement)?
@@ -899,7 +910,7 @@ Statement
         elseStatement: extractOptional(alt, 1),
         thenStatement: then,
         expression:    expr.expression,
-        line : location().start.line,
+        location: simpleLocation(),
       };
     }
     / FOR LPAR init:ForInit? SEMI expr:Expression? SEMI up:ForUpdate? RPAR body:Statement
@@ -910,7 +921,7 @@ Statement
         expression:   expr,
         updaters:     optionalList(up),
         body:         body,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / FOR LPAR param:FormalParameter COLON expr:Expression RPAR statement:Statement
@@ -920,7 +931,7 @@ Statement
         parameter:  param,
         expression: expr,
         body:       statement,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / WHILE expr:ParExpression body:Statement
@@ -929,7 +940,7 @@ Statement
         node:      'WhileStatement',
         expression: expr.expression,
         body:       body,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / DO statement:Statement WHILE expr:ParExpression SEMI
@@ -938,7 +949,7 @@ Statement
         node:      'DoStatement',
         expression: expr.expression,
         body:       statement,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / TRY LPAR first:Resource rest:(SEMI Resource)* SEMI? RPAR
@@ -962,30 +973,30 @@ Statement
     }
     / SWITCH expr:ParExpression LWING cases:SwitchBlockStatementGroups RWING
     { return { node: 'SwitchStatement', statements: cases, expression: expr.expression,
-    line : location().start.line }; }
+    location: simpleLocation() }; }
     / SYNCHRONIZED expr:ParExpression body:Block
     { return { node: 'SynchronizedStatement', expression: expr.expression, body: body,
-    line : location().start.line } }
+    location: simpleLocation() } }
     / RETURN expr:Expression? SEMI
     { return { node: 'ReturnStatement', expression: expr,
-    line : location().start.line } }
+    location: simpleLocation() } }
     / THROW expr:Expression SEMI
     { return { node: 'ThrowStatement', expression: expr,
-    line : location().start.line }; }
+    location: simpleLocation() }; }
     / BREAK id:Identifier? SEMI
     { return { node: 'BreakStatement', label: id,
-    line : location().start.line }; }
+    location: simpleLocation() }; }
     / CONTINUE id:Identifier? SEMI
     { return { node: 'ContinueStatement', label: id,
-    line : location().start.line }; }
+    location: simpleLocation() }; }
     / SEMI
     { return { node: 'EmptyStatement',
-    line : location().start.line }; }
+    location: simpleLocation() }; }
     / statement:StatementExpression SEMI
     { return statement; }
     / id:Identifier COLON statement:Statement
     { return { node: 'LabeledStatement', label: id, body: statement,
-    line : location().start.line }; }
+    location: simpleLocation() }; }
 
 Resource
     = modifiers:(FINAL { return makeModifier('final'); } / Annotation)* type:Type decl:VariableDeclaratorId EQU expr:Expression
@@ -997,7 +1008,7 @@ Resource
         modifiers: modifiers,
         type:      type,
         fragments: [fragment],
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1017,7 +1028,7 @@ Catch
             types: buildList(first, rest, 1)
             } : first
         }),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1049,7 +1060,7 @@ ForInit
         modifiers: modifiers,
         fragments: decls,
         type:      type,
-        line : location().start.line
+        location: simpleLocation()
       }];
     }
     / first:StatementExpression rest:(COMMA StatementExpression)*
@@ -1096,7 +1107,7 @@ Expression
         operator:      op[0] /* remove ending spaces */,
         leftHandSide:  left,
         rightHandSide: right,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / ConditionalExpression
@@ -1130,7 +1141,7 @@ ConditionalExpression
         expression:     expr,
         thenExpression: then,
         elseExpression: alt,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / ConditionalOrExpression
@@ -1211,7 +1222,7 @@ UnaryExpressionNotPlusMinus
         node:      'CastExpression',
         type:       expr[1],
         expression: expr[3],
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / arg:Primary sel:Selector sels:Selector* operator:PostfixOp+
@@ -1220,7 +1231,7 @@ UnaryExpressionNotPlusMinus
         node:    'PostfixExpression',
         operator: operator[0],
         operand:  buildSelectorTree(arg, sel, sels),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / arg:Primary sel:Selector sels:Selector*
@@ -1231,7 +1242,7 @@ UnaryExpressionNotPlusMinus
         node:    'PostfixExpression',
         operator: operator[0],
         operand:  arg,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / Primary
@@ -1277,7 +1288,7 @@ Primary
       return {
         node: 'TypeLiteral',
         type:  buildArrayTree(type, dims),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / VOID DOT CLASS
@@ -1285,7 +1296,7 @@ Primary
       return {
         node: 'TypeLiteral',
         type:  makePrimitive('void'),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1295,7 +1306,7 @@ QualifiedIdentifierSuffix
       return {
         node: 'TypeLiteral',
         type:  buildArrayTree(buildTypeName(qual, null, []), dims),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / qual:QualifiedIdentifier LBRK expr:Expression RBRK
@@ -1325,7 +1336,7 @@ QualifiedIdentifierSuffix
         arguments:     args,
         expression:    qual,
         typeArguments: [],
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / qual:QualifiedIdentifier DOT NEW args:NonWildcardTypeArguments? rest:InnerCreator
@@ -1361,7 +1372,7 @@ ExplicitGenericInvocationSuffix
     { return suffix; }
     / id:Identifier args:Arguments
     { return { node: 'MethodInvocation', arguments: args, name: id, typeArguments: [],
-    line : location().start.line }; }
+    location: simpleLocation() }; }
 
 PrefixOp
     = op:(
@@ -1403,7 +1414,7 @@ SuperSuffix
         arguments:     args,
         expression:    null,
         typeArguments: [],
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / DOT gen:NonWildcardTypeArguments? id:Identifier args:Arguments?
@@ -1411,13 +1422,13 @@ SuperSuffix
       return args === null ? {
         node: 'SuperFieldAccess',
         name:  id,
-        line : location().start.line
+        location: simpleLocation()
       } : {
         node:         'SuperMethodInvocation',
         typeArguments: optionalList(gen),
         name:          id,
         arguments:     args,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1452,7 +1463,7 @@ Creator
         type:        buildArrayTree(type, rest.extraDims),
         initializer: rest.init,
         dimensions:  rest.dimms,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
     / args:NonWildcardTypeArguments? type:CreatedName rest:ClassCreatorRest
@@ -1462,7 +1473,7 @@ Creator
         type:           type,
         typeArguments:  optionalList(args),
         expression:     null,
-        line : location().start.line
+        location: simpleLocation()
       });
     }
 
@@ -1491,7 +1502,7 @@ ClassCreatorRest
           node:            'AnonymousClassDeclaration',
           bodyDeclarations: body
         },
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1517,7 +1528,7 @@ ArrayInitializer
       )?
       COMMA?  RWING
     { return { node: 'ArrayInitializer', expressions: optionalList(init),
-    line : location().start.line }; }
+    location: simpleLocation() }; }
 
 VariableInitializer
     = ArrayInitializer
@@ -1526,7 +1537,7 @@ VariableInitializer
 ParExpression
     = LPAR expr:Expression RPAR
     { return { node: 'ParenthesizedExpression', expression: expr,
-    line : location().start.line }; }
+    location: simpleLocation() }; }
 
 QualifiedIdentifier
     = first:Identifier rest:(DOT Identifier)*
@@ -1573,7 +1584,7 @@ TypeArgument
         node:      'WildcardType',
         upperBound: extractOptional(rest, 0, true),
         bound:      extractOptional(rest, 1),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1588,7 +1599,7 @@ TypeParameter
         node:      'TypeParameter',
         name:       id,
         typeBounds: extractOptionalList(bounds, 1),
-        line : location().start.line
+        location: simpleLocation()
       }
     }
 
@@ -1628,7 +1639,7 @@ AnnotationTypeDeclaration
         node:            'AnnotationTypeDeclaration',
         name:             id,
         bodyDeclarations: body,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1661,7 +1672,7 @@ AnnotationMethodRest
         node:   'AnnotationTypeMemberDeclaration',
         name:    id,
         default: def,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1685,7 +1696,7 @@ NormalAnnotation
         node:    'NormalAnnotation',
         typeName: id,
         values:   optionalList(pairs),
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1696,13 +1707,13 @@ SingleElementAnnotation
         node:    'SingleMemberAnnotation',
         typeName: id,
         value:    value,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
 MarkerAnnotation
     = AT id:QualifiedIdentifier
-    { return { node: 'MarkerAnnotation', typeName: id, line: line() }; }
+    { return { node: 'MarkerAnnotation', typeName: id, location: simpleLocation() }; }
 
 ElementValuePairs
     = first:ElementValuePair rest:(COMMA ElementValuePair)*
@@ -1715,7 +1726,7 @@ ElementValuePair
         node: 'MemberValuePair',
         name:  name,
         value: value,
-        line : location().start.line
+        location: simpleLocation()
       };
     }
 
@@ -1727,7 +1738,7 @@ ElementValue
 ElementValueArrayInitializer
     = LWING values:ElementValues? COMMA? RWING
     { return { node: 'ArrayInitializer', expressions: optionalList(values),
-    line : location().start.line}; }
+    location: simpleLocation()}; }
 
 ElementValues
     = first:ElementValue rest:(COMMA ElementValue)*
@@ -1765,7 +1776,7 @@ Spacing
 
 Identifier
     = !Keyword first:Letter rest:$LetterOrDigit* Spacing
-    { return { identifier: first + rest, node: 'SimpleName' }; }
+    { return { identifier: first + rest, node: 'SimpleName', location: simpleLocation() }; }
 
 Letter = [a-z] / [A-Z] / [_$] ;
 
@@ -1898,7 +1909,7 @@ IntegerLiteral
       / OctalNumeral            // May be a prefix of HexNumeral or BinaryNumeral
       / DecimalNumeral          // May be a prefix of OctalNumeral
       ) [lL]?
-    { return { node: 'NumberLiteral', token: text() }; }
+    { return { node: 'NumberLiteral', token: text(), location: simpleLocation() }; }
 
 DecimalNumeral
     = "0"

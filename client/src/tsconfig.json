@@ -28,6 +28,7 @@
     "**/*.ts"
   ],
   "files": [
+    "config/Builder.ts",
     "config/Handler.ts",
     "config/LeftPad.ts",
     "config/Messages.ts",

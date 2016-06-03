@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Builder_1 = require('../config/Builder');
 var ModifiersVisitor_1 = require('./ModifiersVisitor');
 var TypesVisitor_1 = require('./TypesVisitor');
 var NameVisitor_1 = require('./NameVisitor');
@@ -16,10 +17,10 @@ var FieldDeclarationVisitor = (function (_super) {
     }
     FieldDeclarationVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'FieldDeclaration');
-        var modifiers = new ModifiersVisitor_1.default(this).visit(node.modifiers);
-        var type = new TypesVisitor_1.default(this).visit(node.type);
-        var fragments = new FragmentsVisitor(this).visit(node.fragments, type);
-        return "" + this.pad() + modifiers + fragments + ";" + Visitor_1.default.newLine();
+        Builder_1.default.add(this.pad());
+        new ModifiersVisitor_1.default(this).visit(node.modifiers);
+        new FragmentsVisitor(this).visit(node.fragments, node.type);
+        Builder_1.default.add(';\n');
     };
     return FieldDeclarationVisitor;
 }(Visitor_1.default));
@@ -36,8 +37,7 @@ var FragmentVisitor = (function (_super) {
     function FragmentVisitor() {
         _super.apply(this, arguments);
     }
-    FragmentVisitor.prototype.visit = function (fragment, type) {
-        if (type === void 0) { type = ''; }
+    FragmentVisitor.prototype.visit = function (fragment, typeDefinition) {
         var extraDimensions = '';
         if (fragment.extraDimensions) {
             // adds [] from variable a[][] to type
@@ -45,10 +45,19 @@ var FragmentVisitor = (function (_super) {
                 extraDimensions += '[]';
             }
         }
-        var name = new NameVisitor_1.default(this).visit(fragment.name);
+        // prefix name : type = initialiser;
+        new NameVisitor_1.default(this).visit(fragment.name);
+        // add :
+        Builder_1.default.add(': ');
+        // add type
+        var type = new TypesVisitor_1.default(this).visit(typeDefinition).name;
+        // add extra dimension
+        Builder_1.default.add(extraDimensions);
+        // add iniitliser
+        Builder_1.default.add(' = ');
         // initialise types to default values
-        var initialiser = '';
         if (fragment.initializer === null || fragment.initializer === undefined) {
+            var initialiser = '';
             switch (type) {
                 case 'number':
                     initialiser = '0';
@@ -56,12 +65,11 @@ var FragmentVisitor = (function (_super) {
                 default:
                     initialiser = 'null';
             }
+            Builder_1.default.add(initialiser);
         }
         else {
-            initialiser = new InitializerVisitor_1.default(this).visit(fragment.initializer);
+            new InitializerVisitor_1.default(this).visit(fragment.initializer);
         }
-        var finalType = type + extraDimensions;
-        return name + ": " + finalType + " = " + initialiser;
     };
     return FragmentVisitor;
 }(Visitor_1.default));
@@ -72,8 +80,9 @@ var FragmentsVisitor = (function (_super) {
     }
     FragmentsVisitor.prototype.visit = function (fragments, type) {
         var _this = this;
-        if (type === void 0) { type = ''; }
-        return fragments.map(function (fragment) { return new FragmentVisitor(_this.parent).visit(fragment, type); }).join(', ');
+        Builder_1.default.join(fragments, function (fragment) {
+            return new FragmentVisitor(_this.parent).visit(fragment, type);
+        }, ', ');
     };
     return FragmentsVisitor;
 }(Visitor_1.default));

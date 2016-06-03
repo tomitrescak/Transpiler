@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Builder_1 = require('../config/Builder');
 var MarkerVisitor_1 = require('./MarkerVisitor');
 var ModifiersVisitor = (function (_super) {
     __extends(ModifiersVisitor, _super);
@@ -14,37 +15,36 @@ var ModifiersVisitor = (function (_super) {
     ModifiersVisitor.prototype.visit = function (nodes, allowedModifiers, errorModifiers, allowAnnotations) {
         var _this = this;
         if (allowAnnotations === void 0) { allowAnnotations = false; }
+        if (!nodes) {
+            return;
+        }
+        ;
         // we create a list of all modifiers
-        var modifiers = [];
         nodes.forEach(function (node) {
             switch (node.node) {
                 case 'Modifier':
-                    modifiers.push(new ModifierVisitor(_this).visit(node, allowedModifiers, errorModifiers));
+                    new ModifierVisitor(_this).visit(node, allowedModifiers, errorModifiers);
                     break;
                 case 'MarkerAnnotation':
                     new MarkerVisitor_1.default(_this).visit(node, allowAnnotations);
                     break;
                 default:
-                    Visitor_1.default.checkNode(node, ['Modifier', 'MarkerAnnotation']);
+                    _this.check(node, ['Modifier', 'MarkerAnnotation']);
             }
         });
         // check for duplicate identifiers
         var accessors = [];
-        if (modifiers.indexOf('public') > -1) {
-            accessors.push('public');
+        for (var i = 0; i < nodes.length; i++) {
+            if (nodes[i].node === 'Modifier') {
+                var n = nodes[i];
+                if (n.keyword === 'public' || n.keyword === 'protected' || n.keyword === 'private') {
+                    accessors.push(n.keyword);
+                }
+            }
         }
-        if (modifiers.indexOf('private') > -1) {
-            accessors.push('private');
-        }
-        if (modifiers.indexOf('protected') > -1) {
-            accessors.push('protected');
-        }
-        // filter modifiers by allowed ones
-        modifiers = modifiers.filter(function (m) { return allowedModifiers.indexOf(m) > -1; });
         if (accessors.length > 1) {
-            Visitor_1.default.addError((_a = Visitor_1.default.messages.Errors).DuplicateAccessor.apply(_a, accessors), nodes[0].line);
+            Builder_1.default.addError((_a = Builder_1.default.Errors).DuplicateAccessor.apply(_a, accessors), nodes[0].location);
         }
-        return Visitor_1.default.join(modifiers, ' ', ' ');
         var _a;
     };
     return ModifiersVisitor;
@@ -61,13 +61,14 @@ var ModifierVisitor = (function (_super) {
         _super.prototype.check.call(this, node, 'Modifier');
         // we only return modifier if it is allowed, otherwise we throw warning
         if (allowedModifiers.indexOf(node.keyword) === -1 && errorModifiers.indexOf(node.keyword) === -1) {
-            Visitor_1.default.addWarning(Visitor_1.default.Warnigns.IgnoredModifier(node.keyword), node.line);
+            Builder_1.default.addWarning(Builder_1.default.Warnigns.IgnoredModifier(node.keyword), node.location);
+            return;
         }
         if (errorModifiers.indexOf(node.keyword) > -1) {
-            Visitor_1.default.addError(Visitor_1.default.Errors.UnexpectedModifier(node.keyword), node.line);
+            Builder_1.default.addError(Builder_1.default.Errors.UnexpectedModifier(node.keyword), node.location);
             return '';
         }
-        return node.keyword;
+        Builder_1.default.add(node.keyword + ' ', node);
     };
     return ModifierVisitor;
 }(Visitor_1.default));

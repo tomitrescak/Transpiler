@@ -1,4 +1,5 @@
 import Visitor from './Visitor';
+import Builder from '../config/Builder';
 
 declare global {
   interface SimpleName extends AstNode {
@@ -11,29 +12,64 @@ declare global {
     name: SimpleName;
     qualifier: QualifiedName;
   }
+
+  type Names = SimpleName | QualifiedName;
 }
 
-export class SimpleNameVisitor extends Visitor {
-  visit(node: SimpleName): string {
+abstract class BaseNameVisitor extends Visitor {
+  name: string;
+}
+
+export class SimpleNameVisitor extends BaseNameVisitor {
+  visit(node: SimpleName, substitutions: string[] = null) {
     super.check(node, 'SimpleName');
-    return node.identifier;
+
+    if (substitutions != null) {
+      for (let i = 0; i < substitutions.length / 2; i++) {
+        if (node.identifier === substitutions[i * 2]) {
+          Builder.add(substitutions[i * 2 + 1], node);
+          return this;
+        }
+      }
+    }
+
+    this.name = node.identifier;
+
+    // build this name
+    Builder.add(this.name, node);
+    return this;
   }
 }
 
-export class QualifiedNameVisitor extends Visitor {
-  visit(node: QualifiedName): string {
+export class QualifiedNameVisitor extends BaseNameVisitor {
+  visit(node: QualifiedName) {
     super.check(node, 'QualifiedName');
-    return new NameVisitor(this).visit(node.qualifier) + '.' + new SimpleNameVisitor(this).visit(node.name);
+    new NameVisitor(this).visit(node.qualifier);
+    Builder.add('.');
+
+    // remember name
+    this.name = new SimpleNameVisitor(this).visit(node.name).name;
+    return this;
   }
 }
 
 export default class NameVisitor extends Visitor {
-  visit(node: SimpleName | QualifiedName): string {
+  visitor: SimpleNameVisitor | QualifiedNameVisitor;
+
+  get name() {
+    return this.visitor.name;
+  }
+
+  visit(node: SimpleName | QualifiedName, substitutions: string[] = null) {
+
     if (node.node === 'SimpleName') {
-      return new SimpleNameVisitor(this.parent).visit(<SimpleName> node);
+      this.visitor = new SimpleNameVisitor(this.parent).visit(<SimpleName>node, substitutions);
     } else if (node.node === 'QualifiedName') {
-      return new QualifiedNameVisitor(this.parent).visit(<QualifiedName> node);
+      this.visitor = new QualifiedNameVisitor(this.parent).visit(<QualifiedName>node);
+    } else {
+      throw new Error('Unsupported node: ' + node.node);
     }
-    throw 'Unsupported node: ' + node.node;
+    //console.log(this.visitor);
+    return this;
   }
 }

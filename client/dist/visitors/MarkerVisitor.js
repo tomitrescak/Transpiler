@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Builder_1 = require('../config/Builder');
 var MarkerVisitor = (function (_super) {
     __extends(MarkerVisitor, _super);
     function MarkerVisitor() {
@@ -12,9 +13,9 @@ var MarkerVisitor = (function (_super) {
     }
     MarkerVisitor.prototype.visit = function (node, allowAnnotations) {
         if (allowAnnotations === void 0) { allowAnnotations = true; }
-        Visitor_1.default.checkNode(node, 'MarkerAnnotation');
+        _super.prototype.check.call(this, node, 'MarkerAnnotation');
         if (!allowAnnotations) {
-            Visitor_1.default.addWarning(Visitor_1.default.messages.Warnings.IgnoredAnnotation(), node.line);
+            Builder_1.default.addWarning(Builder_1.default.Warnigns.IgnoredAnnotation(), node.location);
             return '';
         }
         throw new Error('Not implemented');

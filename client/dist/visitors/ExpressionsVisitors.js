@@ -5,6 +5,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Builder_1 = require('../config/Builder');
 var NumberLiteralVisitor = (function (_super) {
     __extends(NumberLiteralVisitor, _super);
     function NumberLiteralVisitor() {
@@ -12,7 +13,7 @@ var NumberLiteralVisitor = (function (_super) {
     }
     NumberLiteralVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'NumberLiteral');
-        return node.token;
+        Builder_1.default.add(node.token, node);
     };
     return NumberLiteralVisitor;
 }(Visitor_1.default));
@@ -24,7 +25,6 @@ var InfixExpressionVisitor = (function (_super) {
     }
     InfixExpressionVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'InfixExpression');
-        return '';
     };
     return InfixExpressionVisitor;
 }(Visitor_1.default));

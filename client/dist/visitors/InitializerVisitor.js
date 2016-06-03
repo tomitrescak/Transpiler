@@ -14,9 +14,11 @@ var InitialiserVisitor = (function (_super) {
     InitialiserVisitor.prototype.visit = function (node) {
         switch (node.node) {
             case 'NumberLiteral':
-                return new ExpressionsVisitors_1.NumberLiteralVisitor(this).visit(node);
+                new ExpressionsVisitors_1.NumberLiteralVisitor(this).visit(node);
+                break;
             case 'InfixExpression':
-                return new ExpressionsVisitors_1.InfixExpressionVisitor(this).visit(node);
+                new ExpressionsVisitors_1.InfixExpressionVisitor(this).visit(node);
+                break;
             default:
                 throw new Error(node.node + ' is not implemented');
         }

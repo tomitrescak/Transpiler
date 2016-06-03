@@ -1,5 +1,6 @@
 import CompilationUnitVisitor from './visitors/CompilationUnitVisitor';
 import Visitor from './visitors/Visitor';
+import Builder from './config/Builder';
 
 const parser = require('../../imports/parser');
 
@@ -9,7 +10,7 @@ export function parseTree(source: string) {
 
 export function transpile(source: string): string {
   const tree = parseTree(source);
-  const cu = new CompilationUnitVisitor(null).visit(tree);
-  console.log(Visitor.sourceMap);
+  const cu = Builder.build(tree);
+  console.log(Builder.sourceMap);
   return cu;
 }
