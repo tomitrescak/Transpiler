@@ -18,8 +18,8 @@ declare global {
     join(array: IVisitor[], joinWith?: string, append?: string): void;
     pad(indent: number): void;
 
-    addError(location: AstLocation, error: Function, ...args: any[]): void;
-    addWarning(location: AstLocation, warning: Function, ...args: any[]): void;
+    // addError(location: AstLocation, error: Function, ...args: any[]): void;
+    // addWarning(location: AstLocation, warning: Function, ...args: any[]): void;
   }
 }
 
@@ -108,13 +108,13 @@ export default class Builder implements IBuilder {
   //   this.handler.addInfo(message, location);
   // }
 
-  addError(location: AstLocation, error: Function, ...args: any[]) {
-    this.handler.addError(error.apply(null, args), location);
-  }
-
-  addWarning(location: AstLocation, warning: Function, ...args: any[]) {
-    this.handler.addWarning(warning.apply(null, args), location);
-  }
+  // addError(location: AstLocation, error: Function, ...args: any[]) {
+  //   this.handler.addError(error.apply(null, args), location.line, location.column);
+  // }
+  //
+  // addWarning(location: AstLocation, warning: Function, ...args: any[]) {
+  //   this.handler.addWarning(warning.apply(null, args), location.line, location.column);
+  // }
 
   // static methods
 

@@ -30,7 +30,7 @@ describe('Parser', function () {
                 }
             }
             if (testCase.errors) {
-                chai_1.expect(testCase.errors.length, "Test (" + index + ") - " + testCase.name + " - Warnings contain:\n" + builder.handler.warnings.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(builder.handler.errors.length);
+                chai_1.expect(testCase.errors.length, "Test (" + index + ") - " + testCase.name + " - Errors contain:\n" + builder.handler.errors.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(builder.handler.errors.length);
                 var _loop_3 = function(error) {
                     var parts = error.split('|');
                     var messageName = builder.Errors[parts[0]];

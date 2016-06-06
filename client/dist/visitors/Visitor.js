@@ -40,10 +40,10 @@ var Visitor = (function () {
             args[_i - 1] = arguments[_i];
         }
         if (!this.handler) {
-            this.parent.addError(error, args);
+            this.parent.addErrorAtLocation(this.location, error, args);
             return;
         }
-        this.handler.addError(error(args), this.location);
+        this.handler.addError(error(args), this.location.line, this.location.column);
     };
     Visitor.prototype.addErrorAtLocation = function (location, error) {
         var args = [];
@@ -54,7 +54,7 @@ var Visitor = (function () {
             this.parent.addErrorAtLocation(location, error, args);
             return;
         }
-        this.handler.addError(error(args), location);
+        this.handler.addError(error(args), this.location.line, this.location.column);
     };
     Visitor.prototype.addWarning = function (warning) {
         var args = [];
@@ -65,7 +65,7 @@ var Visitor = (function () {
             this.parent.addWarning(warning, args);
             return;
         }
-        this.handler.addWarning(warning(args), this.location);
+        this.handler.addWarning(warning(args), this.location.line, this.location.column);
     };
     /**
      * Checks the current name of the node, in case of failure it throws an exception

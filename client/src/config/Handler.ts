@@ -4,9 +4,9 @@ declare global {
     infos: Message[];
     errors: Message[];
 
-    addInfo(message: string, location: AstLocation): void;
-    addError(message: (string|IMessage), location?: AstLocation): void;
-    addWarning(message: (string|IMessage), location?: AstLocation): void;
+    addInfo(message: string, line: number, column: number): void;
+    addError(message: string, line: number, column: number): void;
+    addWarning(message: string, line: number, column: number): void;
   }
 
   interface IMessage {
@@ -34,24 +34,16 @@ export default class Handler implements IHandler {
   }
 
 
-  addInfo(message: string, location: AstLocation) {
-    this.infos.push({ message, line: location.line, column: location.column });
+  addInfo(message: string, line: number, column: number) {
+    this.infos.push({ message, line: line - 1, column: column - 1 });
   }
 
 
-  addError(message: (string|IMessage), location: AstLocation): void {
-    if (typeof(message) === 'string') {
-      this.errors.push({ message: <string> message, line: location.line, column: location.column });
-    } else {
-      this.errors.push(<IMessage> message);
-    }
+  addError(message: string, line: number, column: number): void {
+      this.errors.push({ message: <string> message, line: line - 1, column: column - 1});
   }
 
-  addWarning(message: (string|IMessage), location: AstLocation) {
-    if (typeof(message) === 'string') {
-      this.warnings.push({ message: <string>message, line: location.line, column: location.column });
-    } else {
-      this.warnings.push(<IMessage> message);
-    }
+  addWarning(message: string, line: number, column: number) {
+    this.warnings.push({ message: <string>message, line: line - 1, column: column - 1 });
   }
 }

@@ -14,7 +14,7 @@ var MarkerVisitor = (function (_super) {
     }
     MarkerVisitor.prototype.visit = function (builder) {
         if (!this.allowAnnotations) {
-            builder.addWarning(this.node.location, builder.Warnigns.IgnoredAnnotation);
+            this.addWarning(builder.Warnigns.IgnoredAnnotation);
             return '';
         }
         throw new Error('Not implemented');

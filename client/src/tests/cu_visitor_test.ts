@@ -51,7 +51,7 @@ describe('Parser', function() {
       }
 
       if (testCase.errors) {
-        expect(testCase.errors.length, `Test (${index}) - ${testCase.name} - Warnings contain:\n${builder.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(builder.handler.errors.length);
+        expect(testCase.errors.length, `Test (${index}) - ${testCase.name} - Errors contain:\n${builder.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(builder.handler.errors.length);
         for (let error of testCase.errors) {
           let parts = error.split('|');
           let messageName = builder.Errors[parts[0]];

@@ -7,10 +7,14 @@ var __extends = (this && this.__extends) || function (d, b) {
 var Visitor_1 = require('./Visitor');
 var ModifiersFactory_1 = require('./factories/ModifiersFactory');
 var NameFactory_1 = require('./factories/NameFactory');
+var Messages_1 = require('../config/Messages');
 var EnumConstantDeclarationVisitor = (function (_super) {
     __extends(EnumConstantDeclarationVisitor, _super);
     function EnumConstantDeclarationVisitor(parent, node) {
         _super.call(this, parent, node, 'EnumConstantDeclaration');
+        if (node.arguments.length) {
+            this.addError(Messages_1.default.Errors.SimpleEnumsOnlySupported);
+        }
         this.name = NameFactory_1.default.create(this, node.name).name;
     }
     EnumConstantDeclarationVisitor.prototype.visit = function (builder) {
@@ -23,14 +27,14 @@ var EnumDeclarationVisitor = (function (_super) {
     __extends(EnumDeclarationVisitor, _super);
     function EnumDeclarationVisitor(parent, node) {
         _super.call(this, parent, node, 'EnumDeclaration');
+        // validate
+        if (this.node.bodyDeclarations.length) {
+            this.addError(Messages_1.default.Errors.SimpleEnumsOnlySupported);
+            return;
+        }
     }
     EnumDeclarationVisitor.prototype.visit = function (builder) {
         var _this = this;
-        // validate
-        if (this.node.bodyDeclarations.length) {
-            //builder.addError(builder.Errors.SimpleEnumsOnlySupported(), node.location);
-            return;
-        }
         var node = this.node;
         var constants = node.enumConstants.map(function (c) { return new EnumConstantDeclarationVisitor(_this, c); });
         var modifiers = ModifiersFactory_1.default.create(this, node.modifiers, ['public', 'private', 'abstract'], []);

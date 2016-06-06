@@ -18,7 +18,7 @@ export class MarkerVisitor extends Visitor<MarkerAnnotation> {
   visit(builder: IBuilder) {
 
     if (!this.allowAnnotations) {
-      builder.addWarning(this.node.location, builder.Warnigns.IgnoredAnnotation);
+      this.addWarning(builder.Warnigns.IgnoredAnnotation);
       return '';
     }
     throw new Error('Not implemented');

@@ -68,10 +68,10 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
   public addError(error: Function, ...args: any[]) {
     if (!this.handler) {
-      this.parent.addError(error, args);
+      this.parent.addErrorAtLocation(this.location, error, args);
       return;
     }
-    this.handler.addError(error(args), this.location);
+    this.handler.addError(error(args), this.location.line, this.location.column);
   }
 
   public addErrorAtLocation(location: AstLocation, error: Function, ...args: any[]) {
@@ -79,7 +79,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       this.parent.addErrorAtLocation(location, error, args);
       return;
     }
-    this.handler.addError(error(args), location);
+    this.handler.addError(error(args), this.location.line, this.location.column);
   }
 
   public addWarning(warning: Function, ...args: any[]) {
@@ -87,7 +87,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       this.parent.addWarning(warning, args);
       return;
     }
-    this.handler.addWarning(warning(args), this.location);
+    this.handler.addWarning(warning(args), this.location.line, this.location.column);
   }
 
   /**

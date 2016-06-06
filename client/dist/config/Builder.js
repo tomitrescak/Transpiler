@@ -63,23 +63,6 @@ var Builder = (function () {
     Builder.prototype.pad = function (indent) {
         this.add(LeftPad_1.default('', indent));
     };
-    // static addInfo(message: string, location: AstLocation) {
-    //   this.handler.addInfo(message, location);
-    // }
-    Builder.prototype.addError = function (location, error) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
-        this.handler.addError(error.apply(null, args), location);
-    };
-    Builder.prototype.addWarning = function (location, warning) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
-        this.handler.addWarning(warning.apply(null, args), location);
-    };
     return Builder;
 }());
 Object.defineProperty(exports, "__esModule", { value: true });

@@ -10,24 +10,14 @@ var Handler = (function () {
         this.infos = [];
         this.errors = [];
     }
-    Handler.prototype.addInfo = function (message, location) {
-        this.infos.push({ message: message, line: location.line, column: location.column });
+    Handler.prototype.addInfo = function (message, line, column) {
+        this.infos.push({ message: message, line: line - 1, column: column - 1 });
     };
-    Handler.prototype.addError = function (message, location) {
-        if (typeof (message) === 'string') {
-            this.errors.push({ message: message, line: location.line, column: location.column });
-        }
-        else {
-            this.errors.push(message);
-        }
+    Handler.prototype.addError = function (message, line, column) {
+        this.errors.push({ message: message, line: line - 1, column: column - 1 });
     };
-    Handler.prototype.addWarning = function (message, location) {
-        if (typeof (message) === 'string') {
-            this.warnings.push({ message: message, line: location.line, column: location.column });
-        }
-        else {
-            this.warnings.push(message);
-        }
+    Handler.prototype.addWarning = function (message, line, column) {
+        this.warnings.push({ message: message, line: line - 1, column: column - 1 });
     };
     return Handler;
 }());

@@ -9,7 +9,8 @@ exports.default = {
             }
             return 'Duplicate accessors: ' + args.join();
         },
-        UnexpectedModifier: function (modifier) { return 'Unexpected modifier: ' + modifier; }
+        UnexpectedModifier: function (modifier) { return 'Unexpected modifier: ' + modifier; },
+        SimpleEnumsOnlySupported: function () { return 'Only simple enums are supported'; }
     },
     Warnings: {
         IgnoredAnnotation: function () { return 'Annotations are not supported and will be ignored'; },

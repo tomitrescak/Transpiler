@@ -22,23 +22,22 @@
       Dog
     }
 
-# # TEST Case
-# - name: Enums > Errors
-#   input: |
-#     public enum Level {
-#       HIGH  (3),  //calls constructor with value 3
-#       MEDIUM(2),  //calls constructor with value 2
-#       LOW   (1)   //calls constructor with value 1
-#       ; // semicolon needed when fields / methods follow
-#
-#       private final int levelCode;
-#
-#       private Level(int levelCode) {
-#           this.levelCode = levelCode;
-#       }
-#     }
-#   errors:
-#     - SimpleEnumsOnlySupported
+# TEST Case
+- name: Enums > Errors
+  input: |
+    public enum Level {
+      HIGH  (3),  //calls constructor with value 3
+      ; // semicolon needed when fields / methods follow
+
+      private final int levelCode;
+
+      private Level(int levelCode) {
+          this.levelCode = levelCode;
+      }
+    }
+  errors:
+    - SimpleEnumsOnlySupported|0
+    - SimpleEnumsOnlySupported|1
 
 # TEST Case
 - name: Types
@@ -103,10 +102,10 @@
   output: |
     abstract class tomi {}
   warnings:
-    - IgnoredModifier|1|public
-    - IgnoredModifier|1|final
+    - IgnoredModifier|0|public
+    - IgnoredModifier|0|final
   errors:
-    - UnexpectedModifier|1|static
+    - UnexpectedModifier|0|static
 
 # TEST Case
 - name: Modifiers
@@ -114,7 +113,7 @@
   output: |
     class tomi {}
   errors:
-    - DuplicateAccessor|1|public,private,protected
+    - DuplicateAccessor|0|public,private,protected
 
 # TEST Cases
 - name: TypeParameter
@@ -135,7 +134,7 @@
   output: |
     class tomi {}
   warnings:
-    - IgnoredAnnotation|1
+    - IgnoredAnnotation|0
   sourceMap: [1] # line[0] = 0, line[1] = 0
 
 # Test Case - Class Variables

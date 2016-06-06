@@ -1,6 +1,7 @@
 import Visitor from './Visitor';
 import ModifiersFactory from './factories/ModifiersFactory';
 import NamesFactory from './factories/NameFactory';
+import Messages from '../config/Messages';
 
 declare global {
   interface EnumDeclaration extends BaseTypeDeclaration {
@@ -20,6 +21,10 @@ class EnumConstantDeclarationVisitor extends Visitor<EnumConstantDeclaration> {
   constructor(parent: IVisitor, node: EnumConstantDeclaration) {
     super(parent, node, 'EnumConstantDeclaration');
 
+    if (node.arguments.length) {
+      this.addError(Messages.Errors.SimpleEnumsOnlySupported);
+    }
+
     this.name = NamesFactory.create(this, node.name).name;
   }
 
@@ -32,15 +37,15 @@ class EnumConstantDeclarationVisitor extends Visitor<EnumConstantDeclaration> {
 export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
   constructor(parent: IVisitor, node: EnumDeclaration) {
     super(parent, node, 'EnumDeclaration');
+
+    // validate
+    if (this.node.bodyDeclarations.length) {
+      this.addError(Messages.Errors.SimpleEnumsOnlySupported);
+      return;
+    }
   }
 
   visit(builder: IBuilder) {
-    // validate
-    if (this.node.bodyDeclarations.length) {
-      //builder.addError(builder.Errors.SimpleEnumsOnlySupported(), node.location);
-      return;
-    }
-
     const { node } = this;
     const constants = node.enumConstants.map((c: EnumConstantDeclaration) => new EnumConstantDeclarationVisitor(this, c));
     const modifiers = ModifiersFactory.create(this, node.modifiers, ['public', 'private', 'abstract'], []);
