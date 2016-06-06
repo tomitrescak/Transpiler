@@ -1,7 +1,7 @@
 import Visitor from './Visitor';
 
 declare global {
-  interface ImportDeclaration extends AstNode {
+  interface ImportDeclaration extends AstElement {
     node: 'ImportDeclaration';
     name: QualifiedName;
     onDemand: boolean;

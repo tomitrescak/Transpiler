@@ -1,7 +1,5 @@
-import Builder from '../config/Builder';
-
 declare global {
-  interface AstNode {
+  interface AstElement {
     node: string;
     location: AstLocation;
   }
@@ -13,27 +11,41 @@ declare global {
 
   interface IVisitor {
     parent: IVisitor;
-    node: AstNode;
+    node: AstElement;
     indent: number;
+    handler: IHandler;
+
+    addError(error: Function, ...args: any[]): void;
+    addErrorAtLocation(location: AstLocation, error: Function, ...args: any[]): void;
+    addWarning(error: Function, ...args: any[]): void;
+    visit(builder: IBuilder, ...args: any[]): void;
   }
 }
 
-abstract class Visitor {
-  parent: Visitor;
-  node: AstNode;
+abstract class Visitor<T extends AstElement> implements IVisitor {
+  parent: IVisitor;
+  node: T;
   _indent: number;
+  handler: IHandler;
+
 
   // static bits
 
-  abstract visit(node: AstNode | AstNode[], ...args: any[]): void;
+  abstract visit(builder: IBuilder, ...args: any[]): void;
 
   // constructor
 
-  constructor(parent: Visitor) {
+  constructor(parent: IVisitor, node: T, nodeName: string) {
+    this.check(node, nodeName);
     this.parent = parent;
+    this.node = node;
   }
 
   // properties
+
+  get location() {
+    return this.node.location;
+  }
 
   set indent(ind: number) {
     this._indent = ind;
@@ -54,20 +66,36 @@ abstract class Visitor {
     this.indent += 2;
   }
 
-  public error(error: Function, ...args: any[]) {
-    Builder.addError(error.apply(null, args), this.node.location);
+  public addError(error: Function, ...args: any[]) {
+    if (!this.handler) {
+      this.parent.addError(error, args);
+      return;
+    }
+    this.handler.addError(error(args), this.location);
   }
 
-  public warning(warning: Function, ...args: any[]) {
-    Builder.addWarning(warning.apply(null, args), this.node.location);
+  public addErrorAtLocation(location: AstLocation, error: Function, ...args: any[]) {
+    if (!this.handler) {
+      this.parent.addErrorAtLocation(location, error, args);
+      return;
+    }
+    this.handler.addError(error(args), location);
+  }
+
+  public addWarning(warning: Function, ...args: any[]) {
+    if (!this.handler) {
+      this.parent.addWarning(warning, args);
+      return;
+    }
+    this.handler.addWarning(warning(args), this.location);
   }
 
   /**
    * Checks the current name of the node, in case of failure it throws an exception
-   * @param  {AstNode | AstNode[]}   node          [description]
+   * @param  {AstElement | AstElement[]}   node          [description]
    * @param  {string  | string[]}    expectedNames [description]
    */
-  protected check(node: AstNode | AstNode[], expectedNames: string | string[]): void {
+  protected check(node: AstElement | AstElement[], expectedNames: string | string[]): void {
     if (Array.isArray(node)) {
       return;
     }

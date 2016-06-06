@@ -14,10 +14,20 @@ var Handler = (function () {
         this.infos.push({ message: message, line: location.line, column: location.column });
     };
     Handler.prototype.addError = function (message, location) {
-        this.errors.push({ message: message, line: location.line, column: location.column });
+        if (typeof (message) === 'string') {
+            this.errors.push({ message: message, line: location.line, column: location.column });
+        }
+        else {
+            this.errors.push(message);
+        }
     };
     Handler.prototype.addWarning = function (message, location) {
-        this.warnings.push({ message: message, line: location.line, column: location.column });
+        if (typeof (message) === 'string') {
+            this.warnings.push({ message: message, line: location.line, column: location.column });
+        }
+        else {
+            this.warnings.push(message);
+        }
     };
     return Handler;
 }());

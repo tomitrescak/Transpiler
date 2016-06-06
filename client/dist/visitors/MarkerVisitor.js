@@ -5,22 +5,22 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Builder_1 = require('../config/Builder');
 var MarkerVisitor = (function (_super) {
     __extends(MarkerVisitor, _super);
-    function MarkerVisitor() {
-        _super.apply(this, arguments);
-    }
-    MarkerVisitor.prototype.visit = function (node, allowAnnotations) {
+    function MarkerVisitor(parent, node, allowAnnotations) {
         if (allowAnnotations === void 0) { allowAnnotations = true; }
-        _super.prototype.check.call(this, node, 'MarkerAnnotation');
-        if (!allowAnnotations) {
-            Builder_1.default.addWarning(Builder_1.default.Warnigns.IgnoredAnnotation(), node.location);
+        _super.call(this, parent, node, 'MarkerAnnotation');
+        this.allowAnnotations = allowAnnotations;
+    }
+    MarkerVisitor.prototype.visit = function (builder) {
+        if (!this.allowAnnotations) {
+            builder.addWarning(this.node.location, builder.Warnigns.IgnoredAnnotation);
             return '';
         }
         throw new Error('Not implemented');
     };
     return MarkerVisitor;
 }(Visitor_1.default));
+exports.MarkerVisitor = MarkerVisitor;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = MarkerVisitor;

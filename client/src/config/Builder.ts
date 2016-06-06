@@ -3,101 +3,136 @@ import Messages from '../config/Messages';
 import Handler from './Handler';
 import leftPad from '../config/LeftPad';
 
-export default class Builder {
+declare global {
+  interface IBuilder {
+    Warnigns: typeof Messages.Warnings;
+    Errors: typeof Messages.Errors;
+    Infos: typeof Messages.Infos;
 
-  static Warnigns = Messages.Warnings;
-  static Errors = Messages.Errors;
-  static Infos = Messages.Infos;
+    sourceMap: SourceMap;
+    handler: IHandler;
+    text: string;
 
-  static sourceMap: SourceMap;
-  static handler: Handler;
+    addLine(): void;
+    add(text: string, location?: AstLocation): void;
+    join(array: IVisitor[], joinWith?: string, append?: string): void;
+    pad(indent: number): void;
 
-  static currentLine: number;
-  static currentColumn: number;
+    addError(location: AstLocation, error: Function, ...args: any[]): void;
+    addWarning(location: AstLocation, warning: Function, ...args: any[]): void;
+  }
+}
 
-  static lineText: string;
-  static text: string;
+export default class Builder implements IBuilder {
 
-  static addLine() {
-    Builder.add('\n');
+  Warnigns = Messages.Warnings;
+  Errors = Messages.Errors;
+  Infos = Messages.Infos;
+
+  sourceMap: SourceMap;
+  handler: IHandler;
+
+  text: string;
+
+  private currentLine: number;
+  private currentColumn: number;
+  private lineText: string;
+
+  // constructor
+
+  constructor(handler?: IHandler) {
+    this.handler = handler ? handler : new Handler();
+    this.text = '';
+    this.currentLine = 0;
+    this.currentColumn = 0;
+    this.lineText = '';
+
+    // init source map, reset previous run
+    this.sourceMap = new SourceMap();
+    this.sourceMap.init();
   }
 
-  static add(text: string, node: AstNode = null) {
-    // add to current text
-    Builder.text += text;
+  // methods
 
+  addLine() {
+    this.add('\n');
+  }
+
+  add(text: string, location?: AstLocation) {
+    // add to current text
+    this.text += text;
     // count how many new line characters are there
     let nls = 0;
     for (let i = 0; i < text.length; i++) {
       if (text[i] === '\n') { nls++ };
     }
 
-    if (node) {
+    if (location) {
       // console.log(node)
-      Builder.sourceMap.setLine(
-        Builder.currentLine,
-        Builder.currentColumn,
-        node.location.line,
-        node.location.column);
+      this.sourceMap.setLine(
+        this.currentLine,
+        this.currentColumn,
+        location.line,
+        location.column);
     }
 
     // we start a new column if it was detected
     // if it was a last column we add what is remaming after the '\n' symbol
-    Builder.currentColumn = nls === 0 ?
-      Builder.currentColumn + text.length : // same line
+    this.currentColumn = nls === 0 ?
+      this.currentColumn + text.length : // same line
       text.substring(text.lastIndexOf('\n')).length; // new line
-    Builder.currentLine += nls;
+    this.currentLine += nls;
   }
 
-  static join(array: AstNode[], joinFunc: Function, joinWith = ', ', append = '') {
+  join(array: IVisitor[], joinWith = ', ', append = '') {
     if (array && array.length) {
       for (let i = 0; i < array.length; i++) {
-        joinFunc(array[i]);
+        array[i].visit(this, array[i].node);
 
         // add separator
         if (i < array.length - 1) {
-          Builder.add(joinWith);
+          this.add(joinWith);
         }
       }
       if (append) {
-        Builder.add(append);
+        this.add(append);
       }
     }
   }
 
-  static pad(indent: number): void {
-    Builder.add(leftPad('', indent));
+  pad(indent: number): void {
+    this.add(leftPad('', indent));
   }
 
-  static addInfo(message: string, location: AstLocation) {
-    Builder.handler.addInfo(message, location);
+  // static addInfo(message: string, location: AstLocation) {
+  //   this.handler.addInfo(message, location);
+  // }
+
+  addError(location: AstLocation, error: Function, ...args: any[]) {
+    this.handler.addError(error.apply(null, args), location);
   }
 
-  static addError(message: string, location: AstLocation) {
-    Builder.handler.addError(message, location);
-  }
-
-  static addWarning(message: string, location: AstLocation) {
-    Builder.handler.addWarning(message, location);
+  addWarning(location: AstLocation, warning: Function, ...args: any[]) {
+    this.handler.addWarning(warning.apply(null, args), location);
   }
 
   // static methods
 
 
   // static build(cu: CompilationUnit, sourceMapIn?: SourceMap, handlerIn?: Handler) {
-  //   // Builder.sourceMap = sourceMapIn ? sourceMapIn : new SourceMap();
-  //   // Builder.handler = handlerIn ? handlerIn : new Handler();
-  //   // Builder.text = '';
-  //   // Builder.currentLine = 0;
-  //   // Builder.currentColumn = 0;
-  //   // Builder.lineText = '';
+  //   // this.sourceMap = sourceMapIn ? sourceMapIn : new SourceMap();
+  //   // this.handler = handlerIn ? handlerIn : new Handler();
+  //   // this.text = '';
+  //   // this.currentLine = 0;
+  //   // this.currentColumn = 0;
+  //   // this.lineText = '';
   //   //
   //   // // init source map, reset previous run
-  //   // Builder.sourceMap.init();
+  //   // this.sourceMap.init();
   //   //
   //   // new CompilationUnitVisitor().visit(cu);
   //
   //   // builder contains all the needed text
-  //   return Builder.text;
+  //   return this.text;
   // }
 }

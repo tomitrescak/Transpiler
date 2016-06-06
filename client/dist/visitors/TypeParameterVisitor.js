@@ -5,39 +5,43 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Builder_1 = require('../config/Builder');
-var NameVisitor_1 = require('./NameVisitor');
-var TypesVisitor_1 = require('./TypesVisitor');
+var NameFactory_1 = require('./factories/NameFactory');
+var TypeFactory_1 = require('./factories/TypeFactory');
 var TypeParameterVisitor = (function (_super) {
     __extends(TypeParameterVisitor, _super);
-    function TypeParameterVisitor() {
-        _super.apply(this, arguments);
-    }
-    TypeParameterVisitor.prototype.visit = function (type) {
+    function TypeParameterVisitor(parent, node) {
         var _this = this;
-        _super.prototype.check.call(this, type, 'TypeParameter');
-        // draw name
-        NameVisitor_1.default.visit(this, type.name);
-        if (type.typeBounds.length) {
-            Builder_1.default.add(' extends ');
-            Builder_1.default.join(type.typeBounds, function (b) { return TypesVisitor_1.default.visit(_this, b); }, ' & ');
+        _super.call(this, parent, node, 'TypeParameter');
+        this.name = NameFactory_1.default.create(this, node.name).name;
+        this.bounds = node.typeBounds.map(function (b) { return TypeFactory_1.default.create(_this, b); });
+    }
+    TypeParameterVisitor.prototype.visit = function (builder) {
+        builder.add(this.name, this.location);
+        if (this.bounds.length) {
+            builder.add(' extends ');
+            builder.join(this.bounds, ' & ');
         }
         return this;
     };
     return TypeParameterVisitor;
 }(Visitor_1.default));
 exports.TypeParameterVisitor = TypeParameterVisitor;
-var TypeParametersVisitor = (function () {
-    function TypeParametersVisitor() {
+var TypeParametersVisitor = (function (_super) {
+    __extends(TypeParametersVisitor, _super);
+    function TypeParametersVisitor(parent, node) {
+        var _this = this;
+        _super.call(this, parent, node, 'TypeParameter');
+        this.parameters = node.map(function (p) { return new TypeParameterVisitor(_this.parent, p); });
     }
-    TypeParametersVisitor.visit = function (parent, types) {
-        if (types.length) {
-            Builder_1.default.add('<');
-            Builder_1.default.join(types, function (type) { return new TypeParameterVisitor(parent).visit(type); }, ',');
-            Builder_1.default.add('>');
+    TypeParametersVisitor.prototype.visit = function (builder) {
+        if (this.parameters.length) {
+            builder.add('<');
+            builder.join(this.parameters, ',');
+            builder.add('>');
         }
         return this;
     };
     return TypeParametersVisitor;
-}());
-exports.TypeParametersVisitor = TypeParametersVisitor;
+}(Visitor_1.default));
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = TypeParametersVisitor;

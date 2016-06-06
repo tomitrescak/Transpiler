@@ -1,14 +1,13 @@
 import Visitor from './Visitor';
-import Builder from '../config/Builder';
-import ModifiersVisitor from './ModifiersVisitor';
-import NamesVisitor from './NameVisitor';
+import ModifiersFactory from './factories/ModifiersFactory';
+import NamesFactory from './factories/NameFactory';
 
 declare global {
   interface EnumDeclaration extends BaseTypeDeclaration {
     enumConstants: EnumConstantDeclaration[];
   }
 
-  interface EnumConstantDeclaration extends AstNode {
+  interface EnumConstantDeclaration extends AstElement {
     node: 'EnumConstantDeclaration';
     name: Names;
     anonymousClassDeclaration: any;
@@ -16,49 +15,59 @@ declare global {
   }
 }
 
-class EnumConstantDeclarationVisitor extends Visitor {
-  visit (node: EnumConstantDeclaration) {
-    Builder.pad(this.indent);
-    NamesVisitor.visit(this, node.name);
+class EnumConstantDeclarationVisitor extends Visitor<EnumConstantDeclaration> {
+  name: string;
+  constructor(parent: IVisitor, node: EnumConstantDeclaration) {
+    super(parent, node, 'EnumConstantDeclaration');
+
+    this.name = NamesFactory.create(this, node.name).name;
+  }
+
+  visit(builder: IBuilder) {
+    builder.pad(this.indent);
+    builder.add(this.name);
   }
 }
 
-class EnumConstantDeclarationsVisitor {
-    static visit(parent: Visitor, nodes: EnumConstantDeclaration[]) {
-      Builder.join(nodes, (node: EnumConstantDeclaration) => new EnumConstantDeclarationVisitor(parent).visit(node), ',\n');
-    }
-}
+export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
+  constructor(parent: IVisitor, node: EnumDeclaration) {
+    super(parent, node, 'EnumDeclaration');
+  }
 
-export default class EnumDeclarationVisitor extends Visitor {
-  visit(node: EnumDeclaration) {
+  visit(builder: IBuilder) {
     // validate
-    if (node.bodyDeclarations.length) {
-      //Builder.addError(Builder.Errors.SimpleEnumsOnlySupported(), node.location);
+    if (this.node.bodyDeclarations.length) {
+      //builder.addError(builder.Errors.SimpleEnumsOnlySupported(), node.location);
       return;
     }
 
+    const { node } = this;
+    const constants = node.enumConstants.map((c: EnumConstantDeclaration) => new EnumConstantDeclarationVisitor(this, c));
+    const modifiers = ModifiersFactory.create(this, node.modifiers, ['public', 'private', 'abstract'], []);
+    const name = NamesFactory.create(this, node.name).name;
+
     // pad from left
-    Builder.pad(this.indent);
+    builder.pad(this.indent);
 
     // increase padding for child elements
     this.incIndent();
 
     // add modifiers
-    ModifiersVisitor.visit(this, node.modifiers, ['public', 'private', 'abstract'], []);
+    builder.join(modifiers, '');
 
     // add descriptors
-    Builder.add('enum ');
+    builder.add('enum ');
 
     // add name
-    NamesVisitor.visit(this, node.name);
+    builder.add(name);
 
     // add all constants and surround them with brackets
-    Builder.add(' {');
-    Builder.addLine();
-    EnumConstantDeclarationsVisitor.visit(this, node.enumConstants);
-    Builder.addLine();
-    Builder.pad(this.parent.indent);
-    Builder.add('}');
-    Builder.addLine();
+    builder.add(' {');
+    builder.addLine();
+    builder.join(constants, ',\n');
+    builder.addLine();
+    builder.pad(this.parent.indent);
+    builder.add('}');
+    builder.addLine();
   }
 }

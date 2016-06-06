@@ -1,16 +1,30 @@
 "use strict";
+var SourceMap_1 = require('../config/SourceMap');
 var Messages_1 = require('../config/Messages');
+var Handler_1 = require('./Handler');
 var LeftPad_1 = require('../config/LeftPad');
 var Builder = (function () {
-    function Builder() {
+    // constructor
+    function Builder(handler) {
+        this.Warnigns = Messages_1.default.Warnings;
+        this.Errors = Messages_1.default.Errors;
+        this.Infos = Messages_1.default.Infos;
+        this.handler = handler ? handler : new Handler_1.default();
+        this.text = '';
+        this.currentLine = 0;
+        this.currentColumn = 0;
+        this.lineText = '';
+        // init source map, reset previous run
+        this.sourceMap = new SourceMap_1.default();
+        this.sourceMap.init();
     }
-    Builder.addLine = function () {
-        Builder.add('\n');
+    // methods
+    Builder.prototype.addLine = function () {
+        this.add('\n');
     };
-    Builder.add = function (text, node) {
-        if (node === void 0) { node = null; }
+    Builder.prototype.add = function (text, location) {
         // add to current text
-        Builder.text += text;
+        this.text += text;
         // count how many new line characters are there
         var nls = 0;
         for (var i = 0; i < text.length; i++) {
@@ -19,48 +33,53 @@ var Builder = (function () {
             }
             ;
         }
-        if (node) {
+        if (location) {
             // console.log(node)
-            Builder.sourceMap.setLine(Builder.currentLine, Builder.currentColumn, node.location.line, node.location.column);
+            this.sourceMap.setLine(this.currentLine, this.currentColumn, location.line, location.column);
         }
         // we start a new column if it was detected
         // if it was a last column we add what is remaming after the '\n' symbol
-        Builder.currentColumn = nls === 0 ?
-            Builder.currentColumn + text.length :
+        this.currentColumn = nls === 0 ?
+            this.currentColumn + text.length :
             text.substring(text.lastIndexOf('\n')).length; // new line
-        Builder.currentLine += nls;
+        this.currentLine += nls;
     };
-    Builder.join = function (array, joinFunc, joinWith, append) {
+    Builder.prototype.join = function (array, joinWith, append) {
         if (joinWith === void 0) { joinWith = ', '; }
         if (append === void 0) { append = ''; }
         if (array && array.length) {
             for (var i = 0; i < array.length; i++) {
-                joinFunc(array[i]);
+                array[i].visit(this, array[i].node);
                 // add separator
                 if (i < array.length - 1) {
-                    Builder.add(joinWith);
+                    this.add(joinWith);
                 }
             }
             if (append) {
-                Builder.add(append);
+                this.add(append);
             }
         }
     };
-    Builder.pad = function (indent) {
-        Builder.add(LeftPad_1.default('', indent));
+    Builder.prototype.pad = function (indent) {
+        this.add(LeftPad_1.default('', indent));
     };
-    Builder.addInfo = function (message, location) {
-        Builder.handler.addInfo(message, location);
+    // static addInfo(message: string, location: AstLocation) {
+    //   this.handler.addInfo(message, location);
+    // }
+    Builder.prototype.addError = function (location, error) {
+        var args = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            args[_i - 2] = arguments[_i];
+        }
+        this.handler.addError(error.apply(null, args), location);
     };
-    Builder.addError = function (message, location) {
-        Builder.handler.addError(message, location);
+    Builder.prototype.addWarning = function (location, warning) {
+        var args = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            args[_i - 2] = arguments[_i];
+        }
+        this.handler.addWarning(warning.apply(null, args), location);
     };
-    Builder.addWarning = function (message, location) {
-        Builder.handler.addWarning(message, location);
-    };
-    Builder.Warnigns = Messages_1.default.Warnings;
-    Builder.Errors = Messages_1.default.Errors;
-    Builder.Infos = Messages_1.default.Infos;
     return Builder;
 }());
 Object.defineProperty(exports, "__esModule", { value: true });

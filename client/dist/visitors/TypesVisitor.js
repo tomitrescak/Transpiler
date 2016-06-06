@@ -5,108 +5,72 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Builder_1 = require('../config/Builder');
-var NameVisitor_1 = require('./NameVisitor');
-var BaseTypeVisitor = (function (_super) {
-    __extends(BaseTypeVisitor, _super);
-    function BaseTypeVisitor() {
-        _super.apply(this, arguments);
-    }
-    return BaseTypeVisitor;
-}(Visitor_1.default));
+var NameFactory_1 = require('./factories/NameFactory');
+var TypeFactory_1 = require('./factories/TypeFactory');
 var PrimitiveTypeVisitor = (function (_super) {
     __extends(PrimitiveTypeVisitor, _super);
-    function PrimitiveTypeVisitor() {
-        _super.apply(this, arguments);
-    }
-    PrimitiveTypeVisitor.prototype.visit = function (type) {
-        _super.prototype.check.call(this, type, 'PrimitiveType');
-        if (PrimitiveTypeVisitor.numbers.indexOf(type.primitiveTypeCode) > -1) {
+    function PrimitiveTypeVisitor(parent, node) {
+        _super.call(this, parent, node, 'PrimitiveType');
+        if (PrimitiveTypeVisitor.numbers.indexOf(node.primitiveTypeCode) > -1) {
             this.name = 'number';
         }
-        else if (type.primitiveTypeCode === 'char') {
+        else if (node.primitiveTypeCode === 'char') {
             this.name = 'string';
         }
         else {
-            this.name = type.primitiveTypeCode;
+            this.name = node.primitiveTypeCode;
         }
-        Builder_1.default.add(this.name, type);
-        return this;
+    }
+    PrimitiveTypeVisitor.prototype.visit = function (builder) {
+        builder.add(this.name, this.node.location);
     };
     PrimitiveTypeVisitor.numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
     return PrimitiveTypeVisitor;
-}(BaseTypeVisitor));
+}(Visitor_1.default));
 exports.PrimitiveTypeVisitor = PrimitiveTypeVisitor;
 var SimpleTypeVisitor = (function (_super) {
     __extends(SimpleTypeVisitor, _super);
-    function SimpleTypeVisitor() {
-        _super.apply(this, arguments);
+    function SimpleTypeVisitor(parent, node) {
+        _super.call(this, parent, node, 'SimpleType');
+        this.name = NameFactory_1.default.create(this, node.name, ['String', 'string']).name;
     }
-    SimpleTypeVisitor.prototype.visit = function (type) {
-        _super.prototype.check.call(this, type, 'SimpleType');
-        var nameVisitor = NameVisitor_1.default.visit(this, type.name, ['String', 'string']);
-        this.name = nameVisitor.name;
-        return this;
+    SimpleTypeVisitor.prototype.visit = function (builder) {
+        builder.add(this.name, this.location);
     };
     return SimpleTypeVisitor;
-}(BaseTypeVisitor));
+}(Visitor_1.default));
 exports.SimpleTypeVisitor = SimpleTypeVisitor;
 var ParametrizedTypeVisitor = (function (_super) {
     __extends(ParametrizedTypeVisitor, _super);
-    function ParametrizedTypeVisitor() {
-        _super.apply(this, arguments);
+    function ParametrizedTypeVisitor(parent, node) {
+        _super.call(this, parent, node, 'ParametrizedType');
+        throw new Error('Not Implemented');
     }
-    ParametrizedTypeVisitor.prototype.visit = function (type) {
-        _super.prototype.check.call(this, type, 'ParametrizedType');
-        return this;
+    ParametrizedTypeVisitor.prototype.visit = function (builder) {
+        throw new Error('Not Implemented');
     };
     return ParametrizedTypeVisitor;
-}(BaseTypeVisitor));
+}(Visitor_1.default));
 exports.ParametrizedTypeVisitor = ParametrizedTypeVisitor;
 var ArrayTypeVisitor = (function (_super) {
     __extends(ArrayTypeVisitor, _super);
-    function ArrayTypeVisitor() {
-        _super.apply(this, arguments);
-    }
-    ArrayTypeVisitor.prototype.visit = function (type) {
-        _super.prototype.check.call(this, type, 'ArrayType');
-        this.name = TypeVisitor.visit(this, type.componentType).name;
+    function ArrayTypeVisitor(parent, node) {
+        _super.call(this, parent, node, 'ArrayType');
+        this.name = TypeFactory_1.default.create(this, node.componentType).name;
         this.name += '[]'; // add it to the local name
-        Builder_1.default.add('[]'); // add it to the builder
-        return this;
+    }
+    ArrayTypeVisitor.prototype.visit = function (builder) {
+        builder.add(this.name);
     };
     return ArrayTypeVisitor;
-}(BaseTypeVisitor));
+}(Visitor_1.default));
 exports.ArrayTypeVisitor = ArrayTypeVisitor;
 var TypesVisitor = (function () {
     function TypesVisitor() {
     }
     TypesVisitor.visit = function (parent, types) {
-        types.forEach(function (type) { return TypeVisitor.visit(parent, type); });
+        return types.map(function (type) { return TypeFactory_1.default.create(parent, type); });
     };
     return TypesVisitor;
 }());
 exports.TypesVisitor = TypesVisitor;
-var TypeVisitor = (function () {
-    function TypeVisitor() {
-    }
-    TypeVisitor.visit = function (parent, type) {
-        // console.log(type)
-        switch (type.node) {
-            case 'PrimitiveType':
-                return new PrimitiveTypeVisitor(parent).visit(type);
-            case 'SimpleType':
-                return new SimpleTypeVisitor(parent).visit(type);
-            case 'ParametrizedType':
-                return new ParametrizedTypeVisitor(parent).visit(type);
-            case 'ArrayType':
-                return new ArrayTypeVisitor(parent).visit(type);
-            default:
-                throw 'Unsupported node' + type.node;
-        }
-    };
-    return TypeVisitor;
-}());
-exports.TypeVisitor = TypeVisitor;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = TypeVisitor;

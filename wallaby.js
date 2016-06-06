@@ -8,6 +8,7 @@ module.exports = (wallaby) => {
       "client/src/*.ts",
       "client/src/config/*.ts",
       "client/src/visitors/*.ts",
+      "client/src/visitors/factories/*.ts",
     ],
     tests: [
       { pattern: 'client/**/*.yaml', instrument: true, load: false, ignore: false },

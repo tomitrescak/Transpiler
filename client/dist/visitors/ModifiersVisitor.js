@@ -5,70 +5,32 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Builder_1 = require('../config/Builder');
-var MarkerVisitor_1 = require('./MarkerVisitor');
-var ModifiersVisitor = (function () {
-    function ModifiersVisitor() {
-    }
-    ModifiersVisitor.visit = function (parent, nodes, allowedModifiers, ignoredModifiers, allowAnnotations) {
-        if (allowAnnotations === void 0) { allowAnnotations = false; }
-        if (!nodes) {
-            return;
-        }
-        ;
-        // we create a list of all modifiers
-        nodes.forEach(function (node) {
-            switch (node.node) {
-                case 'Modifier':
-                    new ModifierVisitor(parent).visit(node, allowedModifiers, ignoredModifiers);
-                    break;
-                case 'MarkerAnnotation':
-                    new MarkerVisitor_1.default(parent).visit(node, allowAnnotations);
-                    break;
-                default:
-                    throw new Error(node.node + ' not implemented');
-            }
-        });
-        // check for duplicate identifiers
-        var accessors = [];
-        for (var i = 0; i < nodes.length; i++) {
-            if (nodes[i].node === 'Modifier') {
-                var n = nodes[i];
-                if (n.keyword === 'public' || n.keyword === 'protected' || n.keyword === 'private') {
-                    accessors.push(n.keyword);
-                }
-            }
-        }
-        if (accessors.length > 1) {
-            Builder_1.default.addError((_a = Builder_1.default.Errors).DuplicateAccessor.apply(_a, accessors), nodes[0].location);
-        }
-        var _a;
-    };
-    return ModifiersVisitor;
-}());
-exports.ModifiersVisitor = ModifiersVisitor;
+var Messages_1 = require('../config/Messages');
 var ModifierVisitor = (function (_super) {
     __extends(ModifierVisitor, _super);
-    function ModifierVisitor() {
-        _super.apply(this, arguments);
-    }
-    ModifierVisitor.prototype.visit = function (node, allowedModifiers, ignoredModifiers) {
+    function ModifierVisitor(parent, node, allowedModifiers, ignoredModifiers) {
         if (allowedModifiers === void 0) { allowedModifiers = []; }
         if (ignoredModifiers === void 0) { ignoredModifiers = []; }
-        _super.prototype.check.call(this, node, 'Modifier');
+        _super.call(this, parent, node, 'Modifier');
+        var keyword = node.keyword;
+        this.modifier = keyword;
+        this.render = true;
         // we only return modifier if it is allowed, otherwise we throw warning
-        if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) > -1) {
-            Builder_1.default.addWarning(Builder_1.default.Warnigns.IgnoredModifier(node.keyword), node.location);
-            return;
+        if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
+            this.addWarning(Messages_1.default.Warnings.IgnoredModifier, keyword);
+            this.render = false;
         }
-        if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) === -1) {
-            Builder_1.default.addError(Builder_1.default.Errors.UnexpectedModifier(node.keyword), node.location);
-            return;
+        if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
+            this.addError(Messages_1.default.Errors.UnexpectedModifier, keyword);
+            this.render = false;
         }
-        Builder_1.default.add(node.keyword + ' ', node);
+    }
+    ModifierVisitor.prototype.visit = function (builder) {
+        var _a = this.node, location = _a.location, keyword = _a.keyword;
+        if (this.render) {
+            builder.add(keyword + ' ', location);
+        }
     };
     return ModifierVisitor;
 }(Visitor_1.default));
 exports.ModifierVisitor = ModifierVisitor;
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ModifiersVisitor;

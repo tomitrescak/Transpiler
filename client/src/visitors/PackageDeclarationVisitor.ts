@@ -1,7 +1,7 @@
 import Visitor from './Visitor';
 
 declare global {
-  interface PackageDeclaration extends AstNode {
+  interface PackageDeclaration extends AstElement {
     annotations: MarkerAnnotation;
     name: QualifiedName | SimpleName;
     node: 'PackageDeclaration';

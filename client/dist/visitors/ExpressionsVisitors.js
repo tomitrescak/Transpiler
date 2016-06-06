@@ -5,45 +5,42 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Builder_1 = require('../config/Builder');
-var NameVisitor_1 = require('./NameVisitor');
+var ExpressionFactory_1 = require('./factories/ExpressionFactory');
 var NumberLiteralVisitor = (function (_super) {
     __extends(NumberLiteralVisitor, _super);
-    function NumberLiteralVisitor() {
-        _super.apply(this, arguments);
+    function NumberLiteralVisitor(parent, node) {
+        _super.call(this, parent, node, 'NumberLiteral');
     }
-    NumberLiteralVisitor.prototype.visit = function (node) {
-        _super.prototype.check.call(this, node, 'NumberLiteral');
-        Builder_1.default.add(node.token, node);
-        return this;
+    NumberLiteralVisitor.prototype.visit = function (builder) {
+        builder.add(this.node.token, this.location);
     };
     return NumberLiteralVisitor;
 }(Visitor_1.default));
 exports.NumberLiteralVisitor = NumberLiteralVisitor;
 var InfixExpressionVisitor = (function (_super) {
     __extends(InfixExpressionVisitor, _super);
-    function InfixExpressionVisitor() {
-        _super.apply(this, arguments);
+    function InfixExpressionVisitor(parent, node) {
+        _super.call(this, parent, node, 'InfixExpression');
     }
-    InfixExpressionVisitor.prototype.visit = function (node) {
-        _super.prototype.check.call(this, node, 'InfixExpression');
-        ExpressionVisitor.visit(this, node.leftOperand);
-        Builder_1.default.add(' ' + node.operator + ' ');
-        ExpressionVisitor.visit(this, node.rightOperand);
-        return this;
+    InfixExpressionVisitor.prototype.visit = function (builder) {
+        var left = ExpressionFactory_1.default.create(this, this.node.leftOperand);
+        var right = ExpressionFactory_1.default.create(this, this.node.rightOperand);
+        left.visit(builder);
+        builder.add(' ' + this.node.operator + ' ');
+        right.visit(builder);
     };
     return InfixExpressionVisitor;
 }(Visitor_1.default));
 exports.InfixExpressionVisitor = InfixExpressionVisitor;
 var PrefixExpressionVisitor = (function (_super) {
     __extends(PrefixExpressionVisitor, _super);
-    function PrefixExpressionVisitor() {
-        _super.apply(this, arguments);
+    function PrefixExpressionVisitor(parent, node) {
+        _super.call(this, parent, node, 'PrefixExpression');
     }
-    PrefixExpressionVisitor.prototype.visit = function (node) {
-        _super.prototype.check.call(this, node, 'PrefixExpression');
-        Builder_1.default.add(node.operator);
-        ExpressionVisitor.visit(this, node.operand);
+    PrefixExpressionVisitor.prototype.visit = function (builder) {
+        var operand = ExpressionFactory_1.default.create(this, this.node.operand);
+        builder.add(this.node.operator, this.location);
+        operand.visit(builder);
         return this;
     };
     return PrefixExpressionVisitor;
@@ -51,55 +48,26 @@ var PrefixExpressionVisitor = (function (_super) {
 exports.PrefixExpressionVisitor = PrefixExpressionVisitor;
 var ParenthesizedExpressionVisitor = (function (_super) {
     __extends(ParenthesizedExpressionVisitor, _super);
-    function ParenthesizedExpressionVisitor() {
-        _super.apply(this, arguments);
+    function ParenthesizedExpressionVisitor(parent, node) {
+        _super.call(this, parent, node, 'ParenthesizedExpression');
     }
-    ParenthesizedExpressionVisitor.prototype.visit = function (node) {
-        _super.prototype.check.call(this, node, 'ParenthesizedExpression');
-        Builder_1.default.add('(');
-        ExpressionVisitor.visit(this, node.expression);
-        Builder_1.default.add(')');
-        return this;
+    ParenthesizedExpressionVisitor.prototype.visit = function (builder) {
+        var expression = ExpressionFactory_1.default.create(this, this.node.expression);
+        builder.add('(');
+        expression.visit(builder);
+        builder.add(')');
     };
     return ParenthesizedExpressionVisitor;
 }(Visitor_1.default));
 exports.ParenthesizedExpressionVisitor = ParenthesizedExpressionVisitor;
 var BooleanLiteralVisitor = (function (_super) {
     __extends(BooleanLiteralVisitor, _super);
-    function BooleanLiteralVisitor() {
-        _super.apply(this, arguments);
+    function BooleanLiteralVisitor(parent, node) {
+        _super.call(this, parent, node, 'BooleanLiteral');
     }
-    BooleanLiteralVisitor.prototype.visit = function (node) {
-        _super.prototype.check.call(this, node, 'BooleanLiteral');
-        Builder_1.default.add(node.booleanValue, node);
-        return this;
+    BooleanLiteralVisitor.prototype.visit = function (builder) {
+        builder.add(this.node.booleanValue, this.location);
     };
     return BooleanLiteralVisitor;
 }(Visitor_1.default));
 exports.BooleanLiteralVisitor = BooleanLiteralVisitor;
-var ExpressionVisitor = (function () {
-    function ExpressionVisitor() {
-    }
-    ExpressionVisitor.visit = function (parent, node) {
-        switch (node.node) {
-            case 'SimpleName':
-            case 'QualifiedName':
-                return NameVisitor_1.default.visit(parent, node);
-            case 'PrefixExpression':
-                return new PrefixExpressionVisitor(parent).visit(node);
-            case 'BooleanLiteral':
-                return new BooleanLiteralVisitor(parent).visit(node);
-            case 'NumberLiteral':
-                return new NumberLiteralVisitor(parent).visit(node);
-            case 'InfixExpression':
-                return new InfixExpressionVisitor(parent).visit(node);
-            case 'ParenthesizedExpression':
-                return new ParenthesizedExpressionVisitor(parent).visit(node);
-            default:
-                throw new Error(node.node + ' is not implemented');
-        }
-    };
-    return ExpressionVisitor;
-}());
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ExpressionVisitor;

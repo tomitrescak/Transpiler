@@ -1,66 +1,70 @@
 import Visitor from './Visitor';
-import Builder from '../config/Builder';
+import NameFactory from './factories/NameFactory';
 
 declare global {
-  interface SimpleName extends AstNode {
+  interface SimpleName extends AstElement {
     identifier: string;
     node: 'SimpleName';
   }
 
-  interface QualifiedName extends AstNode {
+  interface QualifiedName extends AstElement {
     node: 'QualifiedName';
     name: SimpleName;
     qualifier: QualifiedName;
   }
 
+  interface NameVisitor extends IVisitor {
+    name: string;
+  }
+
   type Names = SimpleName | QualifiedName;
 }
 
-abstract class BaseNameVisitor extends Visitor {
+export class SimpleNameVisitor extends Visitor<SimpleName> implements NameVisitor {
   name: string;
-}
 
-export class SimpleNameVisitor extends BaseNameVisitor {
-  visit(node: SimpleName, substitutions: string[] = null) {
-    super.check(node, 'SimpleName');
+  constructor(parent: IVisitor, node: SimpleName, substitutions: string[] = null) {
+    super(parent, node, 'SimpleName');
 
     if (substitutions != null) {
       for (let i = 0; i < substitutions.length / 2; i++) {
         if (node.identifier === substitutions[i * 2]) {
-          Builder.add(substitutions[i * 2 + 1], node);
-          return this;
+          this.name = substitutions[i * 2 + 1];
+          return;
         }
       }
     }
-
     this.name = node.identifier;
+  }
 
+  get fullName() {
+    return this.name;
+  }
+
+  visit(builder: IBuilder) {
     // build this name
-    Builder.add(this.name, node);
-    return this;
+    builder.add(this.name, this.location);
   }
 }
 
-export class QualifiedNameVisitor extends BaseNameVisitor {
-  visit(node: QualifiedName) {
-    super.check(node, 'QualifiedName');
-    NameVisitor.visit(this, node.qualifier);
-    Builder.add('.');
+export class QualifiedNameVisitor extends Visitor<QualifiedName> implements NameVisitor {
+  qualification: NameVisitor;
+  nameNode: SimpleNameVisitor;
 
-    // remember name
-    this.name = new SimpleNameVisitor(this).visit(node.name).name;
-    return this;
+  constructor(parent: IVisitor, node: QualifiedName) {
+    super(parent, node, 'QualifiedName');
+
+    this.qualification = NameFactory.create(this, node.qualifier);
+    this.nameNode = new SimpleNameVisitor(this, node.name);
   }
-}
 
-export default class NameVisitor {
-  static visit(parent: Visitor, node: SimpleName | QualifiedName, substitutions: string[] = null): BaseNameVisitor {
-    if (node.node === 'SimpleName') {
-      return new SimpleNameVisitor(parent).visit(<SimpleName>node, substitutions);
-    } else if (node.node === 'QualifiedName') {
-      return new QualifiedNameVisitor(parent).visit(<QualifiedName>node);
-    } else {
-      throw new Error('Unsupported node: ' + node.node);
-    }
+  get name() {
+    return this.qualification.name + '.' + this.nameNode.name;
+  }
+
+  visit(builder: IBuilder) {
+    this.qualification.visit(builder);
+    builder.add('.');
+    this.nameNode.visit(builder);
   }
 }

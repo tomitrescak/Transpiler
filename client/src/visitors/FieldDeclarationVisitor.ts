@@ -1,20 +1,20 @@
 import Visitor from './Visitor';
-import Builder from '../config/Builder';
 
-import ModifiersVisitor from './ModifiersVisitor';
-import TypesVisitor from './TypesVisitor';
-import NameVisitor from './NameVisitor';
-import ExpressionVisitor from './ExpressionsVisitors';
+import ModifiersFactory from './factories/ModifiersFactory';
+import TypeFactory from './factories/TypeFactory';
+import NameFactory from './factories/NameFactory';
+import ExpressionFactory from './factories/ExpressionFactory';
+import FragmentsFactory from './factories/DeclarationsFactory';
 
 declare global {
-  interface VariableDeclarationFragment extends AstNode {
+  interface VariableDeclarationFragment extends AstElement {
     node: 'VariableDeclarationFragment';
     name: SimpleName;
     extraDimensions: number;
     initializer: any;
   }
 
-  interface FieldDeclaration extends AstNode {
+  interface FieldDeclaration extends AstElement {
     node: 'FieldDeclaration';
     fragments: VariableDeclarationFragment[];
     type: PrimitiveType | SimpleType | ParametrizedType | ArrayType;
@@ -22,14 +22,19 @@ declare global {
   }
 }
 
-export default class FieldDeclarationVisitor extends Visitor {
-  visit(node: FieldDeclaration) {
-    super.check(node, 'FieldDeclaration');
+export class FieldDeclarationVisitor extends Visitor<FieldDeclaration> {
+  constructor(parent: IVisitor, node: FieldDeclaration) {
+    super(parent, node, 'FieldDeclaration');
+  }
 
-    Builder.pad(this.indent);
-    ModifiersVisitor.visit(this, node.modifiers);
-    new FragmentsVisitor(this).visit(node.fragments, node.type);
-    Builder.add(';\n');
+  visit(builder: IBuilder) {
+    const modifiers = ModifiersFactory.create(this, this.node.modifiers);
+    const fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type);
+
+    builder.pad(this.indent);
+    builder.join(modifiers, '');
+    builder.join(fragments, ', ');
+    builder.add(';\n');
   }
 }
 
@@ -41,48 +46,58 @@ export default class FieldDeclarationVisitor extends Visitor {
 
 // fragments
 
-class FragmentVisitor extends Visitor {
-  visit(fragment: VariableDeclarationFragment, typeDefinition: Types) {
+export class FragmentVisitor extends Visitor<VariableDeclarationFragment> {
+  name: IVisitor;
+  initialiser: IVisitor;
+  type: BaseTypeNode;
+
+  constructor(parent: IVisitor, node: VariableDeclarationFragment, typeDefinition: Types) {
+    super(parent, node, 'VariableDeclarationFragment');
+
+    this.name = NameFactory.create(this, node.name);
+    this.type = TypeFactory.create(this, typeDefinition);
+
+    if (node.initializer) {
+      this.initialiser = ExpressionFactory.create(this, node.initializer);
+    }
+  }
+
+  visit(builder: IBuilder) {
+    const fragment = this.node;
     let extraDimensions = '';
+
     if (fragment.extraDimensions) {
       // adds [] from variable a[][] to type
       for (let i = 0; i < fragment.extraDimensions; i++) { extraDimensions += '[]' }
     }
 
     // prefix name : type = initialiser;
-    NameVisitor.visit(this, fragment.name);
+    this.name.visit(builder);
 
     // add :
-    Builder.add(': ');
+    builder.add(': ');
 
     // add type
-    let type = TypesVisitor.visit(this, typeDefinition).name;
+    this.type.visit(builder);
 
     // add extra dimension
-    Builder.add(extraDimensions);
+    builder.add(extraDimensions);
     // add iniitliser
-    Builder.add(' = ');
+    builder.add(' = ');
 
-    // initialise types to default values
-    if (fragment.initializer === null || fragment.initializer === undefined) {
-      let initialiser = '';
-      switch (type) {
+    if (this.initialiser) {
+      this.initialiser.visit(builder);
+    } else {
+      // initialise types to default values
+      let dinitialiser = '';
+      switch (this.type.name) {
         case 'number':
-          initialiser = '0';
+          dinitialiser = '0';
           break;
         default:
-          initialiser = 'null';
+          dinitialiser = 'null';
       }
-      Builder.add(initialiser);
-    } else {
-      ExpressionVisitor.visit(this, fragment.initializer);
+      builder.add(dinitialiser);
     }
-  }
-}
-
-class FragmentsVisitor extends Visitor {
-  visit(fragments: VariableDeclarationFragment[], type: Types) {
-    Builder.join(fragments, (fragment: VariableDeclarationFragment) =>
-      new FragmentVisitor(this.parent).visit(fragment, type), ', ');
   }
 }

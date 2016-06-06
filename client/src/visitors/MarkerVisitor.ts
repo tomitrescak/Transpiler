@@ -1,21 +1,28 @@
 import Visitor from './Visitor';
-import Builder from '../config/Builder';
 
 declare global {
-  interface MarkerAnnotation extends AstNode {
+  interface MarkerAnnotation extends AstElement {
     node: 'MarkerAnnotation';
     typeName: SimpleName | QualifiedName;
   }
 }
 
-export default class MarkerVisitor extends Visitor {
-  visit(node: MarkerAnnotation, allowAnnotations = true) {
-    super.check(node, 'MarkerAnnotation');
+export class MarkerVisitor extends Visitor<MarkerAnnotation> {
+  allowAnnotations: boolean;
 
-    if (!allowAnnotations) {
-      Builder.addWarning(Builder.Warnigns.IgnoredAnnotation(), node.location);
+  constructor(parent: IVisitor, node: MarkerAnnotation, allowAnnotations = true) {
+    super(parent, node, 'MarkerAnnotation');
+    this.allowAnnotations = allowAnnotations;
+  }
+
+  visit(builder: IBuilder) {
+
+    if (!this.allowAnnotations) {
+      builder.addWarning(this.node.location, builder.Warnigns.IgnoredAnnotation);
       return '';
     }
     throw new Error('Not implemented');
   }
 }
+
+export default MarkerVisitor;

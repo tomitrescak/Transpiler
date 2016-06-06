@@ -5,18 +5,18 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var TypeDeclarationVisitor_1 = require('./TypeDeclarationVisitor');
-var CompilationUnitVisitor = (function (_super) {
-    __extends(CompilationUnitVisitor, _super);
-    function CompilationUnitVisitor() {
-        _super.call(this, null);
+var TypeDeclarationsFactory_1 = require('./factories/TypeDeclarationsFactory');
+var CompilationUnitNode = (function (_super) {
+    __extends(CompilationUnitNode, _super);
+    function CompilationUnitNode(node, handler) {
+        _super.call(this, null, node, 'CompilationUnit');
+        this.handler = handler;
+        this.declarations = TypeDeclarationsFactory_1.default.createArray(this, node.types);
     }
-    CompilationUnitVisitor.prototype.visit = function (node) {
-        // TODO: Handle imports
-        // TODO: Handle packages
-        TypeDeclarationVisitor_1.TypeDeclarationsVisitor.visit(this, node.types);
+    CompilationUnitNode.prototype.visit = function (builder) {
+        builder.join(this.declarations, '\n');
     };
-    return CompilationUnitVisitor;
+    return CompilationUnitNode;
 }(Visitor_1.default));
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = CompilationUnitVisitor;
+exports.default = CompilationUnitNode;

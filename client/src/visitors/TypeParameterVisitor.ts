@@ -1,38 +1,53 @@
 import Visitor from './Visitor';
-import Builder from '../config/Builder';
-import NameVisitor from './NameVisitor';
-import TypeVisitor from './TypesVisitor';
+import NameFactory from './factories/NameFactory';
+import TypeFactory from './factories/TypeFactory';
 
 declare global {
-  interface TypeParameter extends AstNode {
+  interface TypeParameter extends AstElement {
     node: 'TypeParameter';
     name: SimpleName | QualifiedName;
     typeBounds: (SimpleType | ParametrizedType)[];
   }
 }
 
-export class TypeParameterVisitor extends Visitor {
-  visit(type: TypeParameter) {
-    super.check(type, 'TypeParameter');
+export class TypeParameterVisitor extends Visitor<TypeParameter> {
+  name: string;
+  bounds: BaseTypeNode[];
 
-    // draw name
-    NameVisitor.visit(this, type.name);
+  constructor(parent: IVisitor, node: TypeParameter) {
+    super(parent, node, 'TypeParameter');
 
-    if (type.typeBounds.length) {
-      Builder.add(' extends ');
-      Builder.join(type.typeBounds, (b: Types) => TypeVisitor.visit(this, b), ' & ');
+    this.name = NameFactory.create(this, node.name).name;
+    this.bounds = node.typeBounds.map((b) => TypeFactory.create(this, b));
+  }
+
+  visit(builder: IBuilder) {
+
+    builder.add(this.name, this.location);
+
+    if (this.bounds.length) {
+      builder.add(' extends ');
+      builder.join(this.bounds, ' & ');
     }
     return this;
   }
 }
 
-export class TypeParametersVisitor {
-  static visit(parent: Visitor, types: TypeParameter[]) {
+export default class TypeParametersVisitor extends Visitor<any> {
+  parameters: TypeParameterVisitor[];
 
-    if (types.length) {
-      Builder.add('<');
-      Builder.join(types, (type: TypeParameter) => new TypeParameterVisitor(parent).visit(type),',');
-      Builder.add('>');
+  constructor(parent: IVisitor, node: TypeParameter[]) {
+    super(parent, node, 'TypeParameter');
+
+    this.parameters = node.map((p) => new TypeParameterVisitor(this.parent, p));
+  }
+
+  visit(builder: IBuilder) {
+
+    if (this.parameters.length) {
+      builder.add('<');
+      builder.join(this.parameters, ',');
+      builder.add('>');
     }
     return this;
   }

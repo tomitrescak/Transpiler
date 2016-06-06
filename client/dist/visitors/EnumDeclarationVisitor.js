@@ -5,59 +5,55 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Builder_1 = require('../config/Builder');
-var ModifiersVisitor_1 = require('./ModifiersVisitor');
-var NameVisitor_1 = require('./NameVisitor');
+var ModifiersFactory_1 = require('./factories/ModifiersFactory');
+var NameFactory_1 = require('./factories/NameFactory');
 var EnumConstantDeclarationVisitor = (function (_super) {
     __extends(EnumConstantDeclarationVisitor, _super);
-    function EnumConstantDeclarationVisitor() {
-        _super.apply(this, arguments);
+    function EnumConstantDeclarationVisitor(parent, node) {
+        _super.call(this, parent, node, 'EnumConstantDeclaration');
+        this.name = NameFactory_1.default.create(this, node.name).name;
     }
-    EnumConstantDeclarationVisitor.prototype.visit = function (node) {
-        Builder_1.default.pad(this.indent);
-        NameVisitor_1.default.visit(this, node.name);
+    EnumConstantDeclarationVisitor.prototype.visit = function (builder) {
+        builder.pad(this.indent);
+        builder.add(this.name);
     };
     return EnumConstantDeclarationVisitor;
 }(Visitor_1.default));
-var EnumConstantDeclarationsVisitor = (function () {
-    function EnumConstantDeclarationsVisitor() {
-    }
-    EnumConstantDeclarationsVisitor.visit = function (parent, nodes) {
-        Builder_1.default.join(nodes, function (node) { return new EnumConstantDeclarationVisitor(parent).visit(node); }, ',\n');
-    };
-    return EnumConstantDeclarationsVisitor;
-}());
 var EnumDeclarationVisitor = (function (_super) {
     __extends(EnumDeclarationVisitor, _super);
-    function EnumDeclarationVisitor() {
-        _super.apply(this, arguments);
+    function EnumDeclarationVisitor(parent, node) {
+        _super.call(this, parent, node, 'EnumDeclaration');
     }
-    EnumDeclarationVisitor.prototype.visit = function (node) {
+    EnumDeclarationVisitor.prototype.visit = function (builder) {
+        var _this = this;
         // validate
-        if (node.bodyDeclarations.length) {
-            //Builder.addError(Builder.Errors.SimpleEnumsOnlySupported(), node.location);
+        if (this.node.bodyDeclarations.length) {
+            //builder.addError(builder.Errors.SimpleEnumsOnlySupported(), node.location);
             return;
         }
+        var node = this.node;
+        var constants = node.enumConstants.map(function (c) { return new EnumConstantDeclarationVisitor(_this, c); });
+        var modifiers = ModifiersFactory_1.default.create(this, node.modifiers, ['public', 'private', 'abstract'], []);
+        var name = NameFactory_1.default.create(this, node.name).name;
         // pad from left
-        Builder_1.default.pad(this.indent);
+        builder.pad(this.indent);
         // increase padding for child elements
         this.incIndent();
         // add modifiers
-        ModifiersVisitor_1.default.visit(this, node.modifiers, ['public', 'private', 'abstract'], []);
+        builder.join(modifiers, '');
         // add descriptors
-        Builder_1.default.add('enum ');
+        builder.add('enum ');
         // add name
-        NameVisitor_1.default.visit(this, node.name);
+        builder.add(name);
         // add all constants and surround them with brackets
-        Builder_1.default.add(' {');
-        Builder_1.default.addLine();
-        EnumConstantDeclarationsVisitor.visit(this, node.enumConstants);
-        Builder_1.default.addLine();
-        Builder_1.default.pad(this.parent.indent);
-        Builder_1.default.add('}');
-        Builder_1.default.addLine();
+        builder.add(' {');
+        builder.addLine();
+        builder.join(constants, ',\n');
+        builder.addLine();
+        builder.pad(this.parent.indent);
+        builder.add('}');
+        builder.addLine();
     };
     return EnumDeclarationVisitor;
 }(Visitor_1.default));
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = EnumDeclarationVisitor;
+exports.EnumDeclarationVisitor = EnumDeclarationVisitor;

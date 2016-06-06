@@ -1,67 +1,44 @@
 import Visitor from './Visitor';
-import Builder from '../config/Builder';
-import MarkerVisitor from './MarkerVisitor';
+import Messages from '../config/Messages';
 
 declare global {
-  interface Modifier extends AstNode {
+  interface Modifier extends AstElement {
     node: 'Modifier';
     keyword: 'public' | 'private' | 'protected' | 'final' | 'static' | 'abstract';
   }
+
+  type Modifiers = (Modifier | MarkerAnnotation);
 }
 
-export class ModifiersVisitor {
-  static visit(parent: Visitor, nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], ignoredModifiers?: string[], allowAnnotations = false) {
-    if (!nodes) { return };
+export class ModifierVisitor extends Visitor<Modifier> {
+  modifier: string;
+  render: boolean;
 
-    // we create a list of all modifiers
-    nodes.forEach((node) => {
-      switch (node.node) {
-        case 'Modifier':
-          new ModifierVisitor(parent).visit(<Modifier>node, allowedModifiers, ignoredModifiers);
-          break;
-        case 'MarkerAnnotation':
-          new MarkerVisitor(parent).visit(<MarkerAnnotation>node, allowAnnotations);
-          break;
-        default:
-          throw new Error(node.node + ' not implemented');
-      }
-    });
+  constructor(parent: IVisitor, node: Modifier, allowedModifiers: string[] = [], ignoredModifiers: string[] = []) {
+    super(parent, node, 'Modifier');
 
-    // check for duplicate identifiers
-    let accessors: string[] = [];
-    for (let i = 0; i < nodes.length; i++) {
-      if (nodes[i].node === 'Modifier') {
-        const n = <Modifier> nodes[i];
-        if (n.keyword === 'public' || n.keyword === 'protected' || n.keyword === 'private') {
-          accessors.push(n.keyword);
-        }
-      }
-    }
+    const {keyword} = node;
 
-    if (accessors.length > 1) {
-      Builder.addError(Builder.Errors.DuplicateAccessor(...accessors), nodes[0].location);
-    }
-  }
-
-}
-
-export class ModifierVisitor extends Visitor {
-  visit(node: Modifier, allowedModifiers: string[] = [], ignoredModifiers: string[] = []) {
-    super.check(node, 'Modifier');
+    this.modifier = keyword;
+    this.render = true;
 
     // we only return modifier if it is allowed, otherwise we throw warning
-    if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) > -1) {
-      Builder.addWarning(Builder.Warnigns.IgnoredModifier(node.keyword), node.location);
-      return;
+    if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
+      this.addWarning(Messages.Warnings.IgnoredModifier, keyword);
+      this.render = false;
     }
 
-    if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) === -1) {
-      Builder.addError(Builder.Errors.UnexpectedModifier(node.keyword), node.location);
-      return;
+    if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
+      this.addError(Messages.Errors.UnexpectedModifier, keyword);
+      this.render = false;
     }
+  }
 
-    Builder.add(node.keyword + ' ', node);
+  visit(builder: IBuilder) {
+    const { location, keyword } = this.node;
+
+    if (this.render) {
+      builder.add(keyword + ' ', location);
+    }
   }
 }
-
-export default ModifiersVisitor;

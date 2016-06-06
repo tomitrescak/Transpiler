@@ -1,10 +1,8 @@
 import Visitor from './Visitor';
-import SourceMap from '../config/SourceMap';
-import Handler from '../config/Handler';
-import { TypeDeclarationsVisitor } from './TypeDeclarationVisitor';
+import TypeDeclarationsFactory from './factories/TypeDeclarationsFactory';
 
 declare global {
-  interface CompilationUnit extends AstNode {
+  interface CompilationUnit extends AstElement {
     imports: ImportDeclaration[];
     node: 'ImportDeclaration';
     package: PackageDeclaration;
@@ -12,16 +10,24 @@ declare global {
   }
 }
 
-export default class CompilationUnitVisitor extends Visitor {
+export default class CompilationUnitNode extends Visitor<CompilationUnit> {
+  declarations: IVisitor[];
 
-  constructor() {
-    super(null);
+  constructor(node: CompilationUnit, handler: IHandler) {
+    super(null, node, 'CompilationUnit');
+
+    this.handler = handler;
+    this.declarations = TypeDeclarationsFactory.createArray(this, node.types);
   }
 
-  visit(node: CompilationUnit) {
-    // TODO: Handle imports
-    // TODO: Handle packages
-    TypeDeclarationsVisitor.visit(this, node.types);
-
+  visit(builder: IBuilder) {
+    builder.join(this.declarations, '\n');
   }
+
+  // visit(node: CompilationUnit) {
+  //   // TODO: Handle imports
+  //   // TODO: Handle packages
+  //   TypeDeclarationsVisitor.visit(this, node.types);
+  //
+  // }
 }

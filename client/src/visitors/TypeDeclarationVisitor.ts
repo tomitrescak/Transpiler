@@ -1,16 +1,14 @@
-import Visitor from './Visitor';
-import Builder from '../config/Builder';
+import VisitorNode from './Visitor';
 
-import { ModifiersVisitor } from './ModifiersVisitor';
-import NameVisitor from './NameVisitor';
-import { TypeParametersVisitor } from './TypeParameterVisitor';
-import { TypeVisitor, TypesVisitor } from './TypesVisitor';
-import BodyDeclarationsVisitor from './BodyDeclarationsVisitor';
-import EnumDeclarationVisitor from './EnumDeclarationVisitor';
+import ModifierFactory from './factories/ModifiersFactory';
+import NameFactory from './factories/NameFactory';
+import TypeParametersVisitor from './TypeParameterVisitor';
+import TypeFactory from './factories/TypeFactory';
+import BodyDeclarationsFactory from './factories/BodyDeclarationsFactory';
 
 declare global {
-  interface BaseTypeDeclaration extends AstNode {
-    bodyDeclarations: any[];
+  interface BaseTypeDeclaration extends AstElement {
+    bodyDeclarations: BodyDeclarations[];
     modifiers: (Modifier | MarkerAnnotation)[];
     name: SimpleName;
     superInterfaceTypes: (SimpleType | ParametrizedType)[];
@@ -26,67 +24,80 @@ declare global {
   type TypeDeclarations = TypeDeclaration | EnumDeclaration;
 }
 
-export class TypeDeclarationsVisitor {
-  static visit(parent: Visitor, types: TypeDeclarations[]) {
-    Builder.join(types, (type: TypeDeclarations) => {
-      switch (type.node) {
-        case 'TypeDeclaration':
-          return new TypeDeclarationVisitor(parent).visit(<TypeDeclaration> type);
-        case 'EnumDeclaration':
-          return new EnumDeclarationVisitor(parent).visit(<EnumDeclaration> type);
-        default:
-          throw new Error(type.node + ' is not implemented');
-      }
-    }, '\n');
-  }
-}
+export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
+  modifiers: IVisitor[];
+  typeDeclarationName: string;
+  name: NameVisitor;
+  typeParameters: TypeParametersVisitor;
+  superClassType: string;
+  superInterfaceTypes: BaseTypeNode[];
+  bodyDeclarations: IVisitor[];
 
-export class TypeDeclarationVisitor extends Visitor {
-  visit(node: TypeDeclaration) {
-    super.check(node, 'TypeDeclaration');
+  constructor(parent: IVisitor, node: TypeDeclaration) {
+    super(parent, node, 'TypeDeclaration');
+
+    this.modifiers = ModifierFactory.create(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
+    this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
+    this.name = NameFactory.create(this, node.name);
+    this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
+
+    if (node.superClassType) {
+      this.superClassType = TypeFactory.create(this, node.superClassType).name;
+    }
+
+    if (node.superInterfaceTypes.length) {
+      this.superInterfaceTypes = node.superInterfaceTypes.map((i) => TypeFactory.create(this, i));
+    }
+
+    if (node.bodyDeclarations.length) {
+      this.bodyDeclarations = node.bodyDeclarations.map((b) => BodyDeclarationsFactory.create(this, b));
+    }
+  }
+
+  visit(builder: IBuilder) {
+
+    // indent
+    builder.pad(this.indent);
 
     // increase padding
     this.incIndent();
 
-    // render header
-    Builder.pad(this.parent.indent);
+    // add modifiers (public / private ...)
+    builder.join(this.modifiers, '');
 
-    // add modifiers
-    ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
-
-    // add descriptors
-    Builder.add(node.interface ? 'interface ' : 'class ');
+    // add descriptors (class / interface)
+    builder.add(this.typeDeclarationName);
 
     // add name
-    NameVisitor.visit(this, node.name);
+    this.name.visit(builder);
 
     // add type parameters
-    TypeParametersVisitor.visit(this, node.typeParameters);
+    this.typeParameters.visit(builder);
 
     // add superclass
-    if (node.superClassType) {
-      Builder.add(' extends ');
-      TypeVisitor.visit(this, node.superClassType);
+    if (this.superClassType) {
+      builder.add(' extends ');
+      builder.add(this.superClassType);
     }
     // add interfaces
-    if (node.superInterfaceTypes.length) {
-      Builder.add(' implements ');
-      TypesVisitor.visit(this, node.superInterfaceTypes);
+    if (this.superInterfaceTypes) {
+      builder.add(' implements ');
+      builder.join(this.superInterfaceTypes, ', ');
     }
 
     // visit all children
-    if (node.bodyDeclarations.length) {
+    if (this.bodyDeclarations) {
       // we append new line after the initial bracket '{\n'
-      Builder.pad(this.parent.indent);
-      Builder.add(' {');
-      Builder.addLine();
+      builder.pad(this.parent.indent);
+      builder.add(' {');
+      builder.addLine();
       // render children
-      new BodyDeclarationsVisitor(this).visit(node.bodyDeclarations); // wrap children with new lines
-      Builder.pad(this.parent.indent);
-      Builder.add('}');
-      Builder.addLine();
+      builder.join(this.bodyDeclarations, ''); // wrap children with new lines
+      builder.pad(this.parent.indent);
+      builder.add('}');
+      builder.addLine();
     } else {
-      Builder.add(' {}\n')
+      builder.add(' {}\n');
     }
   }
 }
