@@ -91,7 +91,7 @@ var TypeVisitor = (function () {
     function TypeVisitor() {
     }
     TypeVisitor.visit = function (parent, type) {
-        console.log(type);
+        // console.log(type)
         switch (type.node) {
             case 'PrimitiveType':
                 return new PrimitiveTypeVisitor(parent).visit(type);

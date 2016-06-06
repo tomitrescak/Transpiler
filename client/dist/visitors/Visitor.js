@@ -1,5 +1,5 @@
 "use strict";
-var LeftPad_1 = require('../config/LeftPad');
+var Builder_1 = require('../config/Builder');
 var Visitor = (function () {
     // constructor
     function Visitor(parent) {
@@ -23,12 +23,22 @@ var Visitor = (function () {
         configurable: true
     });
     // methods
-    Visitor.prototype.pad = function (text) {
-        if (text === void 0) { text = ''; }
-        return LeftPad_1.default(text, this.indent);
-    };
     Visitor.prototype.incIndent = function () {
         this.indent += 2;
+    };
+    Visitor.prototype.error = function (error) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        Builder_1.default.addError(error.apply(null, args), this.node.location);
+    };
+    Visitor.prototype.warning = function (warning) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        Builder_1.default.addWarning(warning.apply(null, args), this.node.location);
     };
     /**
      * Checks the current name of the node, in case of failure it throws an exception

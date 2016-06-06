@@ -13956,7 +13956,7 @@ module.exports = (function() {
             }
           }
         }
-        obj[location] = simpleLocation()
+        obj['location'] = simpleLocation()
         return obj;
       }
 

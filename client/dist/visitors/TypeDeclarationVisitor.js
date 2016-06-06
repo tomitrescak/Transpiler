@@ -11,17 +11,24 @@ var NameVisitor_1 = require('./NameVisitor');
 var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
 var TypesVisitor_1 = require('./TypesVisitor');
 var BodyDeclarationsVisitor_1 = require('./BodyDeclarationsVisitor');
-var TypeDeclarationsVisitor = (function (_super) {
-    __extends(TypeDeclarationsVisitor, _super);
+var EnumDeclarationVisitor_1 = require('./EnumDeclarationVisitor');
+var TypeDeclarationsVisitor = (function () {
     function TypeDeclarationsVisitor() {
-        _super.apply(this, arguments);
     }
-    TypeDeclarationsVisitor.prototype.visit = function (types) {
-        var _this = this;
-        Builder_1.default.join(types, function (type) { return new TypeDeclarationVisitor(_this.parent).visit(type); }, '\n');
+    TypeDeclarationsVisitor.visit = function (parent, types) {
+        Builder_1.default.join(types, function (type) {
+            switch (type.node) {
+                case 'TypeDeclaration':
+                    return new TypeDeclarationVisitor(parent).visit(type);
+                case 'EnumDeclaration':
+                    return new EnumDeclarationVisitor_1.default(parent).visit(type);
+                default:
+                    throw new Error(type.node + ' is not implemented');
+            }
+        }, '\n');
     };
     return TypeDeclarationsVisitor;
-}(Visitor_1.default));
+}());
 exports.TypeDeclarationsVisitor = TypeDeclarationsVisitor;
 var TypeDeclarationVisitor = (function (_super) {
     __extends(TypeDeclarationVisitor, _super);
@@ -33,9 +40,9 @@ var TypeDeclarationVisitor = (function (_super) {
         // increase padding
         this.incIndent();
         // render header
-        var pad = Builder_1.default.add(this.parent.pad());
+        Builder_1.default.pad(this.parent.indent);
         // add modifiers
-        ModifiersVisitor_1.ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['static']);
+        ModifiersVisitor_1.ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
         // add descriptors
         Builder_1.default.add(node.interface ? 'interface ' : 'class ');
         // add name
@@ -55,11 +62,13 @@ var TypeDeclarationVisitor = (function (_super) {
         // visit all children
         if (node.bodyDeclarations.length) {
             // we append new line after the initial bracket '{\n'
-            Builder_1.default.add(this.parent.pad() + ' {');
+            Builder_1.default.pad(this.parent.indent);
+            Builder_1.default.add(' {');
             Builder_1.default.addLine();
             // render children
             new BodyDeclarationsVisitor_1.default(this).visit(node.bodyDeclarations); // wrap children with new lines
-            Builder_1.default.add(this.parent.pad() + '}');
+            Builder_1.default.pad(this.parent.indent);
+            Builder_1.default.add('}');
             Builder_1.default.addLine();
         }
         else {

@@ -1,8 +1,6 @@
 "use strict";
-var CompilationUnitVisitor_1 = require('../visitors/CompilationUnitVisitor');
-var SourceMap_1 = require('../config/SourceMap');
 var Messages_1 = require('../config/Messages');
-var Handler_1 = require('./Handler');
+var LeftPad_1 = require('../config/LeftPad');
 var Builder = (function () {
     function Builder() {
     }
@@ -48,6 +46,9 @@ var Builder = (function () {
             }
         }
     };
+    Builder.pad = function (indent) {
+        Builder.add(LeftPad_1.default('', indent));
+    };
     Builder.addInfo = function (message, location) {
         Builder.handler.addInfo(message, location);
     };
@@ -56,20 +57,6 @@ var Builder = (function () {
     };
     Builder.addWarning = function (message, location) {
         Builder.handler.addWarning(message, location);
-    };
-    // static methods
-    Builder.build = function (cu, sourceMapIn, handlerIn) {
-        Builder.sourceMap = sourceMapIn ? sourceMapIn : new SourceMap_1.default();
-        Builder.handler = handlerIn ? handlerIn : new Handler_1.default();
-        Builder.text = '';
-        Builder.currentLine = 0;
-        Builder.currentColumn = 0;
-        Builder.lineText = '';
-        // init source map, reset previous run
-        Builder.sourceMap.init();
-        new CompilationUnitVisitor_1.default().visit(cu);
-        // builder contains all the needed text
-        return Builder.text;
     };
     Builder.Warnigns = Messages_1.default.Warnings;
     Builder.Errors = Messages_1.default.Errors;

@@ -1,8 +1,7 @@
-import CompilationUnitVisitor from '../visitors/CompilationUnitVisitor';
-import Visitor from '../visitors/Visitor';
 import SourceMap from '../config/SourceMap';
 import Messages from '../config/Messages';
 import Handler from './Handler';
+import leftPad from '../config/LeftPad';
 
 export default class Builder {
 
@@ -66,6 +65,10 @@ export default class Builder {
     }
   }
 
+  static pad(indent: number): void {
+    Builder.add(leftPad('', indent));
+  }
+
   static addInfo(message: string, location: AstLocation) {
     Builder.handler.addInfo(message, location);
   }
@@ -81,20 +84,20 @@ export default class Builder {
   // static methods
 
 
-  static build(cu: CompilationUnit, sourceMapIn?: SourceMap, handlerIn?: Handler) {
-    Builder.sourceMap = sourceMapIn ? sourceMapIn : new SourceMap();
-    Builder.handler = handlerIn ? handlerIn : new Handler();
-    Builder.text = '';
-    Builder.currentLine = 0;
-    Builder.currentColumn = 0;
-    Builder.lineText = '';
-
-    // init source map, reset previous run
-    Builder.sourceMap.init();
-
-    new CompilationUnitVisitor().visit(cu);
-
-    // builder contains all the needed text
-    return Builder.text;
-  }
+  // static build(cu: CompilationUnit, sourceMapIn?: SourceMap, handlerIn?: Handler) {
+  //   // Builder.sourceMap = sourceMapIn ? sourceMapIn : new SourceMap();
+  //   // Builder.handler = handlerIn ? handlerIn : new Handler();
+  //   // Builder.text = '';
+  //   // Builder.currentLine = 0;
+  //   // Builder.currentColumn = 0;
+  //   // Builder.lineText = '';
+  //   //
+  //   // // init source map, reset previous run
+  //   // Builder.sourceMap.init();
+  //   //
+  //   // new CompilationUnitVisitor().visit(cu);
+  //
+  //   // builder contains all the needed text
+  //   return Builder.text;
+  // }
 }

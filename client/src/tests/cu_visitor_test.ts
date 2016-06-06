@@ -2,6 +2,7 @@ import {expect} from 'chai';
 import Builder from '../config/Builder';
 import Messages from '../config/Messages';
 import Visitor from '../visitors/Visitor';
+import { transpile } from '../Java2ts';
 
 const YAML = require('yamljs');
 const parser = require('../../../imports/parser');
@@ -28,13 +29,14 @@ describe('Parser', function() {
     let index = 0;
     for (let testCase of cases) {
       index++;
-      let parsed = parser.parse(testCase.input);
-      let result = Builder.build(parsed);
+      let result = transpile(testCase.input);
 
-      expect(result).to.equal(testCase.output, `Test (${index}) - ${testCase.name}\n`);
+      if (testCase.output) {
+        expect(result).to.equal(testCase.output, `Test (${index}) - ${testCase.name}`);
+      }
 
       if (testCase.warnings) {
-        expect(testCase.warnings.length).to.equal(Builder.handler.warnings.length);
+        expect(testCase.warnings.length, `Test (${index}) - ${testCase.name} - Warnings contain:\n${Builder.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(Builder.handler.warnings.length);
         for (let warning of testCase.warnings) {
           let parts = warning.split('|');
           let messageName = Builder.Warnigns[parts[0]];

@@ -21,7 +21,7 @@ export default class CompilationUnitVisitor extends Visitor {
   visit(node: CompilationUnit) {
     // TODO: Handle imports
     // TODO: Handle packages
-    new TypeDeclarationsVisitor(this).visit(node.types);
+    TypeDeclarationsVisitor.visit(this, node.types);
 
   }
 }

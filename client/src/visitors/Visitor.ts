@@ -1,4 +1,4 @@
-import leftPad from '../config/LeftPad';
+import Builder from '../config/Builder';
 
 declare global {
   interface AstNode {
@@ -10,10 +10,17 @@ declare global {
     line: number;
     column: number;
   }
+
+  interface IVisitor {
+    parent: IVisitor;
+    node: AstNode;
+    indent: number;
+  }
 }
 
 abstract class Visitor {
   parent: Visitor;
+  node: AstNode;
   _indent: number;
 
   // static bits
@@ -43,12 +50,16 @@ abstract class Visitor {
 
   // methods
 
-  public pad(text = '') {
-    return leftPad(text, this.indent);
-  }
-
   public incIndent() {
     this.indent += 2;
+  }
+
+  public error(error: Function, ...args: any[]) {
+    Builder.addError(error.apply(null, args), this.node.location);
+  }
+
+  public warning(warning: Function, ...args: any[]) {
+    Builder.addWarning(warning.apply(null, args), this.node.location);
   }
 
   /**

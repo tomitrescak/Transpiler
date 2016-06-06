@@ -17,7 +17,7 @@ var FieldDeclarationVisitor = (function (_super) {
     }
     FieldDeclarationVisitor.prototype.visit = function (node) {
         _super.prototype.check.call(this, node, 'FieldDeclaration');
-        Builder_1.default.add(this.pad());
+        Builder_1.default.pad(this.indent);
         ModifiersVisitor_1.default.visit(this, node.modifiers);
         new FragmentsVisitor(this).visit(node.fragments, node.type);
         Builder_1.default.add(';\n');

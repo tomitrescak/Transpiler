@@ -14,7 +14,7 @@ var CompilationUnitVisitor = (function (_super) {
     CompilationUnitVisitor.prototype.visit = function (node) {
         // TODO: Handle imports
         // TODO: Handle packages
-        new TypeDeclarationVisitor_1.TypeDeclarationsVisitor(this).visit(node.types);
+        TypeDeclarationVisitor_1.TypeDeclarationsVisitor.visit(this, node.types);
     };
     return CompilationUnitVisitor;
 }(Visitor_1.default));

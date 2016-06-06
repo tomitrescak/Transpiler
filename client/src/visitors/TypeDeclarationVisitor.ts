@@ -6,23 +6,38 @@ import NameVisitor from './NameVisitor';
 import { TypeParametersVisitor } from './TypeParameterVisitor';
 import { TypeVisitor, TypesVisitor } from './TypesVisitor';
 import BodyDeclarationsVisitor from './BodyDeclarationsVisitor';
+import EnumDeclarationVisitor from './EnumDeclarationVisitor';
 
 declare global {
-  interface TypeDeclaration extends AstNode {
-    node: 'TypeDeclaration';
+  interface BaseTypeDeclaration extends AstNode {
     bodyDeclarations: any[];
-    interface: boolean;
     modifiers: (Modifier | MarkerAnnotation)[];
     name: SimpleName;
     superInterfaceTypes: (SimpleType | ParametrizedType)[];
+  }
+
+  interface TypeDeclaration extends BaseTypeDeclaration {
+    node: 'TypeDeclaration';
+    interface: boolean;
     superClassType: SimpleType | ParametrizedType;
     typeParameters: TypeParameter[];
   }
+
+  type TypeDeclarations = TypeDeclaration | EnumDeclaration;
 }
 
-export class TypeDeclarationsVisitor extends Visitor {
-  visit(types: TypeDeclaration[]) {
-    Builder.join(types, (type: TypeDeclaration) => new TypeDeclarationVisitor(this.parent).visit(type), '\n');
+export class TypeDeclarationsVisitor {
+  static visit(parent: Visitor, types: TypeDeclarations[]) {
+    Builder.join(types, (type: TypeDeclarations) => {
+      switch (type.node) {
+        case 'TypeDeclaration':
+          return new TypeDeclarationVisitor(parent).visit(<TypeDeclaration> type);
+        case 'EnumDeclaration':
+          return new EnumDeclarationVisitor(parent).visit(<EnumDeclaration> type);
+        default:
+          throw new Error(type.node + ' is not implemented');
+      }
+    }, '\n');
   }
 }
 
@@ -34,10 +49,10 @@ export class TypeDeclarationVisitor extends Visitor {
     this.incIndent();
 
     // render header
-    const pad = Builder.add(this.parent.pad());
+    Builder.pad(this.parent.indent);
 
     // add modifiers
-    ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['static']);
+    ModifiersVisitor.visit(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
 
     // add descriptors
     Builder.add(node.interface ? 'interface ' : 'class ');
@@ -62,11 +77,13 @@ export class TypeDeclarationVisitor extends Visitor {
     // visit all children
     if (node.bodyDeclarations.length) {
       // we append new line after the initial bracket '{\n'
-      Builder.add(this.parent.pad() + ' {');
+      Builder.pad(this.parent.indent);
+      Builder.add(' {');
       Builder.addLine();
       // render children
       new BodyDeclarationsVisitor(this).visit(node.bodyDeclarations); // wrap children with new lines
-      Builder.add(this.parent.pad() + '}');
+      Builder.pad(this.parent.indent);
+      Builder.add('}');
       Builder.addLine();
     } else {
       Builder.add(' {}\n')

@@ -10,14 +10,14 @@ declare global {
 }
 
 export class ModifiersVisitor {
-  static visit(parent: Visitor, nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], errorModifiers?: string[], allowAnnotations = false) {
+  static visit(parent: Visitor, nodes: (MarkerAnnotation | Modifier)[], allowedModifiers?: string[], ignoredModifiers?: string[], allowAnnotations = false) {
     if (!nodes) { return };
 
     // we create a list of all modifiers
     nodes.forEach((node) => {
       switch (node.node) {
         case 'Modifier':
-          new ModifierVisitor(parent).visit(<Modifier>node, allowedModifiers, errorModifiers);
+          new ModifierVisitor(parent).visit(<Modifier>node, allowedModifiers, ignoredModifiers);
           break;
         case 'MarkerAnnotation':
           new MarkerVisitor(parent).visit(<MarkerAnnotation>node, allowAnnotations);
@@ -46,18 +46,18 @@ export class ModifiersVisitor {
 }
 
 export class ModifierVisitor extends Visitor {
-  visit(node: Modifier, allowedModifiers: string[] = [], errorModifiers: string[] = []) {
+  visit(node: Modifier, allowedModifiers: string[] = [], ignoredModifiers: string[] = []) {
     super.check(node, 'Modifier');
 
     // we only return modifier if it is allowed, otherwise we throw warning
-    if (allowedModifiers.indexOf(node.keyword) === -1 && errorModifiers.indexOf(node.keyword) === -1) {
+    if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) > -1) {
       Builder.addWarning(Builder.Warnigns.IgnoredModifier(node.keyword), node.location);
       return;
     }
 
-    if (errorModifiers.indexOf(node.keyword) > -1) {
+    if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) === -1) {
       Builder.addError(Builder.Errors.UnexpectedModifier(node.keyword), node.location);
-      return '';
+      return;
     }
 
     Builder.add(node.keyword + ' ', node);

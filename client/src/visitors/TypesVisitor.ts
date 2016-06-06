@@ -82,7 +82,7 @@ export class TypesVisitor {
 
 export class TypeVisitor {
   static visit(parent: Visitor, type: SimpleType | ParametrizedType | PrimitiveType | ArrayType): BaseTypeVisitor {
-    console.log(type)
+    // console.log(type)
     switch (type.node) {
       case 'PrimitiveType':
         return new PrimitiveTypeVisitor(parent).visit(<PrimitiveType> type);

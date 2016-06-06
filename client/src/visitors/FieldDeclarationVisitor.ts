@@ -26,7 +26,7 @@ export default class FieldDeclarationVisitor extends Visitor {
   visit(node: FieldDeclaration) {
     super.check(node, 'FieldDeclaration');
 
-    Builder.add(this.pad());
+    Builder.pad(this.indent);
     ModifiersVisitor.visit(this, node.modifiers);
     new FragmentsVisitor(this).visit(node.fragments, node.type);
     Builder.add(';\n');

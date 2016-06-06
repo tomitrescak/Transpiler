@@ -42,6 +42,7 @@
     "typings/modules/chai/index.d.ts",
     "visitors/BodyDeclarationsVisitor.ts",
     "visitors/CompilationUnitVisitor.ts",
+    "visitors/EnumDeclarationVisitor.ts",
     "visitors/ExpressionsVisitors.ts",
     "visitors/FieldDeclarationVisitor.ts",
     "visitors/ImportDeclarationVisitor.ts",

@@ -10,7 +10,7 @@ var MarkerVisitor_1 = require('./MarkerVisitor');
 var ModifiersVisitor = (function () {
     function ModifiersVisitor() {
     }
-    ModifiersVisitor.visit = function (parent, nodes, allowedModifiers, errorModifiers, allowAnnotations) {
+    ModifiersVisitor.visit = function (parent, nodes, allowedModifiers, ignoredModifiers, allowAnnotations) {
         if (allowAnnotations === void 0) { allowAnnotations = false; }
         if (!nodes) {
             return;
@@ -20,7 +20,7 @@ var ModifiersVisitor = (function () {
         nodes.forEach(function (node) {
             switch (node.node) {
                 case 'Modifier':
-                    new ModifierVisitor(parent).visit(node, allowedModifiers, errorModifiers);
+                    new ModifierVisitor(parent).visit(node, allowedModifiers, ignoredModifiers);
                     break;
                 case 'MarkerAnnotation':
                     new MarkerVisitor_1.default(parent).visit(node, allowAnnotations);
@@ -52,18 +52,18 @@ var ModifierVisitor = (function (_super) {
     function ModifierVisitor() {
         _super.apply(this, arguments);
     }
-    ModifierVisitor.prototype.visit = function (node, allowedModifiers, errorModifiers) {
+    ModifierVisitor.prototype.visit = function (node, allowedModifiers, ignoredModifiers) {
         if (allowedModifiers === void 0) { allowedModifiers = []; }
-        if (errorModifiers === void 0) { errorModifiers = []; }
+        if (ignoredModifiers === void 0) { ignoredModifiers = []; }
         _super.prototype.check.call(this, node, 'Modifier');
         // we only return modifier if it is allowed, otherwise we throw warning
-        if (allowedModifiers.indexOf(node.keyword) === -1 && errorModifiers.indexOf(node.keyword) === -1) {
+        if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) > -1) {
             Builder_1.default.addWarning(Builder_1.default.Warnigns.IgnoredModifier(node.keyword), node.location);
             return;
         }
-        if (errorModifiers.indexOf(node.keyword) > -1) {
+        if (allowedModifiers.indexOf(node.keyword) === -1 && ignoredModifiers.indexOf(node.keyword) === -1) {
             Builder_1.default.addError(Builder_1.default.Errors.UnexpectedModifier(node.keyword), node.location);
-            return '';
+            return;
         }
         Builder_1.default.add(node.keyword + ' ', node);
     };

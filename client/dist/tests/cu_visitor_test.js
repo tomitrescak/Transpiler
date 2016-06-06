@@ -1,6 +1,7 @@
 "use strict";
 var chai_1 = require('chai');
 var Builder_1 = require('../config/Builder');
+var Java2ts_1 = require('../Java2ts');
 var YAML = require('yamljs');
 var parser = require('../../../imports/parser');
 var cases = YAML.load(require('path').join(__dirname, 'cases.yaml'));
@@ -9,11 +10,12 @@ describe('Parser', function () {
         var index = 0;
         var _loop_1 = function(testCase) {
             index++;
-            var parsed = parser.parse(testCase.input);
-            var result = Builder_1.default.build(parsed);
-            chai_1.expect(result).to.equal(testCase.output, "Test (" + index + ") - " + testCase.name + "\n");
+            var result = Java2ts_1.transpile(testCase.input);
+            if (testCase.output) {
+                chai_1.expect(result).to.equal(testCase.output, "Test (" + index + ") - " + testCase.name);
+            }
             if (testCase.warnings) {
-                chai_1.expect(testCase.warnings.length).to.equal(Builder_1.default.handler.warnings.length);
+                chai_1.expect(testCase.warnings.length, "Test (" + index + ") - " + testCase.name + " - Warnings contain:\n" + Builder_1.default.handler.warnings.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(Builder_1.default.handler.warnings.length);
                 var _loop_2 = function(warning) {
                     var parts = warning.split('|');
                     var messageName = Builder_1.default.Warnigns[parts[0]];
