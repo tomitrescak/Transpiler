@@ -40,10 +40,11 @@ var Visitor = (function () {
             args[_i - 1] = arguments[_i];
         }
         if (!this.handler) {
-            this.parent.addErrorAtLocation(this.location, error, args);
+            (_a = this.parent).addErrorAtLocation.apply(_a, [this.location, error].concat(args));
             return;
         }
-        this.handler.addError(error(args), this.location.line, this.location.column);
+        this.handler.addError(error.apply(void 0, args), this.location.line, this.location.column);
+        var _a;
     };
     Visitor.prototype.addErrorAtLocation = function (location, error) {
         var args = [];
@@ -51,10 +52,11 @@ var Visitor = (function () {
             args[_i - 2] = arguments[_i];
         }
         if (!this.handler) {
-            this.parent.addErrorAtLocation(location, error, args);
+            (_a = this.parent).addErrorAtLocation.apply(_a, [location, error].concat(args));
             return;
         }
-        this.handler.addError(error(args), this.location.line, this.location.column);
+        this.handler.addError(error.apply(void 0, args), location.line, location.column);
+        var _a;
     };
     Visitor.prototype.addWarning = function (warning) {
         var args = [];
@@ -62,10 +64,21 @@ var Visitor = (function () {
             args[_i - 1] = arguments[_i];
         }
         if (!this.handler) {
-            this.parent.addWarning(warning, args);
+            this.parent.addWarningAtLocation(this.location, warning, args);
             return;
         }
         this.handler.addWarning(warning(args), this.location.line, this.location.column);
+    };
+    Visitor.prototype.addWarningAtLocation = function (location, warning) {
+        var args = [];
+        for (var _i = 2; _i < arguments.length; _i++) {
+            args[_i - 2] = arguments[_i];
+        }
+        if (!this.handler) {
+            this.parent.addWarningAtLocation(location, warning, args);
+            return;
+        }
+        this.handler.addWarning(warning(args), location.line, location.column);
     };
     /**
      * Checks the current name of the node, in case of failure it throws an exception

@@ -1,5 +1,6 @@
 "use strict";
 var FieldDeclarationVisitor_1 = require('../FieldDeclarationVisitor');
+var MethodDeclarationVisitor_1 = require('../MethodDeclarationVisitor');
 var BodyDeclarationsFactory = (function () {
     function BodyDeclarationsFactory() {
     }
@@ -7,8 +8,10 @@ var BodyDeclarationsFactory = (function () {
         switch (type.node) {
             case 'FieldDeclaration':
                 return new FieldDeclarationVisitor_1.FieldDeclarationVisitor(parent, type);
+            case 'MethodDeclaration':
+                return new MethodDeclarationVisitor_1.MethodDeclarationVisitor(parent, type);
             default:
-                throw type.node + ' is not implemented';
+                throw new Error(type.node + ' is not implemented');
         }
     };
     BodyDeclarationsFactory.createArray = function (parent, types) {

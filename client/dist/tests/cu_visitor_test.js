@@ -4,6 +4,7 @@ var Java2ts_1 = require('../Java2ts');
 var YAML = require('yamljs');
 var parser = require('../../../imports/parser');
 var cases = YAML.load(require('path').join(__dirname, 'cases.yaml'));
+//sadasdad
 describe('Parser', function () {
     it('parses classes', function () {
         var index = 0;

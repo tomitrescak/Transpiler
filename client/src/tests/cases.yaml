@@ -39,6 +39,14 @@
     - SimpleEnumsOnlySupported|0
     - SimpleEnumsOnlySupported|1
 
+- name: Enums > Errors Literals
+  input: |
+    public enum Level {
+      HIGH  (3),  //calls constructor with value 3
+    }
+  errors:
+    - SimpleEnumsOnlySupported|1
+
 # TEST Case
 - name: Types
   input: |
@@ -61,7 +69,8 @@
       ee: number = 0;
       ff: number = 0;
       gg: string = null;
-      hh: string = null, ii: string = null;
+      hh: string = null;
+      ii: string = null;
     }
   sourceMap: [0,1,2,3,4,5,6,7,8]
 
@@ -90,11 +99,30 @@
   input: |
     class tomi {
       int a = 4;
+      String b = "5";
+      char c = '4';
+      float d = 5.7f;
+      double e = 7.8;
+      double f = 0x56;
     }
   output: |
     class tomi {
       a: number = 4;
+      b: string = "5";
+      c: string = '4';
+      d: number = 5.7;
+      e: number = 7.8;
+      f: number = 0x56;
     }
+
+# TEST Case
+- name: Types > Checks > string
+  input: |
+    class tomi {
+      string a;
+    }
+  errors:
+    - CannotFindSymbol|1|string
 
 # TEST Case
 - name: Modifiers
@@ -186,5 +214,5 @@
     }
   output: |
     class tomi {
-      a: number = ((4 + 5) * 2) / (4 * 5);
+      a: number = (((4 + 5) * 2) / (4 * 5)|0);
     }

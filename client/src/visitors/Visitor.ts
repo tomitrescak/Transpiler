@@ -18,6 +18,7 @@ declare global {
     addError(error: Function, ...args: any[]): void;
     addErrorAtLocation(location: AstLocation, error: Function, ...args: any[]): void;
     addWarning(error: Function, ...args: any[]): void;
+    addWarningAtLocation(location: AstLocation, error: Function, ...args: any[]): void;
     visit(builder: IBuilder, ...args: any[]): void;
   }
 }
@@ -68,26 +69,34 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
   public addError(error: Function, ...args: any[]) {
     if (!this.handler) {
-      this.parent.addErrorAtLocation(this.location, error, args);
+      this.parent.addErrorAtLocation(this.location, error, ...args);
       return;
     }
-    this.handler.addError(error(args), this.location.line, this.location.column);
+    this.handler.addError(error(...args), this.location.line, this.location.column);
   }
 
   public addErrorAtLocation(location: AstLocation, error: Function, ...args: any[]) {
     if (!this.handler) {
-      this.parent.addErrorAtLocation(location, error, args);
+      this.parent.addErrorAtLocation(location, error, ...args);
       return;
     }
-    this.handler.addError(error(args), this.location.line, this.location.column);
+    this.handler.addError(error(...args), location.line, location.column);
   }
 
   public addWarning(warning: Function, ...args: any[]) {
     if (!this.handler) {
-      this.parent.addWarning(warning, args);
+      this.parent.addWarningAtLocation(this.location, warning, args);
       return;
     }
     this.handler.addWarning(warning(args), this.location.line, this.location.column);
+  }
+
+  public addWarningAtLocation(location: AstLocation, warning: Function, ...args: any[]) {
+    if (!this.handler) {
+      this.parent.addWarningAtLocation(location, warning, args);
+      return;
+    }
+    this.handler.addWarning(warning(args), location.line, location.column);
   }
 
   /**

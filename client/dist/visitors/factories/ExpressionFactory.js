@@ -13,6 +13,10 @@ var ExpressionVisitor = (function () {
                 return new Expressions.PrefixExpressionVisitor(parent, node);
             case 'BooleanLiteral':
                 return new Expressions.BooleanLiteralVisitor(parent, node);
+            case 'StringLiteral':
+                return new Expressions.StringLiteralVisitor(parent, node);
+            case 'CharacterLiteral':
+                return new Expressions.CharacterLiteralVisitor(parent, node);
             case 'NumberLiteral':
                 return new Expressions.NumberLiteralVisitor(parent, node);
             case 'InfixExpression':

@@ -1,10 +1,10 @@
-import { FragmentVisitor } from '../FieldDeclarationVisitor';
+import { VariableDeclarationFragmentVisitor } from '../VariableDeclarationFragmentVisitor';
 
 export default class FragmentsFactory {
   static create(parent: IVisitor, fragment: VariableDeclarationFragment, type: Types) {
     switch (fragment.node) {
       case 'VariableDeclarationFragment':
-        return new FragmentVisitor(parent, fragment, type);
+        return new VariableDeclarationFragmentVisitor(parent, fragment, type);
     }
   }
 

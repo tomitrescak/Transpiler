@@ -1,3 +1,4 @@
+import Messages from "../config/Messages";
 import Visitor from './Visitor';
 import NameFactory from './factories/NameFactory';
 import TypeFactory from './factories/TypeFactory';
@@ -23,20 +24,22 @@ declare global {
   }
 
   interface BaseTypeNode extends Visitor<Types> {
+    originalName: string;
     name: string;
   }
 
   type Types = PrimitiveType | SimpleType | ParametrizedType | ArrayType;
 }
 
-
-
 export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements BaseTypeNode {
   static numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
+  originalName: string;
   name: string;
 
   constructor(parent: IVisitor, node: PrimitiveType) {
     super(parent, node, 'PrimitiveType');
+
+    this.originalName = node.primitiveTypeCode;
 
     if (PrimitiveTypeVisitor.numbers.indexOf(node.primitiveTypeCode) > -1) {
       this.name = 'number';
@@ -48,26 +51,35 @@ export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements Base
   }
 
   visit(builder: IBuilder) {
-    builder.add(this.name, this.node.location);
+    builder.add(this.name, this.node.location)
   }
 }
 
 export class SimpleTypeVisitor extends Visitor<SimpleType> implements BaseTypeNode {
+  originalName: string;
   name: string;
+  nameNode: NameVisitor;
 
   constructor(parent: IVisitor, node: SimpleType) {
     super(parent, node, 'SimpleType');
 
-    this.name = NameFactory.create(this, node.name, ['String', 'string']).name;
+    this.nameNode = NameFactory.create(this, node.name);
+    this.originalName = this.nameNode.name;
+    this.name = this.nameNode.name;
+
+    if (this.name === 'string') {
+      this.addError(Messages.Errors.CannotFindSymbol, 'string');
+    }
   }
 
   visit(builder: IBuilder) {
-    builder.add(this.name, this.location);
+    this.nameNode.visit(builder, ['String', 'string']);
   }
 }
 
 export class ParametrizedTypeVisitor extends Visitor<ParametrizedType> implements BaseTypeNode {
   name: string;
+  originalName: string;
 
   constructor(parent: IVisitor, node: ParametrizedType) {
     super(parent, node, 'ParametrizedType');
@@ -82,11 +94,13 @@ export class ParametrizedTypeVisitor extends Visitor<ParametrizedType> implement
 
 export class ArrayTypeVisitor extends Visitor<ArrayType> implements BaseTypeNode {
   name: string;
+  originalName: string;
 
   constructor(parent: IVisitor, node: ArrayType) {
     super(parent, node, 'ArrayType');
 
     this.name = TypeFactory.create(this, node.componentType).name;
+    this.originalName = this.name;
     this.name += '[]'; // add it to the local name
   }
 

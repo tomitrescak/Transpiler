@@ -1,94 +1,1 @@
-import Visitor from './Visitor';
-import ExpressionFactory from './factories/ExpressionFactory';
-
-declare global {
-  interface NumberLiteral extends AstElement {
-    node: 'NumberLiteral';
-    token: string;
-  }
-
-  interface BooleanLiteral extends AstElement {
-    node: 'BooleanLiteral';
-    booleanValue: string;
-  }
-
-  interface PrefixExpression extends AstElement {
-    operator: string;
-    operand: Names;
-  }
-
-  interface InfixExpression extends AstElement {
-    node: 'NumberLiteral';
-    operator: string;
-    leftOperand: NumberLiteral;
-    rightOperand: NumberLiteral;
-  }
-
-  interface ParenthesizedExpression extends AstElement {
-    expression: Expression;
-  }
-
-  type Expression = NumberLiteral | InfixExpression | ParenthesizedExpression;
-}
-
-export class NumberLiteralVisitor extends Visitor<NumberLiteral> {
-  constructor(parent: IVisitor, node: NumberLiteral) {
-    super(parent, node, 'NumberLiteral');
-  }
-
-  visit(builder: IBuilder) {
-    builder.add(this.node.token, this.location);
-  }
-}
-
-export class InfixExpressionVisitor extends Visitor<InfixExpression> {
-  constructor(parent: IVisitor, node: InfixExpression) {
-    super(parent, node, 'InfixExpression');
-  }
-  visit(builder: IBuilder) {
-    const left = ExpressionFactory.create(this, this.node.leftOperand);
-    const right = ExpressionFactory.create(this, this.node.rightOperand);
-
-    left.visit(builder);
-    builder.add(' ' + this.node.operator + ' ');
-    right.visit(builder);
-  }
-}
-
-export class PrefixExpressionVisitor extends Visitor<PrefixExpression> {
-  constructor(parent: IVisitor, node: PrefixExpression) {
-    super(parent, node, 'PrefixExpression');
-  }
-
-  visit(builder: IBuilder) {
-    const operand = ExpressionFactory.create(this, this.node.operand);
-
-    builder.add(this.node.operator, this.location);
-    operand.visit(builder);
-
-    return this;
-  }
-}
-
-export class ParenthesizedExpressionVisitor extends Visitor<ParenthesizedExpression> {
-  constructor(parent: IVisitor, node: ParenthesizedExpression) {
-    super(parent, node, 'ParenthesizedExpression');
-  }
-
-  visit(builder: IBuilder) {
-    const expression = ExpressionFactory.create(this, this.node.expression);
-    builder.add('(');
-    expression.visit(builder);
-    builder.add(')');
-  }
-}
-
-export class BooleanLiteralVisitor extends Visitor<BooleanLiteral> {
-  constructor(parent: IVisitor, node: BooleanLiteral) {
-    super(parent, node, 'BooleanLiteral');
-  }
-
-  visit(builder: IBuilder) {
-    builder.add(this.node.booleanValue, this.location);
-  }
-}
+import Visitor from './Visitor';import ExpressionFactory from './factories/ExpressionFactory';const order = ['byte', 'short', 'int', 'long', 'float', 'double'];declare global {  interface StringLiteral extends AstElement {    node: 'StringLiteral';    escapedValue: string;  }  interface CharacterLiteral extends AstElement {    node: 'CharacterLiteral';    escapedValue: string;  }  // ewwerwer  interface NumberLiteral extends AstElement {    node: 'NumberLiteral';    token: string;  }  interface BooleanLiteral extends AstElement {    node: 'BooleanLiteral';    booleanValue: string;  }  interface PrefixExpression extends AstElement {    operator: string;    operand: Names;  }  interface InfixExpression extends AstElement {    node: 'NumberLiteral';    operator: string;    leftOperand: NumberLiteral;    rightOperand: NumberLiteral;  }  interface ParenthesizedExpression extends AstElement {    expression: Expression;  }  interface IExpressionVisitor extends IVisitor {    returnType: string;    value: number;  }  type Expression = NumberLiteral | InfixExpression | ParenthesizedExpression;}abstract class BaseExpression<T extends AstElement> extends Visitor<T> implements IExpressionVisitor {  returnType: string;  value: number;}export class NamedExpressionVisitor extends BaseExpression<Names> implements IExpressionVisitor {  nameVisitor: NameVisitor;  constructor(parent: IVisitor, visitor: NameVisitor) {    super(parent, visitor.node as Names, null);    throw new Error("Not implemented ..");  }  visit(builder: IBuilder) {    this.nameVisitor.visit(builder);  }}export class StringLiteralVisitor extends BaseExpression<StringLiteral> implements IExpressionVisitor {  constructor(parent: IVisitor, node: StringLiteral) {    super(parent, node, 'StringLiteral');    this.returnType = 'string';  }  visit(builder: IBuilder) {    builder.add(this.node.escapedValue, this.location);  }}export class CharacterLiteralVisitor extends BaseExpression<CharacterLiteral> implements IExpressionVisitor {  constructor(parent: IVisitor, node: CharacterLiteral) {    super(parent, node, 'CharacterLiteral');    this.returnType = 'char';  }  visit(builder: IBuilder) {    builder.add(this.node.escapedValue, this.location);  }}export class NumberLiteralVisitor extends BaseExpression<NumberLiteral> implements IExpressionVisitor {  token: string;  constructor(parent: IVisitor, node: NumberLiteral) {    super(parent, node, 'NumberLiteral');    let token = this.node.token;    let typeModifier = token.charAt(token.length - 1);    if (typeModifier === 'f' || typeModifier === 'd') {      if (typeModifier === 'f') {        this.returnType = 'float';      } else if (typeModifier === 'd') {        this.returnType = 'double';      }      token = token.substring(0, token.length - 1);    } else if (token.indexOf('.') > -1) {      this.returnType = 'double';    } else {      // integer type      const val = parseInt(token, 10);      if (val >= -128 && val <= 127) {        this.returnType = 'byte';      } else if (val >= -32768 && val <= 32767) {        this.returnType = 'short';      } else if (val >= -2147483648 && val <= 2147483647) {        this.returnType = 'int';      } else {        this.returnType = 'long';      }    }    this.token = token;  }  visit(builder: IBuilder) {    // trim number modifier    builder.add(this.token, this.location);  }}export class InfixExpressionVisitor extends BaseExpression<InfixExpression> implements IExpressionVisitor {  left: IExpressionVisitor;  right: IExpressionVisitor;  nonFloatingPointType: boolean;  constructor(parent: IVisitor, node: InfixExpression) {    super(parent, node, 'InfixExpression');    const left = ExpressionFactory.create(this, this.node.leftOperand);    const right = ExpressionFactory.create(this, this.node.rightOperand);    // detect the return type for numbers    if (this.node.operator === '+' && (left.returnType === 'string' || right.returnType === 'string')) {      this.returnType = 'string';    }    const lidx = order.indexOf(left.returnType);    const ridx = order.indexOf(right.returnType);    // return type is the one which has bigger priority    if (lidx > -1 && lidx > -1) {      if (lidx < ridx) {        this.returnType = right.returnType;      } else {        this.returnType = left.returnType;      }      // round non float types from long lower (idx of long is 4)      if (lidx < 4 && ridx < 4 && this.node.operator === '/') {        this.nonFloatingPointType = true;      }    }    this.left = left;    this.right = right;  }  visit(builder: IBuilder) {    // non floating point types are wrapped with rounding    if (this.nonFloatingPointType) {      builder.add('(');    }    this.left.visit(builder);    builder.add(` ${this.node.operator} `);    this.right.visit(builder);    if (this.nonFloatingPointType) {      builder.add('|0)');    }  }}export class PrefixExpressionVisitor extends BaseExpression<PrefixExpression> implements IExpressionVisitor {  operand: IExpressionVisitor;  constructor(parent: IVisitor, node: PrefixExpression) {    super(parent, node, 'PrefixExpression');    this.operand = ExpressionFactory.create(this, this.node.operand);    this.returnType = this.operand.returnType;  }  visit(builder: IBuilder) {    builder.add(this.node.operator, this.location);    this.operand.visit(builder);    return this;  }}export class ParenthesizedExpressionVisitor extends BaseExpression<ParenthesizedExpression> implements IExpressionVisitor {  expression: IExpressionVisitor;  constructor(parent: IVisitor, node: ParenthesizedExpression) {    super(parent, node, 'ParenthesizedExpression');    this.expression = ExpressionFactory.create(this, this.node.expression);    this.returnType = this.expression.returnType;  }  visit(builder: IBuilder) {    builder.add('(');    this.expression.visit(builder);    builder.add(')');  }}export class BooleanLiteralVisitor extends BaseExpression<BooleanLiteral> implements IExpressionVisitor {  constructor(parent: IVisitor, node: BooleanLiteral) {    super(parent, node, 'BooleanLiteral');    this.returnType = 'boolean';  }  visit(builder: IBuilder) {    builder.add(this.node.booleanValue, this.location);  }}

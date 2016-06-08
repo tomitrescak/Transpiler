@@ -13,7 +13,7 @@ export class TypeFactory {
       case 'ArrayType':
         return new ArrayTypeVisitor(parent, <ArrayType>type);
       default:
-        throw 'Unsupported node' + type.node;
+        throw new Error('Unsupported node' + type.node);
     }
   }
 }

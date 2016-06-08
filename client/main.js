@@ -26,6 +26,6 @@ Template.hello.events({
     var source = document.getElementById('source').value;
     // increment the counter when button is clicked
     console.log(parseTree(source));
-    instance.result.set(transpile(source));
+    instance.result.set(transpile(source).text);
   },
 });

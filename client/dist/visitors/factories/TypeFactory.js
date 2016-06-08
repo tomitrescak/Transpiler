@@ -15,7 +15,7 @@ var TypeFactory = (function () {
             case 'ArrayType':
                 return new TypesVisitor_1.ArrayTypeVisitor(parent, type);
             default:
-                throw 'Unsupported node' + type.node;
+                throw new Error('Unsupported node' + type.node);
         }
     };
     return TypeFactory;

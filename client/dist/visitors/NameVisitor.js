@@ -8,17 +8,8 @@ var Visitor_1 = require('./Visitor');
 var NameFactory_1 = require('./factories/NameFactory');
 var SimpleNameVisitor = (function (_super) {
     __extends(SimpleNameVisitor, _super);
-    function SimpleNameVisitor(parent, node, substitutions) {
-        if (substitutions === void 0) { substitutions = null; }
+    function SimpleNameVisitor(parent, node) {
         _super.call(this, parent, node, 'SimpleName');
-        if (substitutions != null) {
-            for (var i = 0; i < substitutions.length / 2; i++) {
-                if (node.identifier === substitutions[i * 2]) {
-                    this.name = substitutions[i * 2 + 1];
-                    return;
-                }
-            }
-        }
         this.name = node.identifier;
     }
     Object.defineProperty(SimpleNameVisitor.prototype, "fullName", {
@@ -28,9 +19,19 @@ var SimpleNameVisitor = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    SimpleNameVisitor.prototype.visit = function (builder) {
+    SimpleNameVisitor.prototype.visit = function (builder, substitutions) {
+        if (substitutions === void 0) { substitutions = null; }
+        var name = this.name;
+        if (substitutions != null) {
+            for (var i = 0; i < substitutions.length / 2; i++) {
+                if (name === substitutions[i * 2]) {
+                    name = substitutions[i * 2 + 1];
+                    break;
+                }
+            }
+        }
         // build this name
-        builder.add(this.name, this.location);
+        builder.add(name, this.location);
     };
     return SimpleNameVisitor;
 }(Visitor_1.default));

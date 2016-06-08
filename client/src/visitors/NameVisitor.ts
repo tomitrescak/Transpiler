@@ -23,17 +23,9 @@ declare global {
 export class SimpleNameVisitor extends Visitor<SimpleName> implements NameVisitor {
   name: string;
 
-  constructor(parent: IVisitor, node: SimpleName, substitutions: string[] = null) {
+  constructor(parent: IVisitor, node: SimpleName) {
     super(parent, node, 'SimpleName');
 
-    if (substitutions != null) {
-      for (let i = 0; i < substitutions.length / 2; i++) {
-        if (node.identifier === substitutions[i * 2]) {
-          this.name = substitutions[i * 2 + 1];
-          return;
-        }
-      }
-    }
     this.name = node.identifier;
   }
 
@@ -41,9 +33,19 @@ export class SimpleNameVisitor extends Visitor<SimpleName> implements NameVisito
     return this.name;
   }
 
-  visit(builder: IBuilder) {
+  visit(builder: IBuilder, substitutions: string[] = null) {
+    let name = this.name;
+    if (substitutions != null) {
+      for (let i = 0; i < substitutions.length / 2; i++) {
+        if (name === substitutions[i * 2]) {
+          name = substitutions[i * 2 + 1];
+          break;
+        }
+      }
+    }
+
     // build this name
-    builder.add(this.name, this.location);
+    builder.add(name, this.location);
   }
 }
 

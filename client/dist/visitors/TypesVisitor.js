@@ -4,6 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var Messages_1 = require("../config/Messages");
 var Visitor_1 = require('./Visitor');
 var NameFactory_1 = require('./factories/NameFactory');
 var TypeFactory_1 = require('./factories/TypeFactory');
@@ -11,6 +12,7 @@ var PrimitiveTypeVisitor = (function (_super) {
     __extends(PrimitiveTypeVisitor, _super);
     function PrimitiveTypeVisitor(parent, node) {
         _super.call(this, parent, node, 'PrimitiveType');
+        this.originalName = node.primitiveTypeCode;
         if (PrimitiveTypeVisitor.numbers.indexOf(node.primitiveTypeCode) > -1) {
             this.name = 'number';
         }
@@ -32,10 +34,15 @@ var SimpleTypeVisitor = (function (_super) {
     __extends(SimpleTypeVisitor, _super);
     function SimpleTypeVisitor(parent, node) {
         _super.call(this, parent, node, 'SimpleType');
-        this.name = NameFactory_1.default.create(this, node.name, ['String', 'string']).name;
+        this.nameNode = NameFactory_1.default.create(this, node.name);
+        this.originalName = this.nameNode.name;
+        this.name = this.nameNode.name;
+        if (this.name === 'string') {
+            this.addError(Messages_1.default.Errors.CannotFindSymbol, 'string');
+        }
     }
     SimpleTypeVisitor.prototype.visit = function (builder) {
-        builder.add(this.name, this.location);
+        this.nameNode.visit(builder, ['String', 'string']);
     };
     return SimpleTypeVisitor;
 }(Visitor_1.default));
@@ -57,6 +64,7 @@ var ArrayTypeVisitor = (function (_super) {
     function ArrayTypeVisitor(parent, node) {
         _super.call(this, parent, node, 'ArrayType');
         this.name = TypeFactory_1.default.create(this, node.componentType).name;
+        this.originalName = this.name;
         this.name += '[]'; // add it to the local name
     }
     ArrayTypeVisitor.prototype.visit = function (builder) {

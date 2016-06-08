@@ -1,0 +1,146 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <ProjectGuid>{42A81813-0670-4C0C-A503-1D65FA103505}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <OutputPath>bin</OutputPath>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <TypeScriptToolsVersion>1.9</TypeScriptToolsVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <ItemGroup>
+    <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="client\dist\config\Builder.js" />
+    <Content Include="client\dist\config\Handler.js" />
+    <Content Include="client\dist\config\LeftPad.js" />
+    <Content Include="client\dist\config\Messages.js" />
+    <Content Include="client\dist\config\SourceMap.js" />
+    <Content Include="client\dist\Java2ts.js" />
+    <Content Include="client\dist\tests\cu_visitor_test.js" />
+    <Content Include="client\dist\tests\visitors_test.js" />
+    <Content Include="client\dist\visitors\CompilationUnitVisitor.js" />
+    <Content Include="client\dist\visitors\EnumDeclarationVisitor.js" />
+    <Content Include="client\dist\visitors\ExpressionsVisitors.js" />
+    <Content Include="client\dist\visitors\factories\BodyDeclarationsFactory.js" />
+    <Content Include="client\dist\visitors\factories\DeclarationsFactory.js" />
+    <Content Include="client\dist\visitors\factories\ExpressionFactory.js" />
+    <Content Include="client\dist\visitors\factories\ModifiersFactory.js" />
+    <Content Include="client\dist\visitors\factories\NameFactory.js" />
+    <Content Include="client\dist\visitors\factories\TypeDeclarationsFactory.js" />
+    <Content Include="client\dist\visitors\factories\TypeFactory.js" />
+    <Content Include="client\dist\visitors\FieldDeclarationVisitor.js" />
+    <Content Include="client\dist\visitors\ImportDeclarationvisitor.js" />
+    <Content Include="client\dist\visitors\InitializerVisitor.js" />
+    <Content Include="client\dist\visitors\MarkerVisitor.js" />
+    <Content Include="client\dist\visitors\ModifiersVisitor.js" />
+    <Content Include="client\dist\visitors\NameVisitor.js" />
+    <Content Include="client\dist\visitors\PackageDeclarationVisitor.js" />
+    <Content Include="client\dist\visitors\TypeDeclarationVisitor.js" />
+    <Content Include="client\dist\visitors\TypeParameterVisitor.js" />
+    <Content Include="client\dist\visitors\TypesVisitor.js" />
+    <Content Include="client\dist\visitors\Visitor.js" />
+    <Content Include="client\main.css" />
+    <Content Include="client\main.html" />
+    <Content Include="client\main.js" />
+    <Content Include="imports\parser.js" />
+    <Content Include="server\main.js" />
+    <Content Include="wallaby.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="client\src\config\Builder.ts" />
+    <TypeScriptCompile Include="client\src\config\Handler.ts" />
+    <TypeScriptCompile Include="client\src\config\LeftPad.ts" />
+    <TypeScriptCompile Include="client\src\config\Messages.ts" />
+    <TypeScriptCompile Include="client\src\config\SourceMap.ts" />
+    <TypeScriptCompile Include="client\src\Java2ts.ts" />
+    <TypeScriptCompile Include="client\src\tests\cu_visitor_test.ts" />
+    <TypeScriptCompile Include="client\src\tests\visitors_test.ts" />
+    <TypeScriptCompile Include="client\src\typings\globals\jasmine\index.d.ts" />
+    <TypeScriptCompile Include="client\src\typings\index.d.ts" />
+    <TypeScriptCompile Include="client\src\typings\java-parser.d.ts" />
+    <TypeScriptCompile Include="client\src\typings\modules\chai\index.d.ts" />
+    <TypeScriptCompile Include="client\src\visitors\CompilationUnitVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\EnumDeclarationVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\ExpressionsVisitors.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\BodyDeclarationsFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\DeclarationsFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\ExpressionFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\ModifiersFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\NameFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\TypeDeclarationsFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\factories\TypeFactory.ts" />
+    <TypeScriptCompile Include="client\src\visitors\FieldDeclarationVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\ImportDeclarationvisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\InitializerVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\MarkerVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\ModifiersVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\NameVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\PackageDeclarationVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\TypeDeclarationVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\TypeParameterVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\TypesVisitor.ts" />
+    <TypeScriptCompile Include="client\src\visitors\Visitor.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="client\src\tests\cases.yaml" />
+    <Content Include="client\src\tsconfig.json" />
+    <Content Include="client\src\typings\globals\jasmine\typings.json" />
+    <Content Include="client\src\typings\modules\chai\typings.json" />
+    <Content Include="imports\Java.1.7.pegjs" />
+    <Content Include="imports\Java.1.7.pegjs.zip" />
+    <Content Include="imports\Java0.1" />
+    <Content Include="imports\options.json" />
+    <Content Include="package.json" />
+    <Content Include="tslint.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="node_modules\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">12.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RootNamespace>java2ts</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>50222</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:50222/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptRemoveComments>false</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>true</TypeScriptSourceMap>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+</Project>

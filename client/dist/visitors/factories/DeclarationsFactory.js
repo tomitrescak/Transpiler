@@ -1,12 +1,12 @@
 "use strict";
-var FieldDeclarationVisitor_1 = require('../FieldDeclarationVisitor');
+var VariableDeclarationFragmentVisitor_1 = require('../VariableDeclarationFragmentVisitor');
 var FragmentsFactory = (function () {
     function FragmentsFactory() {
     }
     FragmentsFactory.create = function (parent, fragment, type) {
         switch (fragment.node) {
             case 'VariableDeclarationFragment':
-                return new FieldDeclarationVisitor_1.FragmentVisitor(parent, fragment, type);
+                return new VariableDeclarationFragmentVisitor_1.VariableDeclarationFragmentVisitor(parent, fragment, type);
         }
     };
     FragmentsFactory.createArray = function (parent, fragments, type) {
