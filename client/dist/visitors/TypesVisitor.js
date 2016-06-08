@@ -50,11 +50,17 @@ exports.SimpleTypeVisitor = SimpleTypeVisitor;
 var ParametrizedTypeVisitor = (function (_super) {
     __extends(ParametrizedTypeVisitor, _super);
     function ParametrizedTypeVisitor(parent, node) {
-        _super.call(this, parent, node, 'ParametrizedType');
-        throw new Error('Not Implemented');
+        _super.call(this, parent, node, 'ParameterizedType');
+        this.type = TypeFactory_1.default.create(this, node.type);
+        this.typeArguments = TypeFactory_1.default.createArray(this, node.typeArguments);
+        this.originalName = this.type.originalName;
+        this.name = this.type.name;
     }
     ParametrizedTypeVisitor.prototype.visit = function (builder) {
-        throw new Error('Not Implemented');
+        this.type.visit(builder);
+        builder.add('<');
+        builder.join(this.typeArguments, ',');
+        builder.add('>');
     };
     return ParametrizedTypeVisitor;
 }(Visitor_1.default));

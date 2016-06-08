@@ -6,7 +6,7 @@ var NameFactory = (function () {
     NameFactory.create = function (parent, node, substitutions) {
         if (substitutions === void 0) { substitutions = null; }
         if (node.node === 'SimpleName') {
-            return new NameVisitor_1.SimpleNameVisitor(parent, node, substitutions);
+            return new NameVisitor_1.SimpleNameVisitor(parent, node);
         }
         else if (node.node === 'QualifiedName') {
             return new NameVisitor_1.QualifiedNameVisitor(parent, node);

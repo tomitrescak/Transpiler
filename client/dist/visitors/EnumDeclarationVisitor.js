@@ -5,8 +5,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var ModifiersFactory_1 = require('./factories/ModifiersFactory');
 var NameFactory_1 = require('./factories/NameFactory');
+var ModifiersVisitor_1 = require('./ModifiersVisitor');
 var Messages_1 = require('../config/Messages');
 var EnumConstantDeclarationVisitor = (function (_super) {
     __extends(EnumConstantDeclarationVisitor, _super);
@@ -37,14 +37,14 @@ var EnumDeclarationVisitor = (function (_super) {
         var _this = this;
         var node = this.node;
         var constants = node.enumConstants.map(function (c) { return new EnumConstantDeclarationVisitor(_this, c); });
-        var modifiers = ModifiersFactory_1.default.create(this, node.modifiers, ['public', 'private', 'abstract'], []);
+        var modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['public', 'private', 'abstract'], []);
         var name = NameFactory_1.default.create(this, node.name).name;
         // pad from left
         builder.pad(this.indent);
         // increase padding for child elements
         this.incIndent();
         // add modifiers
-        builder.join(modifiers, '');
+        modifiers.visit(builder);
         // add descriptors
         builder.add('enum ');
         // add name

@@ -12,7 +12,7 @@ declare global {
 
 export class TypeParameterVisitor extends Visitor<TypeParameter> {
   name: string;
-  bounds: BaseTypeNode[];
+  bounds: TypeVisitor[];
 
   constructor(parent: IVisitor, node: TypeParameter) {
     super(parent, node, 'TypeParameter');
@@ -33,13 +33,11 @@ export class TypeParameterVisitor extends Visitor<TypeParameter> {
   }
 }
 
-export default class TypeParametersVisitor extends Visitor<any> {
+export default class TypeParametersVisitor  {
   parameters: TypeParameterVisitor[];
 
   constructor(parent: IVisitor, node: TypeParameter[]) {
-    super(parent, node, 'TypeParameter');
-
-    this.parameters = node.map((p) => new TypeParameterVisitor(this.parent, p));
+    this.parameters = node.map((p) => new TypeParameterVisitor(parent, p));
   }
 
   visit(builder: IBuilder) {

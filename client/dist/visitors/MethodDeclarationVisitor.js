@@ -5,12 +5,56 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var BlockVisitor_1 = require('./BlockVisitor');
+var NameFactory_1 = require('./factories/NameFactory');
+var TypeFactory_1 = require('./factories/TypeFactory');
+var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
+var ModifiersVisitor_1 = require('./ModifiersVisitor');
+var VariableDeclarationSingleVisitor_1 = require('./VariableDeclarationSingleVisitor');
 var MethodDeclarationVisitor = (function (_super) {
     __extends(MethodDeclarationVisitor, _super);
     function MethodDeclarationVisitor(parent, node) {
         _super.call(this, parent, node, 'MethodDeclaration');
+        this.name = NameFactory_1.default.create(this, node.name);
+        this.returnType = TypeFactory_1.default.create(this, node.returnType2);
+        if (node.body) {
+            this.body = new BlockVisitor_1.default(this, node.body);
+        }
+        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers);
+        // type parameters
+        if (node.typeParameters.length) {
+            this.typeParameters = new TypeParameterVisitor_1.default(this, node.typeParameters);
+        }
+        // function parameters
+        if (node.parameters.length) {
+            this.parameters = new VariableDeclarationSingleVisitor_1.default(this, node.parameters);
+        }
     }
     MethodDeclarationVisitor.prototype.visit = function (builder) {
+        // add indentation
+        builder.pad(this.indent);
+        // add modifiers
+        this.modifiers.visit(builder);
+        // example: <X,Y> int[][] name(String n, int g[][], M<T> t) throws Ex {  }
+        this.name.visit(builder);
+        // type parameters
+        if (this.typeParameters) {
+            this.typeParameters.visit(builder);
+        }
+        // header
+        builder.add('(');
+        if (this.parameters) {
+            this.parameters.visit(builder);
+        }
+        builder.add(')');
+        // type
+        builder.add(': ');
+        this.returnType.visit(builder);
+        builder.add(' ');
+        // body
+        if (this.body) {
+            this.body.visit(builder);
+        }
     };
     return MethodDeclarationVisitor;
 }(Visitor_1.default));

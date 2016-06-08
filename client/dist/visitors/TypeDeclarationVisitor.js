@@ -5,17 +5,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var ModifiersFactory_1 = require('./factories/ModifiersFactory');
 var NameFactory_1 = require('./factories/NameFactory');
-var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
 var TypeFactory_1 = require('./factories/TypeFactory');
 var BodyDeclarationsFactory_1 = require('./factories/BodyDeclarationsFactory');
+var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
+var ModifiersVisitor_1 = require('./ModifiersVisitor');
 var TypeDeclarationVisitor = (function (_super) {
     __extends(TypeDeclarationVisitor, _super);
     function TypeDeclarationVisitor(parent, node) {
         var _this = this;
         _super.call(this, parent, node, 'TypeDeclaration');
-        this.modifiers = ModifiersFactory_1.default.create(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
+        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
         this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
         this.name = NameFactory_1.default.create(this, node.name);
         this.typeParameters = new TypeParameterVisitor_1.default(this, node.typeParameters);
@@ -35,7 +35,7 @@ var TypeDeclarationVisitor = (function (_super) {
         // increase padding
         this.incIndent();
         // add modifiers (public / private ...)
-        builder.join(this.modifiers, '');
+        this.modifiers.visit(builder);
         // add descriptors (class / interface)
         builder.add(this.typeDeclarationName);
         // add name

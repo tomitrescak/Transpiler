@@ -1,10 +1,12 @@
 import VisitorNode from './Visitor';
 
-import ModifierFactory from './factories/ModifiersFactory';
+
 import NameFactory from './factories/NameFactory';
-import TypeParametersVisitor from './TypeParameterVisitor';
 import TypeFactory from './factories/TypeFactory';
 import BodyDeclarationsFactory from './factories/BodyDeclarationsFactory';
+
+import TypeParametersVisitor from './TypeParameterVisitor';
+import ModifiersVisitor from './ModifiersVisitor';
 
 declare global {
   interface BaseTypeDeclaration extends AstElement {
@@ -25,18 +27,18 @@ declare global {
 }
 
 export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
-  modifiers: IVisitor[];
+  modifiers: ModifiersVisitor;
   typeDeclarationName: string;
   name: NameVisitor;
   typeParameters: TypeParametersVisitor;
   superClassType: string;
-  superInterfaceTypes: BaseTypeNode[];
+  superInterfaceTypes: TypeVisitor[];
   bodyDeclarations: IVisitor[];
 
   constructor(parent: IVisitor, node: TypeDeclaration) {
     super(parent, node, 'TypeDeclaration');
 
-    this.modifiers = ModifierFactory.create(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
+    this.modifiers = new ModifiersVisitor(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
     this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
     this.name = NameFactory.create(this, node.name);
     this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
@@ -63,7 +65,7 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
     this.incIndent();
 
     // add modifiers (public / private ...)
-    builder.join(this.modifiers, '');
+    this.modifiers.visit(builder);
 
     // add descriptors (class / interface)
     builder.add(this.typeDeclarationName);

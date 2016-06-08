@@ -9,9 +9,18 @@ exports.default = {
             }
             return 'Duplicate accessors: ' + args.join();
         },
-        UnexpectedModifier: function (modifier) { return 'Unexpected modifier: ' + modifier; },
-        SimpleEnumsOnlySupported: function () { return 'Only simple enums are supported'; },
-        CannotFindSymbol: function (name) { return 'Cannot find symbol: ' + name; }
+        UnexpectedModifier: function (modifier) {
+            return 'Unexpected modifier: ' + modifier;
+        },
+        SimpleEnumsOnlySupported: function () {
+            return 'Only simple enums are supported';
+        },
+        CannotFindSymbol: function (name) {
+            return 'Cannot find symbol: ' + name;
+        },
+        TypeMismatch: function (from, to) {
+            return "Type mismatch: Cannot convert from '" + from + "' to '" + to + "'";
+        }
     },
     Warnings: {
         IgnoredAnnotation: function () { return 'Annotations are not supported and will be ignored'; },

@@ -6,7 +6,7 @@ import ExpressionFactory from './factories/ExpressionFactory';
 
 declare global {
   interface VariableDeclarationFragment extends AstElement {
-    node: 'VariableDeclarationFragment';
+    node: 'VariableDeclarationFragment' | 'SingleVariableDeclaration';
     name: SimpleName;
     extraDimensions: number;
     initializer: any;
@@ -19,11 +19,10 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
 
   name: IVisitor;
   initialiser: IExpressionVisitor;
-  type: BaseTypeNode;
+  type: TypeVisitor;
 
   constructor(parent: IVisitor, node: VariableDeclarationFragment, typeDefinition: Types, nodeName = 'VariableDeclarationFragment') {
     super(parent, node, nodeName);
-
     this.name = NameFactory.create(this, node.name);
     this.type = TypeFactory.create(this, typeDefinition);
 
@@ -53,7 +52,7 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
     }
   }
 
-  visit(builder: IBuilder) {
+  visit(builder: IBuilder, lineDeclaration = true) {
     const fragment = this.node;
     let extraDimensions = '';
 
@@ -63,7 +62,9 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
     }
 
     // add padding
-    builder.pad(this.indent);
+    if (lineDeclaration) {
+      builder.pad(this.indent);
+    }
 
     // prefix name : type = initialiser;
     this.name.visit(builder);
@@ -76,22 +77,29 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
 
     // add extra dimension
     builder.add(extraDimensions);
-    // add iniitliser
-    builder.add(' = ');
 
-    if (this.initialiser) {
-      this.initialiser.visit(builder);
-    } else {
-      // initialise types to default values
-      let dinitialiser = '';
-      switch (this.type.name) {
-        case 'number':
-          dinitialiser = '0';
-          break;
-        default:
-          dinitialiser = 'null';
+    // line declarations have extra stuff such as initialiser
+    if (lineDeclaration) {
+
+      // add iniitliser
+      builder.add(' = ');
+
+      if (this.initialiser) {
+        this.initialiser.visit(builder);
+      } else {
+        // initialise types to default values
+        let dinitialiser = '';
+        switch (this.type.name) {
+          case 'number':
+            dinitialiser = '0';
+            break;
+          default:
+            dinitialiser = 'null';
+        }
+        builder.add(dinitialiser);
       }
-      builder.add(dinitialiser);
     }
   }
 }
+
+export default VariableDeclarationFragmentVisitor;

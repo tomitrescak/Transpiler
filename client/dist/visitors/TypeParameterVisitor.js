@@ -26,12 +26,9 @@ var TypeParameterVisitor = (function (_super) {
     return TypeParameterVisitor;
 }(Visitor_1.default));
 exports.TypeParameterVisitor = TypeParameterVisitor;
-var TypeParametersVisitor = (function (_super) {
-    __extends(TypeParametersVisitor, _super);
+var TypeParametersVisitor = (function () {
     function TypeParametersVisitor(parent, node) {
-        var _this = this;
-        _super.call(this, parent, node, 'TypeParameter');
-        this.parameters = node.map(function (p) { return new TypeParameterVisitor(_this.parent, p); });
+        this.parameters = node.map(function (p) { return new TypeParameterVisitor(parent, p); });
     }
     TypeParametersVisitor.prototype.visit = function (builder) {
         if (this.parameters.length) {
@@ -42,6 +39,6 @@ var TypeParametersVisitor = (function (_super) {
         return this;
     };
     return TypeParametersVisitor;
-}(Visitor_1.default));
+}());
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TypeParametersVisitor;

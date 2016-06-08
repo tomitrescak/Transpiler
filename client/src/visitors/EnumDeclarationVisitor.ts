@@ -1,6 +1,8 @@
 import Visitor from './Visitor';
-import ModifiersFactory from './factories/ModifiersFactory';
 import NamesFactory from './factories/NameFactory';
+
+import ModifiersVisitor from './ModifiersVisitor';
+
 import Messages from '../config/Messages';
 
 declare global {
@@ -48,7 +50,7 @@ export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
   visit(builder: IBuilder) {
     const { node } = this;
     const constants = node.enumConstants.map((c: EnumConstantDeclaration) => new EnumConstantDeclarationVisitor(this, c));
-    const modifiers = ModifiersFactory.create(this, node.modifiers, ['public', 'private', 'abstract'], []);
+    const modifiers = new ModifiersVisitor(this, node.modifiers, ['public', 'private', 'abstract'], []);
     const name = NamesFactory.create(this, node.name).name;
 
     // pad from left
@@ -58,7 +60,7 @@ export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
     this.incIndent();
 
     // add modifiers
-    builder.join(modifiers, '');
+    modifiers.visit(builder);
 
     // add descriptors
     builder.add('enum ');

@@ -15,7 +15,8 @@ declare global {
 
   interface ParametrizedType extends AstElement {
     node: 'ParametrizedType';
-    type: SimpleType | ParametrizedType;
+    type: Types;
+    typeArguments: Types[];
   }
 
   interface ArrayType extends AstElement {
@@ -23,7 +24,7 @@ declare global {
     componentType: PrimitiveType | SimpleType | ParametrizedType | ArrayType;
   }
 
-  interface BaseTypeNode extends Visitor<Types> {
+  interface TypeVisitor extends Visitor<Types> {
     originalName: string;
     name: string;
   }
@@ -31,7 +32,7 @@ declare global {
   type Types = PrimitiveType | SimpleType | ParametrizedType | ArrayType;
 }
 
-export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements BaseTypeNode {
+export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements TypeVisitor {
   static numbers = ['byte', 'short', 'int', 'long', 'float', 'double'];
   originalName: string;
   name: string;
@@ -55,7 +56,7 @@ export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements Base
   }
 }
 
-export class SimpleTypeVisitor extends Visitor<SimpleType> implements BaseTypeNode {
+export class SimpleTypeVisitor extends Visitor<SimpleType> implements TypeVisitor {
   originalName: string;
   name: string;
   nameNode: NameVisitor;
@@ -77,22 +78,31 @@ export class SimpleTypeVisitor extends Visitor<SimpleType> implements BaseTypeNo
   }
 }
 
-export class ParametrizedTypeVisitor extends Visitor<ParametrizedType> implements BaseTypeNode {
+export class ParametrizedTypeVisitor extends Visitor<ParametrizedType> implements TypeVisitor {
   name: string;
   originalName: string;
+  type: TypeVisitor;
+  typeArguments: TypeVisitor[];
 
   constructor(parent: IVisitor, node: ParametrizedType) {
-    super(parent, node, 'ParametrizedType');
+    super(parent, node, 'ParameterizedType');
 
-    throw new Error('Not Implemented');
+    this.type = TypeFactory.create(this, node.type);
+    this.typeArguments = TypeFactory.createArray(this, node.typeArguments);
+
+    this.originalName = this.type.originalName;
+    this.name = this.type.name;
   }
 
   visit(builder: IBuilder) {
-    throw new Error('Not Implemented');
+    this.type.visit(builder);
+    builder.add('<');
+    builder.join(this.typeArguments, ',');
+    builder.add('>');
   }
 }
 
-export class ArrayTypeVisitor extends Visitor<ArrayType> implements BaseTypeNode {
+export class ArrayTypeVisitor extends Visitor<ArrayType> implements TypeVisitor {
   name: string;
   originalName: string;
 
@@ -110,7 +120,7 @@ export class ArrayTypeVisitor extends Visitor<ArrayType> implements BaseTypeNode
 }
 
 export class TypesVisitor {
-  static visit(parent: IVisitor, types: (SimpleType | ParametrizedType)[]): BaseTypeNode[] {
+  static visit(parent: IVisitor, types: (SimpleType | ParametrizedType)[]): TypeVisitor[] {
     return types.map((type) => TypeFactory.create(parent, type));
   }
 }

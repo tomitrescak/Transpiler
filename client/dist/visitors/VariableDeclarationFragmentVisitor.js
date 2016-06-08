@@ -38,7 +38,8 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
             }
         }
     }
-    VariableDeclarationFragmentVisitor.prototype.visit = function (builder) {
+    VariableDeclarationFragmentVisitor.prototype.visit = function (builder, lineDeclaration) {
+        if (lineDeclaration === void 0) { lineDeclaration = true; }
         var fragment = this.node;
         var extraDimensions = '';
         if (fragment.extraDimensions) {
@@ -48,7 +49,9 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
             }
         }
         // add padding
-        builder.pad(this.indent);
+        if (lineDeclaration) {
+            builder.pad(this.indent);
+        }
         // prefix name : type = initialiser;
         this.name.visit(builder);
         // add :
@@ -57,22 +60,25 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
         this.type.visit(builder);
         // add extra dimension
         builder.add(extraDimensions);
-        // add iniitliser
-        builder.add(' = ');
-        if (this.initialiser) {
-            this.initialiser.visit(builder);
-        }
-        else {
-            // initialise types to default values
-            var dinitialiser = '';
-            switch (this.type.name) {
-                case 'number':
-                    dinitialiser = '0';
-                    break;
-                default:
-                    dinitialiser = 'null';
+        // line declarations have extra stuff such as initialiser
+        if (lineDeclaration) {
+            // add iniitliser
+            builder.add(' = ');
+            if (this.initialiser) {
+                this.initialiser.visit(builder);
             }
-            builder.add(dinitialiser);
+            else {
+                // initialise types to default values
+                var dinitialiser = '';
+                switch (this.type.name) {
+                    case 'number':
+                        dinitialiser = '0';
+                        break;
+                    default:
+                        dinitialiser = 'null';
+                }
+                builder.add(dinitialiser);
+            }
         }
     };
     VariableDeclarationFragmentVisitor.order = ['byte', 'short', 'int', 'long', 'float', 'double'];
@@ -80,3 +86,5 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
     return VariableDeclarationFragmentVisitor;
 }(Visitor_1.default));
 exports.VariableDeclarationFragmentVisitor = VariableDeclarationFragmentVisitor;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = VariableDeclarationFragmentVisitor;

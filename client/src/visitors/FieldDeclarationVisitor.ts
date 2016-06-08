@@ -1,6 +1,7 @@
 import Visitor from './Visitor';
-import ModifiersFactory from './factories/ModifiersFactory';
 import FragmentsFactory from './factories/DeclarationsFactory';
+
+import ModifiersVisitor from './ModifiersVisitor';
 
 declare global {
   interface FieldDeclaration extends AstElement {
@@ -17,10 +18,10 @@ export class FieldDeclarationVisitor extends Visitor<FieldDeclaration> {
   }
 
   visit(builder: IBuilder) {
-    const modifiers = ModifiersFactory.create(this, this.node.modifiers);
+    const modifiers = new ModifiersVisitor(this, this.node.modifiers);
     const fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type);
 
-    builder.join(modifiers, '');
+    modifiers.visit(builder);
     builder.join(fragments, ';\n');
     builder.add(';\n');
   }

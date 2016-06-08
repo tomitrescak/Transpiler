@@ -1,3 +1,45 @@
-- name: Functions > void
-  input: void a() {}
-  output: a(): void {} 
+- name: Functions > modifiers
+  input: public static int a() {}
+  output: public static a(): number {}
+
+- name: Functions > Type Parameters
+  input: <T,U> int a() {}
+  output: a<T,U>(): number {}
+
+- name: Functions > Remove throws
+  input: int a() throws Ex1, Ex2 {}
+  output: a(): number {}
+
+- name: Functions > Parameters > Simple
+  input: int a(int b) {};
+  output: a(b: number): number {}
+
+- name: Functions > Parameters > Multiple
+  input: int a(int b, String c) {};
+  output: a(b: number, c: string): number {}
+
+- name: Functions > Parameters > Parameterised
+  input: A a(B<C,D<E>> b) {};
+  output: a(b: B<C,D<E>>): A {}
+
+- name: Functions > Parameters > Array
+  input: int[][] a(int[] b[]) {};
+  output: a(b: number[][]): number[][] {}
+
+- name: Functions > Parameters > Variable
+  input: int a(int b, String... c) {};
+  output: a(b: number, ...c: string[]): number {}
+
+- name: Functions > Extra Complex
+  input: public static <T> int[][] func(String a, int[] g[][], M<T> t, int... v) throws Ex1, Ex2 {}
+  output: public static func<T>(a: string, g: number[][][], t: M<T>, ...v: number[]): number[][] {}
+
+- name: Functions > Variables
+  input: |
+    A a() {
+      B b;
+    }
+  output: |
+   a(): A {
+     let b: B;
+   }

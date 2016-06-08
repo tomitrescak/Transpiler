@@ -5,17 +5,17 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var ModifiersFactory_1 = require('./factories/ModifiersFactory');
 var DeclarationsFactory_1 = require('./factories/DeclarationsFactory');
+var ModifiersVisitor_1 = require('./ModifiersVisitor');
 var FieldDeclarationVisitor = (function (_super) {
     __extends(FieldDeclarationVisitor, _super);
     function FieldDeclarationVisitor(parent, node) {
         _super.call(this, parent, node, 'FieldDeclaration');
     }
     FieldDeclarationVisitor.prototype.visit = function (builder) {
-        var modifiers = ModifiersFactory_1.default.create(this, this.node.modifiers);
+        var modifiers = new ModifiersVisitor_1.default(this, this.node.modifiers);
         var fragments = DeclarationsFactory_1.default.createArray(this, this.node.fragments, this.node.type);
-        builder.join(modifiers, '');
+        modifiers.visit(builder);
         builder.join(fragments, ';\n');
         builder.add(';\n');
     };
