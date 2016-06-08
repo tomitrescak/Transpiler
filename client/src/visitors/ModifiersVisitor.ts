@@ -12,72 +12,92 @@ declare global {
 }
 
 export class ModifierVisitor extends Visitor<Modifier> {
-  modifier: string;
-  render: boolean;
+  keyword: string;
 
   constructor(parent: IVisitor, node: Modifier, allowedModifiers: string[] = [], ignoredModifiers: string[] = []) {
     super(parent, node, 'Modifier');
-
-    const {keyword} = node;
-
-    this.modifier = keyword;
-    this.render = true;
-
-    // we only return modifier if it is allowed, otherwise we throw warning
-    if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
-      this.addWarning(Messages.Warnings.IgnoredModifier, keyword);
-      this.render = false;
-    }
-
-    if (allowedModifiers.length && allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
-      this.addError(Messages.Errors.UnexpectedModifier, keyword);
-      this.render = false;
-    }
+    this.keyword = node.keyword;
   }
 
   visit(builder: IBuilder) {
-    const { location, keyword } = this.node;
-
-    if (this.render) {
-      builder.add(keyword + ' ', location);
-    }
+    builder.add(this.keyword + ' ', this.location);
   }
 }
 
-export default class ModifiersVisitor {
-  modifiers: (ModifierVisitor | MarkerVisitor)[];
+export enum ModifierLevel {
+  Class,
+  Property,
+  Function,
+  Variable
+}
 
-  constructor(parent: IVisitor, nodes: Modifiers[], allowedModifiers?: string[], ignoredModifiers?: string[], allowAnnotations = false) {
+export default class ModifiersVisitor {
+
+  modifiers: ModifierVisitor[];
+  markers: MarkerVisitor[];
+  isStatic: boolean;
+  isFinal: boolean;
+
+  constructor(parent: IVisitor, nodes: Modifiers[], allowedModifiers: string[] = [], ignoredModifiers: string[] = [], modifierLevel?: ModifierLevel, allowAnnotations = false) {
     if (!nodes) { return };
 
     // we create a list of all modifiers
-    let modifiers = nodes.map((node) => {
+    this.modifiers = [];
+    this.markers = [];
+    let accessors: string[] = [];
+
+    nodes.forEach((node) => {
       switch (node.node) {
         case 'Modifier':
-          return new ModifierVisitor(parent, <Modifier> node, allowedModifiers, ignoredModifiers);
+          const m = <Modifier>node;
+          const visitor = new ModifierVisitor(parent, m);
+          let keyword = m.keyword;
+
+          // check whetegr it is static or final
+          if (keyword === 'static') {
+            this.isStatic = true;
+          } else if (keyword === 'final') {
+            this.isFinal = true;
+          } else if (keyword === 'public' || keyword === 'protected' || keyword === 'private') {
+            accessors.push(keyword);
+          }
+
+          // we only return modifier if it is allowed, otherwise we throw warning
+          if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
+            visitor.addWarning(Messages.Warnings.IgnoredModifier, keyword);
+          } else if (allowedModifiers.length && allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
+            visitor.addError(Messages.Errors.UnexpectedModifier, keyword);
+          } else {
+            // deal with final keyword based on modifier level
+            // - on variable level, final becomes const
+            // - on method level, final becomes static but only if it is not static as well to avoid duplicates
+            if (keyword === 'final') {
+              if (modifierLevel === ModifierLevel.Variable) {
+                visitor.keyword = 'const';
+              } else {
+                if (this.isStatic) {
+                  return;
+                } else {
+                  visitor.keyword = 'static';
+                }
+              }
+            }
+
+            this.modifiers.push(visitor);
+          }
+          break;
         case 'MarkerAnnotation':
-          return new MarkerVisitor(parent, <MarkerAnnotation> node, allowAnnotations);
+          this.markers.push(new MarkerVisitor(parent, <MarkerAnnotation>node, false));
+          break;
         default:
           throw new Error(node.node + ' not implemented');
       }
     });
 
     // check for duplicate identifiers
-    let accessors: string[] = [];
-    for (let i = 0; i < nodes.length; i++) {
-      if (nodes[i].node === 'Modifier') {
-        const n = <Modifier> nodes[i];
-        if (n.keyword === 'public' || n.keyword === 'protected' || n.keyword === 'private') {
-          accessors.push(n.keyword);
-        }
-      }
-    }
-
     if (accessors.length > 1) {
       parent.addErrorAtLocation(nodes[0].location, Messages.Errors.DuplicateAccessor, ...accessors);
     }
-
-    this.modifiers = modifiers;
   }
 
   visit(builder: IBuilder) {

@@ -5,14 +5,19 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
+var Messages_1 = require('../config/Messages');
 var MarkerVisitor = (function (_super) {
     __extends(MarkerVisitor, _super);
     function MarkerVisitor(parent, node, allowAnnotations) {
-        if (allowAnnotations === void 0) { allowAnnotations = true; }
+        if (allowAnnotations === void 0) { allowAnnotations = false; }
         _super.call(this, parent, node, 'MarkerAnnotation');
         this.allowAnnotations = allowAnnotations;
+        if (!this.allowAnnotations) {
+            this.addWarning(Messages_1.default.Warnings.IgnoredAnnotation);
+        }
     }
     MarkerVisitor.prototype.visit = function (builder) {
+        console.log(this.allowAnnotations + ' e');
         if (!this.allowAnnotations) {
             this.addWarning(builder.Warnigns.IgnoredAnnotation);
             return '';

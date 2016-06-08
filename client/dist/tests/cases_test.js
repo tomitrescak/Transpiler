@@ -30,7 +30,7 @@ describe('Parser', function () {
                 if (testCase.output) {
                     var output = testCase.output;
                     if (file.outputTemplate) {
-                        output = file.outputTemplate.replace('$body', output);
+                        output = file.outputTemplate.replace('$body', output.trim());
                     }
                     chai_1.expect(builder.text).to.equal(output, testName);
                 }

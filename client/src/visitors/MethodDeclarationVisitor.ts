@@ -52,9 +52,6 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> {
   }
 
   visit (builder: IBuilder) {
-    // add indentation
-    builder.pad(this.indent);
-
     // add modifiers
     this.modifiers.visit(builder);
 

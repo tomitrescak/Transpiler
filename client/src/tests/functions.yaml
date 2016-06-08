@@ -2,6 +2,10 @@
   input: public static int a() {}
   output: public static a(): number {}
 
+- name: Functions > modifiers
+  input: public static int a() {}
+  output: public static a(): number {}
+
 - name: Functions > Type Parameters
   input: <T,U> int a() {}
   output: a<T,U>(): number {}
@@ -41,5 +45,15 @@
     }
   output: |
    a(): A {
-     let b: B;
-   }
+       let b: B = null;
+     }
+
+- name: Functions > Constants
+  input: |
+    A a() {
+      final B b;
+    }
+  output: |
+   a(): A {
+       const b: B = null;
+     }

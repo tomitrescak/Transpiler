@@ -93,8 +93,9 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
       builder.pad(this.parent.indent);
       builder.add(' {');
       builder.addLine();
+      builder.pad(this.indent);
       // render children
-      builder.join(this.bodyDeclarations, ''); // wrap children with new lines
+      builder.join(this.bodyDeclarations, this.pad()); // wrap children with new lines
       builder.pad(this.parent.indent);
       builder.add('}');
       builder.addLine();

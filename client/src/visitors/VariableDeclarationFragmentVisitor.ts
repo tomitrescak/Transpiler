@@ -61,11 +61,6 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
       for (let i = 0; i < fragment.extraDimensions; i++) { extraDimensions += '[]'; }
     }
 
-    // add padding
-    if (lineDeclaration) {
-      builder.pad(this.indent);
-    }
-
     // prefix name : type = initialiser;
     this.name.visit(builder);
 

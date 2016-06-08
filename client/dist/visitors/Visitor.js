@@ -1,4 +1,5 @@
 "use strict";
+var LeftPad_1 = require('../config/LeftPad');
 var Visitor = (function () {
     // constructor
     function Visitor(parent, node, nodeName) {
@@ -33,6 +34,9 @@ var Visitor = (function () {
     // methods
     Visitor.prototype.incIndent = function () {
         this.indent += 2;
+    };
+    Visitor.prototype.pad = function () {
+        return LeftPad_1.default('', this.indent);
     };
     Visitor.prototype.addError = function (error) {
         var args = [];

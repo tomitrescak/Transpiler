@@ -13,19 +13,24 @@ declare global {
 }
 
 export class FieldDeclarationVisitor extends Visitor<FieldDeclaration> {
-  constructor(parent: IVisitor, node: FieldDeclaration) {
-    super(parent, node, 'FieldDeclaration');
+  modifiers: ModifiersVisitor;
+  fragments: IVisitor[];
+
+  constructor(parent: IVisitor, node: FieldDeclaration, nodeName = 'FieldDeclaration') {
+    super(parent, node, nodeName);
+
+    this.modifiers = new ModifiersVisitor(this, this.node.modifiers);
+    this.fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type);
   }
 
   visit(builder: IBuilder) {
-    const modifiers = new ModifiersVisitor(this, this.node.modifiers);
-    const fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type);
-
-    modifiers.visit(builder);
-    builder.join(fragments, ';\n');
+    this.modifiers.visit(builder);
+    builder.join(this.fragments, ';\n' + this.pad());
     builder.add(';\n');
   }
 }
+
+export default FieldDeclarationVisitor;
 
 // export default class FieldDeclarationsVisitor extends Visitor {
 //   visit(types: FieldDeclaration[]): string {

@@ -1,3 +1,5 @@
+import leftPad from '../config/LeftPad';
+
 declare global {
   interface AstElement {
     node: string;
@@ -65,6 +67,10 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
   public incIndent() {
     this.indent += 2;
+  }
+
+  public pad(): string {
+    return leftPad('', this.indent);
   }
 
   public addError(error: Function, ...args: any[]) {

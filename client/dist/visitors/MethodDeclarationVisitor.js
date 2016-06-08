@@ -31,8 +31,6 @@ var MethodDeclarationVisitor = (function (_super) {
         }
     }
     MethodDeclarationVisitor.prototype.visit = function (builder) {
-        // add indentation
-        builder.pad(this.indent);
         // add modifiers
         this.modifiers.visit(builder);
         // example: <X,Y> int[][] name(String n, int g[][], M<T> t) throws Ex {  }

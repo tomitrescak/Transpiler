@@ -13,60 +13,89 @@ var ModifierVisitor = (function (_super) {
         if (allowedModifiers === void 0) { allowedModifiers = []; }
         if (ignoredModifiers === void 0) { ignoredModifiers = []; }
         _super.call(this, parent, node, 'Modifier');
-        var keyword = node.keyword;
-        this.modifier = keyword;
-        this.render = true;
-        // we only return modifier if it is allowed, otherwise we throw warning
-        if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
-            this.addWarning(Messages_1.default.Warnings.IgnoredModifier, keyword);
-            this.render = false;
-        }
-        if (allowedModifiers.length && allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
-            this.addError(Messages_1.default.Errors.UnexpectedModifier, keyword);
-            this.render = false;
-        }
+        this.keyword = node.keyword;
     }
     ModifierVisitor.prototype.visit = function (builder) {
-        var _a = this.node, location = _a.location, keyword = _a.keyword;
-        if (this.render) {
-            builder.add(keyword + ' ', location);
-        }
+        builder.add(this.keyword + ' ', this.location);
     };
     return ModifierVisitor;
 }(Visitor_1.default));
 exports.ModifierVisitor = ModifierVisitor;
+(function (ModifierLevel) {
+    ModifierLevel[ModifierLevel["Class"] = 0] = "Class";
+    ModifierLevel[ModifierLevel["Property"] = 1] = "Property";
+    ModifierLevel[ModifierLevel["Function"] = 2] = "Function";
+    ModifierLevel[ModifierLevel["Variable"] = 3] = "Variable";
+})(exports.ModifierLevel || (exports.ModifierLevel = {}));
+var ModifierLevel = exports.ModifierLevel;
 var ModifiersVisitor = (function () {
-    function ModifiersVisitor(parent, nodes, allowedModifiers, ignoredModifiers, allowAnnotations) {
+    function ModifiersVisitor(parent, nodes, allowedModifiers, ignoredModifiers, modifierLevel, allowAnnotations) {
+        var _this = this;
+        if (allowedModifiers === void 0) { allowedModifiers = []; }
+        if (ignoredModifiers === void 0) { ignoredModifiers = []; }
         if (allowAnnotations === void 0) { allowAnnotations = false; }
         if (!nodes) {
             return;
         }
         ;
         // we create a list of all modifiers
-        var modifiers = nodes.map(function (node) {
+        this.modifiers = [];
+        this.markers = [];
+        var accessors = [];
+        nodes.forEach(function (node) {
             switch (node.node) {
                 case 'Modifier':
-                    return new ModifierVisitor(parent, node, allowedModifiers, ignoredModifiers);
+                    var m = node;
+                    var visitor = new ModifierVisitor(parent, m);
+                    var keyword = m.keyword;
+                    // check whetegr it is static or final
+                    if (keyword === 'static') {
+                        _this.isStatic = true;
+                    }
+                    else if (keyword === 'final') {
+                        _this.isFinal = true;
+                    }
+                    else if (keyword === 'public' || keyword === 'protected' || keyword === 'private') {
+                        accessors.push(keyword);
+                    }
+                    // we only return modifier if it is allowed, otherwise we throw warning
+                    if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
+                        visitor.addWarning(Messages_1.default.Warnings.IgnoredModifier, keyword);
+                    }
+                    else if (allowedModifiers.length && allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
+                        visitor.addError(Messages_1.default.Errors.UnexpectedModifier, keyword);
+                    }
+                    else {
+                        // deal with final keyword based on modifier level
+                        // - on variable level, final becomes const
+                        // - on method level, final becomes static but only if it is not static as well to avoid duplicates
+                        if (keyword === 'final') {
+                            if (modifierLevel === ModifierLevel.Variable) {
+                                visitor.keyword = 'const';
+                            }
+                            else {
+                                if (_this.isStatic) {
+                                    return;
+                                }
+                                else {
+                                    visitor.keyword = 'static';
+                                }
+                            }
+                        }
+                        _this.modifiers.push(visitor);
+                    }
+                    break;
                 case 'MarkerAnnotation':
-                    return new MarkerVisitor_1.MarkerVisitor(parent, node, allowAnnotations);
+                    _this.markers.push(new MarkerVisitor_1.MarkerVisitor(parent, node, false));
+                    break;
                 default:
                     throw new Error(node.node + ' not implemented');
             }
         });
         // check for duplicate identifiers
-        var accessors = [];
-        for (var i = 0; i < nodes.length; i++) {
-            if (nodes[i].node === 'Modifier') {
-                var n = nodes[i];
-                if (n.keyword === 'public' || n.keyword === 'protected' || n.keyword === 'private') {
-                    accessors.push(n.keyword);
-                }
-            }
-        }
         if (accessors.length > 1) {
             parent.addErrorAtLocation.apply(parent, [nodes[0].location, Messages_1.default.Errors.DuplicateAccessor].concat(accessors));
         }
-        this.modifiers = modifiers;
     }
     ModifiersVisitor.prototype.visit = function (builder) {
         builder.join(this.modifiers, '');

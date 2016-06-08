@@ -43,6 +43,7 @@
     "visitors/CompilationUnitVisitor.ts",
     "visitors/EnumDeclarationVisitor.ts",
     "visitors/ExpressionsVisitors.ts",
+    "visitors/factories/BlockFactory.ts",
     "visitors/factories/BodyDeclarationsFactory.ts",
     "visitors/factories/DeclarationsFactory.ts",
     "visitors/factories/ExpressionFactory.ts",
@@ -62,6 +63,7 @@
     "visitors/TypesVisitor.ts",
     "visitors/VariableDeclarationFragmentVisitor.ts",
     "visitors/VariableDeclarationSingleVisitor.ts",
+    "visitors/VariableDeclarationStatementVisitor.ts",
     "visitors/Visitor.ts"
   ],
   "atom": {

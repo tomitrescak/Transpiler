@@ -55,7 +55,7 @@ describe('Parser', function() {
         if (testCase.output) {
           let output = testCase.output;
           if (file.outputTemplate) {
-            output = file.outputTemplate.replace('$body', output);
+            output = file.outputTemplate.replace('$body', output.trim());
           }
           expect(builder.text).to.equal(output, testName);
         }

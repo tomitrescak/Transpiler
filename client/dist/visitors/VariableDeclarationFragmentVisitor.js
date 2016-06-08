@@ -48,10 +48,6 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
                 extraDimensions += '[]';
             }
         }
-        // add padding
-        if (lineDeclaration) {
-            builder.pad(this.indent);
-        }
         // prefix name : type = initialiser;
         this.name.visit(builder);
         // add :

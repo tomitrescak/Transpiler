@@ -93,6 +93,26 @@
       a: A<B[]> = null;
     }
 
+- name: Class > Properties > Accessors
+  input: |
+    class tomi {
+      public A a;
+      protected A a;
+      private A a;
+      final A a;
+      static A a;
+      static final A a;
+    }
+  output: |
+    class tomi {
+      public a: A = null;
+      protected a: A = null;
+      private a: A = null;
+      static a: A = null;
+      static a: A = null;
+      static a: A = null;
+    }
+
 # TEST Case
 - name: ArrayTypes
   input: |
@@ -144,7 +164,7 @@
     - CannotFindSymbol|1|string
 
 # TEST Case
-- name: Modifiers
+- name: Modifiers > Errors
   input: public static final abstract class tomi {}
   output: |
     abstract class tomi {}
@@ -155,7 +175,7 @@
     - UnexpectedModifier|0|static
 
 # TEST Case
-- name: Modifiers
+- name: Modifiers  > Duplicate
   input: public private protected class tomi {}
   output: |
     class tomi {}
