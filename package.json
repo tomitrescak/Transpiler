@@ -12,6 +12,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "expect": "^1.20.1",
+    "mocha": "^2.5.3",
     "yamljs": "^0.2.7"
   }
 }

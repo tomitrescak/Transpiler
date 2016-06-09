@@ -23,11 +23,4 @@ export default class CompilationUnitNode extends Visitor<CompilationUnit> {
   visit(builder: IBuilder) {
     builder.join(this.declarations, '\n');
   }
-
-  // visit(node: CompilationUnit) {
-  //   // TODO: Handle imports
-  //   // TODO: Handle packages
-  //   TypeDeclarationsVisitor.visit(this, node.types);
-  //
-  // }
 }

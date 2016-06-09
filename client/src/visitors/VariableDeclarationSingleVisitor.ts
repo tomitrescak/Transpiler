@@ -1,5 +1,5 @@
 import Visitor from './Visitor';
-import ModifiersVisitor from './ModifiersVisitor';
+import ModifiersVisitor, { ModifierLevel } from './ModifiersVisitor';
 import TypeFactory from './factories/TypeFactory';
 import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
 
@@ -22,7 +22,7 @@ export class SingleVariableDeclarationVisitor extends VariableDeclarationFragmen
 
     this.varargs = node.varargs;
     if (node.modifiers.length) {
-      this.modifiers = new ModifiersVisitor(this, node.modifiers);
+      this.modifiers = new ModifiersVisitor(this, node.modifiers, [], ModifierLevel.Parameter);
     }
   }
 

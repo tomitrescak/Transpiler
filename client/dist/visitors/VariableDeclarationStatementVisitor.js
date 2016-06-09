@@ -11,7 +11,7 @@ var VariableDeclarationStatementVisitor = (function (_super) {
     function VariableDeclarationStatementVisitor(parent, node) {
         _super.call(this, parent, node, 'VariableDeclarationStatement');
         // reinit modifiers
-        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, [], []);
+        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, [], ModifiersVisitor_1.ModifierLevel.Variable);
     }
     VariableDeclarationStatementVisitor.prototype.visit = function (builder) {
         if (this.modifiers.isFinal) {

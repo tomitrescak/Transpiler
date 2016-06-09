@@ -23,8 +23,8 @@ exports.default = {
         }
     },
     Warnings: {
-        IgnoredAnnotation: function () { return 'Annotations are not supported and will be ignored'; },
-        IgnoredModifier: function (modifier) { return "Modifier '" + modifier + "' is not supported on this level and will be ignored;"; }
+        IgnoredAnnotation: function () { return 'Annotations are not supported.'; },
+        IgnoredModifier: function (modifier) { return "Modifier '" + modifier + "' is not supported."; }
     },
     Infos: {},
 };

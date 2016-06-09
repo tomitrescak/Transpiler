@@ -15,7 +15,9 @@ var TypeDeclarationVisitor = (function (_super) {
     function TypeDeclarationVisitor(parent, node) {
         var _this = this;
         _super.call(this, parent, node, 'TypeDeclaration');
-        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
+        this.methods = [];
+        this.fields = [];
+        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['abstract'], ModifiersVisitor_1.ModifierLevel.Class);
         this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
         this.name = NameFactory_1.default.create(this, node.name);
         this.typeParameters = new TypeParameterVisitor_1.default(this, node.typeParameters);
@@ -60,7 +62,8 @@ var TypeDeclarationVisitor = (function (_super) {
             builder.addLine();
             builder.pad(this.indent);
             // render children
-            builder.join(this.bodyDeclarations, this.pad()); // wrap children with new lines
+            builder.join(this.bodyDeclarations, '\n' + this.pad()); // wrap children with new lines
+            builder.addLine();
             builder.pad(this.parent.indent);
             builder.add('}');
             builder.addLine();
@@ -72,3 +75,5 @@ var TypeDeclarationVisitor = (function (_super) {
     return TypeDeclarationVisitor;
 }(Visitor_1.default));
 exports.TypeDeclarationVisitor = TypeDeclarationVisitor;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = TypeDeclarationVisitor;

@@ -1,0 +1,28 @@
+# TEST Case
+- name: Modifiers  > Duplicate
+  input: public private protected class tomi {}
+  output: |
+    class tomi {}
+  errors:
+    - DuplicateAccessor|0|public,private,protected
+
+# TEST Case
+- name: Modifiers > Class Level
+  input: public static final abstract class tomi {}
+  output: |
+    abstract class tomi {}
+  warnings:
+    - IgnoredModifier|0|public
+    - IgnoredModifier|0|final
+    - IgnoredModifier|0|static
+
+# TEST Case Annotation
+- name: Annotations
+  input: |
+    @annotation1
+    class tomi {}
+  output: |
+    class tomi {}
+  warnings:
+    - IgnoredAnnotation|0
+  sourceMap: [1] # line[0] = 0, line[1] = 0

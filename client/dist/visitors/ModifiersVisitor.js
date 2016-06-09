@@ -25,14 +25,13 @@ exports.ModifierVisitor = ModifierVisitor;
     ModifierLevel[ModifierLevel["Class"] = 0] = "Class";
     ModifierLevel[ModifierLevel["Property"] = 1] = "Property";
     ModifierLevel[ModifierLevel["Function"] = 2] = "Function";
-    ModifierLevel[ModifierLevel["Variable"] = 3] = "Variable";
+    ModifierLevel[ModifierLevel["Parameter"] = 3] = "Parameter";
+    ModifierLevel[ModifierLevel["Variable"] = 4] = "Variable";
 })(exports.ModifierLevel || (exports.ModifierLevel = {}));
 var ModifierLevel = exports.ModifierLevel;
 var ModifiersVisitor = (function () {
-    function ModifiersVisitor(parent, nodes, allowedModifiers, ignoredModifiers, modifierLevel, allowAnnotations) {
+    function ModifiersVisitor(parent, nodes, allowedModifiers, modifierLevel, allowAnnotations) {
         var _this = this;
-        if (allowedModifiers === void 0) { allowedModifiers = []; }
-        if (ignoredModifiers === void 0) { ignoredModifiers = []; }
         if (allowAnnotations === void 0) { allowAnnotations = false; }
         if (!nodes) {
             return;
@@ -57,21 +56,27 @@ var ModifiersVisitor = (function () {
                     }
                     else if (keyword === 'public' || keyword === 'protected' || keyword === 'private') {
                         accessors.push(keyword);
+                        if (keyword === 'public') {
+                            _this.isPublic = true;
+                        }
+                        else if (keyword === 'protected') {
+                            _this.isProtected = true;
+                        }
+                        else if (keyword === 'private') {
+                            _this.isPrivate = true;
+                        }
                     }
                     // we only return modifier if it is allowed, otherwise we throw warning
-                    if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
+                    if (allowedModifiers.indexOf(keyword) === -1) {
                         visitor.addWarning(Messages_1.default.Warnings.IgnoredModifier, keyword);
-                    }
-                    else if (allowedModifiers.length && allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
-                        visitor.addError(Messages_1.default.Errors.UnexpectedModifier, keyword);
                     }
                     else {
                         // deal with final keyword based on modifier level
-                        // - on variable level, final becomes const
+                        // - on variable level, final becomes const, so we do not add it
                         // - on method level, final becomes static but only if it is not static as well to avoid duplicates
                         if (keyword === 'final') {
                             if (modifierLevel === ModifierLevel.Variable) {
-                                visitor.keyword = 'const';
+                                return; // final is ignored as we replace it with "const" keyword
                             }
                             else {
                                 if (_this.isStatic) {

@@ -14,19 +14,18 @@ module.exports = (wallaby) => {
       { pattern: 'client/**/*.yaml', instrument: true, load: false, ignore: false },
       "client/src/tests/*.ts"
     ],
-    // There is a weird error with the mui and mantra.
-    // See: https://goo.gl/cLH8ib
-    // Using require here seems to be the error.
-    // Renaming it into `load` just fixed the issue.
+
     compilers: {
-      // "**/*.js*": wallaby.compilers.babel({
-      //   babel: load("babel-core"),
-      //   presets: ["es2015", "stage-2", "react"]
-      // }),
       "**/*.ts*": wallaby.compilers.typeScript({
         module: "commonjs",
         jsx: "react"
       })
+    },
+    testFramework: "mocha",
+    setup: function(wallaby) {
+      //wallaby.testFramework.DEFAULT_TIMEOUT_INTERVAL = 5000;
+      var mocha = wallaby.testFramework;
+      mocha.timeout(60000);
     },
     env: {
       type: "node"

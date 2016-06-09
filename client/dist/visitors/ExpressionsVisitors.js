@@ -6,6 +6,8 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Visitor_1 = require('./Visitor');
 var ExpressionFactory_1 = require('./factories/ExpressionFactory');
+var NameFactory_1 = require('./factories/NameFactory');
+var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
 var order = ['byte', 'short', 'int', 'long', 'float', 'double'];
 var BaseExpression = (function (_super) {
     __extends(BaseExpression, _super);
@@ -178,3 +180,57 @@ var BooleanLiteralVisitor = (function (_super) {
     return BooleanLiteralVisitor;
 }(BaseExpression));
 exports.BooleanLiteralVisitor = BooleanLiteralVisitor;
+var MethodInvocationVisitor = (function (_super) {
+    __extends(MethodInvocationVisitor, _super);
+    function MethodInvocationVisitor(parent, node) {
+        _super.call(this, parent, node, 'MethodInvocation');
+        this.name = NameFactory_1.default.create(this, node.name);
+        this.arguments = ExpressionFactory_1.default.createArray(this, node.arguments);
+        if (node.expression) {
+            this.expression = ExpressionFactory_1.default.create(this, node.expression);
+        }
+        this.typeArguments = new TypeParameterVisitor_1.default(this, node.typeArguments);
+    }
+    MethodInvocationVisitor.prototype.visit = function (builder) {
+        // TODO: find return type
+        if (this.expression) {
+            this.expression.visit(builder);
+            builder.add('.');
+        }
+        this.name.visit(builder);
+        builder.add('(');
+        builder.join(this.arguments, ',');
+        builder.add(')');
+    };
+    return MethodInvocationVisitor;
+}(BaseExpression));
+exports.MethodInvocationVisitor = MethodInvocationVisitor;
+var ExpressionStatementVisitor = (function (_super) {
+    __extends(ExpressionStatementVisitor, _super);
+    function ExpressionStatementVisitor(parent, node) {
+        _super.call(this, parent, node, 'ExpressionStatement');
+        this.expression = ExpressionFactory_1.default.create(this, node.expression);
+    }
+    ExpressionStatementVisitor.prototype.visit = function (builder) {
+        this.expression.visit(builder);
+        builder.add(';');
+    };
+    return ExpressionStatementVisitor;
+}(Visitor_1.default));
+exports.ExpressionStatementVisitor = ExpressionStatementVisitor;
+var FieldAccessVisitor = (function (_super) {
+    __extends(FieldAccessVisitor, _super);
+    function FieldAccessVisitor(parent, node) {
+        _super.call(this, parent, node, 'FieldAccess');
+        this.name = NameFactory_1.default.create(this, node.name);
+        this.expression = ExpressionFactory_1.default.create(this, node.expression);
+    }
+    FieldAccessVisitor.prototype.visit = function (builder) {
+        // TODO: find return type and check expression a() / b() or assignment to variable
+        this.expression.visit(builder);
+        builder.add('.');
+        this.name.visit(builder);
+    };
+    return FieldAccessVisitor;
+}(BaseExpression));
+exports.FieldAccessVisitor = FieldAccessVisitor;

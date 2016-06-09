@@ -1,5 +1,5 @@
 import FieldDeclarationVisitor from './FieldDeclarationVisitor';
-import ModifiersVisitor from './ModifiersVisitor';
+import ModifiersVisitor, { ModifierLevel } from './ModifiersVisitor';
 
 declare global {
   interface VariableDeclarationStatement extends FieldDeclaration {}
@@ -10,7 +10,7 @@ export class VariableDeclarationStatementVisitor extends FieldDeclarationVisitor
     super(parent, node, 'VariableDeclarationStatement');
 
     // reinit modifiers
-    this.modifiers = new ModifiersVisitor(this, node.modifiers, [], []);
+    this.modifiers = new ModifiersVisitor(this, node.modifiers, [], ModifierLevel.Variable);
   }
 
   visit (builder: IBuilder) {

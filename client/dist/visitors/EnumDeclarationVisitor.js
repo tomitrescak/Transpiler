@@ -37,7 +37,7 @@ var EnumDeclarationVisitor = (function (_super) {
         var _this = this;
         var node = this.node;
         var constants = node.enumConstants.map(function (c) { return new EnumConstantDeclarationVisitor(_this, c); });
-        var modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['public', 'private', 'abstract'], []);
+        var modifiers = new ModifiersVisitor_1.default(this, node.modifiers, [], ModifiersVisitor_1.ModifierLevel.Class);
         var name = NameFactory_1.default.create(this, node.name).name;
         // pad from left
         builder.pad(this.indent);

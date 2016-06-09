@@ -1,7 +1,7 @@
 import * as Expressions from '../ExpressionsVisitors';
 import NameFactory from './NameFactory';
 
-export default class ExpressionVisitor {
+export default class ExpressionFactory {
   static create(parent: IVisitor, node: AstElement): IExpressionVisitor {
     switch (node.node) {
       case 'SimpleName':
@@ -21,8 +21,17 @@ export default class ExpressionVisitor {
         return new Expressions.InfixExpressionVisitor(parent, node as InfixExpression);
       case 'ParenthesizedExpression':
         return new Expressions.ParenthesizedExpressionVisitor(parent, node as ParenthesizedExpression);
+      case 'MethodInvocation':
+        return new Expressions.MethodInvocationVisitor(parent, node as MethodInvocation);
+      case 'FieldAccess':
+        return new Expressions.FieldAccessVisitor(parent, node as FieldAccess);
       default:
         throw new Error(node.node + ' is not implemented');
     }
+  }
+
+  static createArray(parent: IVisitor, node: AstElement[]): IExpressionVisitor[] {
+    //console.log(parent)
+    return node.map((e) => ExpressionFactory.create(parent, e));
   }
 }

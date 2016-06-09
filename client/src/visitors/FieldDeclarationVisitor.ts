@@ -1,7 +1,7 @@
 import Visitor from './Visitor';
 import FragmentsFactory from './factories/DeclarationsFactory';
 
-import ModifiersVisitor from './ModifiersVisitor';
+import ModifiersVisitor, { ModifierLevel } from './ModifiersVisitor';
 
 declare global {
   interface FieldDeclaration extends AstElement {
@@ -16,17 +16,17 @@ export class FieldDeclarationVisitor extends Visitor<FieldDeclaration> {
   modifiers: ModifiersVisitor;
   fragments: IVisitor[];
 
-  constructor(parent: IVisitor, node: FieldDeclaration, nodeName = 'FieldDeclaration') {
+  constructor(parent: IVisitor, node: FieldDeclaration, nodeName = 'FieldDeclaration', allowedModifiers = ['abstract', 'static', 'final', 'private', 'public', 'protected'], modifierLevel = ModifierLevel.Property) {
     super(parent, node, nodeName);
 
-    this.modifiers = new ModifiersVisitor(this, this.node.modifiers);
+    this.modifiers = new ModifiersVisitor(this, this.node.modifiers, allowedModifiers, modifierLevel);
     this.fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type);
   }
 
   visit(builder: IBuilder) {
     this.modifiers.visit(builder);
     builder.join(this.fragments, ';\n' + this.pad());
-    builder.add(';\n');
+    builder.add(';');
   }
 }
 

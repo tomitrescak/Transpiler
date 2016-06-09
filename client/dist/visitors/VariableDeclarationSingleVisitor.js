@@ -12,7 +12,7 @@ var SingleVariableDeclarationVisitor = (function (_super) {
         _super.call(this, parent, node, node.type, 'SingleVariableDeclaration');
         this.varargs = node.varargs;
         if (node.modifiers.length) {
-            this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers);
+            this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, [], ModifiersVisitor_1.ModifierLevel.Parameter);
         }
     }
     SingleVariableDeclarationVisitor.prototype.visit = function (builder) {

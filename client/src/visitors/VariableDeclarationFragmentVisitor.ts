@@ -5,6 +5,10 @@ import NameFactory from './factories/NameFactory';
 import ExpressionFactory from './factories/ExpressionFactory';
 
 declare global {
+  interface VariableHolderVisitor extends IVisitor {
+    variables: VariableDeclarationFragmentVisitor[];
+  }
+
   interface VariableDeclarationFragment extends AstElement {
     node: 'VariableDeclarationFragment' | 'SingleVariableDeclaration';
     name: SimpleName;
@@ -49,6 +53,15 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
       if (fieldType === 'char' && initializerType === 'String') {
         this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
       }
+    }
+
+    // add this method to the list of methods of the parent
+    if (this.parent.node.node === 'TypeDeclaration' ||
+        this.parent.node.node === 'MethodDeclaration') {
+      const owner = this.parent as VariableHolderVisitor;
+      owner.variables.push(this);
+    } else {
+      throw new Error('Unexpected parent of method declaration: ' + this.parent.node.node);
     }
   }
 

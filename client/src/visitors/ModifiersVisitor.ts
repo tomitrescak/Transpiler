@@ -28,6 +28,7 @@ export enum ModifierLevel {
   Class,
   Property,
   Function,
+  Parameter,
   Variable
 }
 
@@ -37,8 +38,11 @@ export default class ModifiersVisitor {
   markers: MarkerVisitor[];
   isStatic: boolean;
   isFinal: boolean;
+  isPublic: boolean;
+  isProtected: boolean;
+  isPrivate: boolean;
 
-  constructor(parent: IVisitor, nodes: Modifiers[], allowedModifiers: string[] = [], ignoredModifiers: string[] = [], modifierLevel?: ModifierLevel, allowAnnotations = false) {
+  constructor(parent: IVisitor, nodes: Modifiers[], allowedModifiers: string[], modifierLevel: ModifierLevel, allowAnnotations = false) {
     if (!nodes) { return };
 
     // we create a list of all modifiers
@@ -60,20 +64,26 @@ export default class ModifiersVisitor {
             this.isFinal = true;
           } else if (keyword === 'public' || keyword === 'protected' || keyword === 'private') {
             accessors.push(keyword);
+
+            if (keyword === 'public') {
+              this.isPublic = true;
+            } else if (keyword === 'protected') {
+              this.isProtected = true;
+            } else if (keyword === 'private') {
+              this.isPrivate = true;
+            }
           }
 
           // we only return modifier if it is allowed, otherwise we throw warning
-          if (allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) > -1) {
+          if (allowedModifiers.indexOf(keyword) === -1) {
             visitor.addWarning(Messages.Warnings.IgnoredModifier, keyword);
-          } else if (allowedModifiers.length && allowedModifiers.indexOf(keyword) === -1 && ignoredModifiers.indexOf(keyword) === -1) {
-            visitor.addError(Messages.Errors.UnexpectedModifier, keyword);
           } else {
             // deal with final keyword based on modifier level
-            // - on variable level, final becomes const
+            // - on variable level, final becomes const, so we do not add it
             // - on method level, final becomes static but only if it is not static as well to avoid duplicates
             if (keyword === 'final') {
               if (modifierLevel === ModifierLevel.Variable) {
-                visitor.keyword = 'const';
+                return; // final is ignored as we replace it with "const" keyword
               } else {
                 if (this.isStatic) {
                   return;

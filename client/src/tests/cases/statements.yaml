@@ -1,0 +1,17 @@
+- name: if > simple
+  input: if (true) {}
+  output: if (true) {}
+
+- name: if > else if
+  input: |
+    if (true) {}
+    else if (true && false) {}
+    else {
+      d();
+    }
+  output: |
+    if (true) {}
+        else if (true && false) {}
+        else {
+          d();
+        }

@@ -20,7 +20,7 @@ var MethodDeclarationVisitor = (function (_super) {
         if (node.body) {
             this.body = new BlockVisitor_1.default(this, node.body);
         }
-        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers);
+        this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['abstract', 'static', 'private', 'public', 'protected'], ModifiersVisitor_1.ModifierLevel.Function);
         // type parameters
         if (node.typeParameters.length) {
             this.typeParameters = new TypeParameterVisitor_1.default(this, node.typeParameters);
@@ -28,6 +28,14 @@ var MethodDeclarationVisitor = (function (_super) {
         // function parameters
         if (node.parameters.length) {
             this.parameters = new VariableDeclarationSingleVisitor_1.default(this, node.parameters);
+        }
+        // add this method to the list of methods of the parent
+        if (this.parent.node.node === 'TypeDeclaration') {
+            var owner = this.parent;
+            owner.methods.push(this);
+        }
+        else {
+            throw new Error('Unexpected parent of method declaration: ' + this.parent.node.node);
         }
     }
     MethodDeclarationVisitor.prototype.visit = function (builder) {
@@ -57,3 +65,5 @@ var MethodDeclarationVisitor = (function (_super) {
     return MethodDeclarationVisitor;
 }(Visitor_1.default));
 exports.MethodDeclarationVisitor = MethodDeclarationVisitor;
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.default = MethodDeclarationVisitor;

@@ -37,6 +37,15 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
                 this.addError(Messages_1.default.Errors.TypeMismatch, initializerType, fieldType);
             }
         }
+        // add this method to the list of methods of the parent
+        if (this.parent.node.node === 'TypeDeclaration' ||
+            this.parent.node.node === 'MethodDeclaration') {
+            var owner = this.parent;
+            owner.variables.push(this);
+        }
+        else {
+            throw new Error('Unexpected parent of method declaration: ' + this.parent.node.node);
+        }
     }
     VariableDeclarationFragmentVisitor.prototype.visit = function (builder, lineDeclaration) {
         if (lineDeclaration === void 0) { lineDeclaration = true; }

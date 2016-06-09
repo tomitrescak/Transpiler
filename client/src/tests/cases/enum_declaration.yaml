@@ -1,0 +1,37 @@
+# TEST Case
+- name: Enums
+  input: |
+    enum Animals {
+      Cat,
+      Dog
+    }
+  output: |
+    enum Animals {
+      Cat,
+      Dog
+    }
+
+# TEST Case
+- name: Enums > Errors
+  input: |
+    public enum Level {
+      HIGH  (3),  //calls constructor with value 3
+      ; // semicolon needed when fields / methods follow
+
+      private final int levelCode;
+
+      private Level(int levelCode) {
+          this.levelCode = levelCode;
+      }
+    }
+  errors:
+    - SimpleEnumsOnlySupported|0
+    - SimpleEnumsOnlySupported|1
+
+- name: Enums > Errors Literals
+  input: |
+    public enum Level {
+      HIGH  (3),  //calls constructor with value 3
+    }
+  errors:
+    - SimpleEnumsOnlySupported|1

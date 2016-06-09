@@ -17,10 +17,10 @@ export default {
     }
   },
   Warnings: {
-    IgnoredAnnotation() { return 'Annotations are not supported and will be ignored'; },
-    IgnoredModifier(modifier: string) { return `Modifier '${modifier}' is not supported on this level and will be ignored;`;  }
+    IgnoredAnnotation() { return 'Annotations are not supported.'; },
+    IgnoredModifier(modifier: string) { return `Modifier '${modifier}' is not supported.`;  }
   },
   Infos: {
 
   },
-}
+};

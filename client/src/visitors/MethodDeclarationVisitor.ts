@@ -3,10 +3,15 @@ import BlockVisitor from './BlockVisitor';
 import NameFactory from './factories/NameFactory';
 import TypeFactory from './factories/TypeFactory';
 import TypeParametersVisitor from './TypeParameterVisitor';
-import ModifiersVisitor from './ModifiersVisitor';
+import ModifiersVisitor, { ModifierLevel} from './ModifiersVisitor';
 import SingleVariableDeclarationsVisitor from './VariableDeclarationSingleVisitor';
+import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
 
 declare global {
+  interface MethodHolderVisitor extends IVisitor {
+    methods: MethodDeclarationVisitor[];
+  }
+
   interface MethodDeclaration extends AstElement {
     node: 'MethodDeclaration';
     typeParameters: TypeParameter[];
@@ -20,7 +25,7 @@ declare global {
   }
 }
 
-export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> {
+export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> implements VariableHolderVisitor {
   name: NameVisitor;
   returnType: TypeVisitor;
   thrownExceptions: NameVisitor[];
@@ -28,6 +33,7 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> {
   modifiers: ModifiersVisitor;
   parameters: SingleVariableDeclarationsVisitor;
   body: BlockVisitor;
+  variables: VariableDeclarationFragmentVisitor[];
 
   constructor(parent: IVisitor, node: MethodDeclaration) {
     super(parent, node, 'MethodDeclaration');
@@ -38,7 +44,7 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> {
     if (node.body) {
       this.body = new BlockVisitor(this, node.body);
     }
-    this.modifiers = new ModifiersVisitor(this, node.modifiers);
+    this.modifiers = new ModifiersVisitor(this, node.modifiers, ['abstract', 'static', 'private', 'public', 'protected'], ModifierLevel.Function);
 
     // type parameters
     if (node.typeParameters.length) {
@@ -48,6 +54,14 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> {
     // function parameters
     if (node.parameters.length) {
       this.parameters = new SingleVariableDeclarationsVisitor(this, node.parameters);
+    }
+
+    // add this method to the list of methods of the parent
+    if (this.parent.node.node === 'TypeDeclaration') {
+      const owner = this.parent as MethodHolderVisitor;
+      owner.methods.push(this);
+    } else {
+      throw new Error('Unexpected parent of method declaration: ' + this.parent.node.node);
     }
   }
 
@@ -81,3 +95,5 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> {
     }
   }
 }
+
+export default MethodDeclarationVisitor;

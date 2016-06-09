@@ -7,10 +7,14 @@ function parseTree(source) {
 }
 exports.parseTree = parseTree;
 function transpile(source, handlerIn) {
-    var builder = new Builder_1.default(handlerIn);
     var tree = parseTree(source);
+    return transpileTree(tree);
+}
+exports.transpile = transpile;
+function transpileTree(tree, handlerIn) {
+    var builder = new Builder_1.default(handlerIn);
     var cu = new CompilationUnitVisitor_1.default(tree, builder.handler);
     cu.visit(builder);
     return builder;
 }
-exports.transpile = transpile;
+exports.transpileTree = transpileTree;

@@ -8,14 +8,14 @@ declare global {
   }
 }
 
-export default class BlockVisitor extends Visitor<Block> {
+export class BlockVisitor extends Visitor<Block> {
   statements: IVisitor[];
 
   constructor(parent: IVisitor, node: Block) {
     super(parent, node, 'Block');
 
     if (node.statements.length) {
-      this.statements = BlockFactory.createArray(parent, node.statements);
+      this.statements = BlockFactory.createArray(this, node.statements);
     }
   }
 
@@ -25,10 +25,13 @@ export default class BlockVisitor extends Visitor<Block> {
     if (this.node.statements.length) {
       builder.addLine();
       builder.pad(this.indent);
-      builder.join(this.statements, '\n');
+      builder.join(this.statements, '\n' + this.pad());
+      builder.addLine();
       builder.pad(this.parent.indent);
     }
 
-    builder.add('}\n');
+    builder.add('}');
   }
 }
+
+export default BlockVisitor;

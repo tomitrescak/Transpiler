@@ -1,0 +1,10 @@
+# Test Case - Class Variables
+
+- name: SourceMap > Simple
+  input: class tomi { int a; int b; }
+  output: |
+    class tomi {
+      a: number = 0;
+      b: number = 0;
+    }
+  sourceMap: [0,0,0]

@@ -1,0 +1,17 @@
+# TEST Cases
+- name: TypeParameter
+  input: class tomi<T,U> {}
+  output: |
+    class tomi<T,U> {}
+
+- name: TypeParameter > TypeBounds
+  input: class tomi<T extends U & V> {}
+  output: |
+    class tomi<T extends U & V> {}
+
+# Test Case - Class Variables
+
+- name: TypeParameter > TypeBounds
+  input: class tomi<T extends U & V> {}
+  output: |
+    class tomi<T extends U & V> {}

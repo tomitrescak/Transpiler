@@ -1,44 +1,44 @@
-- name: Functions > modifiers
+- name: Modifiers
   input: public static int a() {}
   output: public static a(): number {}
 
-- name: Functions > modifiers
+- name: Modifiers shortening
   input: public static int a() {}
   output: public static a(): number {}
 
-- name: Functions > Type Parameters
+- name: Type Parameters
   input: <T,U> int a() {}
   output: a<T,U>(): number {}
 
-- name: Functions > Remove throws
+- name: Remove throws
   input: int a() throws Ex1, Ex2 {}
   output: a(): number {}
 
-- name: Functions > Parameters > Simple
+- name: Parameters > Simple
   input: int a(int b) {};
   output: a(b: number): number {}
 
-- name: Functions > Parameters > Multiple
+- name: Parameters > Multiple
   input: int a(int b, String c) {};
   output: a(b: number, c: string): number {}
 
-- name: Functions > Parameters > Parameterised
+- name: Parameters > Parameterised
   input: A a(B<C,D<E>> b) {};
   output: a(b: B<C,D<E>>): A {}
 
-- name: Functions > Parameters > Array
+- name: Parameters > Array
   input: int[][] a(int[] b[]) {};
   output: a(b: number[][]): number[][] {}
 
-- name: Functions > Parameters > Variable
+- name: Parameters > Variable
   input: int a(int b, String... c) {};
   output: a(b: number, ...c: string[]): number {}
 
-- name: Functions > Extra Complex
+- name: Extra Complex
   input: public static <T> int[][] func(String a, int[] g[][], M<T> t, int... v) throws Ex1, Ex2 {}
   output: public static func<T>(a: string, g: number[][][], t: M<T>, ...v: number[]): number[][] {}
 
-- name: Functions > Variables
+- name: Variables
   input: |
     A a() {
       B b;
@@ -48,7 +48,7 @@
        let b: B = null;
      }
 
-- name: Functions > Constants
+- name: Constants
   input: |
     A a() {
       final B b;
@@ -56,4 +56,42 @@
   output: |
    a(): A {
        const b: B = null;
+     }
+
+- name: Calls
+  longRunning: true
+  input: |
+    A a() {
+      b(3);
+      b(c(d,e));
+    }
+    B b() {}
+    C c(D d, E e) {}
+  output: |
+   a(): A {
+       b(3);
+       b(c(d,e));
+     }
+     b(): B {}
+     c(d: D, e: E): C {}
+
+- name: Expressions
+  longRunning: true
+  input: |
+    A a() {
+      b(3 + 3.4);
+    }
+  output: |
+   a(): A {
+       b(3 + 3.4);
+     }
+
+- name: Dot Chaining
+  input: |
+    A a() {
+      b(3,a,b() + c()).c(d).e;
+    }
+  output: |
+   a(): A {
+       b(3,a,b() + c()).c(d).e;
      }

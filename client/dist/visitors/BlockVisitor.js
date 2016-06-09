@@ -11,7 +11,7 @@ var BlockVisitor = (function (_super) {
     function BlockVisitor(parent, node) {
         _super.call(this, parent, node, 'Block');
         if (node.statements.length) {
-            this.statements = BlockFactory_1.default.createArray(parent, node.statements);
+            this.statements = BlockFactory_1.default.createArray(this, node.statements);
         }
     }
     BlockVisitor.prototype.visit = function (builder) {
@@ -20,12 +20,14 @@ var BlockVisitor = (function (_super) {
         if (this.node.statements.length) {
             builder.addLine();
             builder.pad(this.indent);
-            builder.join(this.statements, '\n');
+            builder.join(this.statements, '\n' + this.pad());
+            builder.addLine();
             builder.pad(this.parent.indent);
         }
-        builder.add('}\n');
+        builder.add('}');
     };
     return BlockVisitor;
 }(Visitor_1.default));
+exports.BlockVisitor = BlockVisitor;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = BlockVisitor;

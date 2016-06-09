@@ -1,10 +1,10 @@
 "use strict";
 var Expressions = require('../ExpressionsVisitors');
 var NameFactory_1 = require('./NameFactory');
-var ExpressionVisitor = (function () {
-    function ExpressionVisitor() {
+var ExpressionFactory = (function () {
+    function ExpressionFactory() {
     }
-    ExpressionVisitor.create = function (parent, node) {
+    ExpressionFactory.create = function (parent, node) {
         switch (node.node) {
             case 'SimpleName':
             case 'QualifiedName':
@@ -23,11 +23,19 @@ var ExpressionVisitor = (function () {
                 return new Expressions.InfixExpressionVisitor(parent, node);
             case 'ParenthesizedExpression':
                 return new Expressions.ParenthesizedExpressionVisitor(parent, node);
+            case 'MethodInvocation':
+                return new Expressions.MethodInvocationVisitor(parent, node);
+            case 'FieldAccess':
+                return new Expressions.FieldAccessVisitor(parent, node);
             default:
                 throw new Error(node.node + ' is not implemented');
         }
     };
-    return ExpressionVisitor;
+    ExpressionFactory.createArray = function (parent, node) {
+        //console.log(parent)
+        return node.map(function (e) { return ExpressionFactory.create(parent, e); });
+    };
+    return ExpressionFactory;
 }());
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = ExpressionVisitor;
+exports.default = ExpressionFactory;

@@ -6,7 +6,10 @@ import TypeFactory from './factories/TypeFactory';
 import BodyDeclarationsFactory from './factories/BodyDeclarationsFactory';
 
 import TypeParametersVisitor from './TypeParameterVisitor';
-import ModifiersVisitor from './ModifiersVisitor';
+import ModifiersVisitor, { ModifierLevel } from './ModifiersVisitor';
+import MethodDeclarationVisitor from './MethodDeclarationVisitor';
+import FieldDeclarationVisitor from './FieldDeclarationVisitor';
+import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
 
 declare global {
   interface BaseTypeDeclaration extends AstElement {
@@ -26,7 +29,7 @@ declare global {
   type TypeDeclarations = TypeDeclaration | EnumDeclaration;
 }
 
-export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
+export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> implements VariableHolderVisitor, MethodHolderVisitor {
   modifiers: ModifiersVisitor;
   typeDeclarationName: string;
   name: NameVisitor;
@@ -34,11 +37,18 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
   superClassType: string;
   superInterfaceTypes: TypeVisitor[];
   bodyDeclarations: IVisitor[];
+  fields: FieldDeclarationVisitor[];
+
+  methods: MethodDeclarationVisitor[];
+  variables: VariableDeclarationFragmentVisitor[];
+
 
   constructor(parent: IVisitor, node: TypeDeclaration) {
     super(parent, node, 'TypeDeclaration');
 
-    this.modifiers = new ModifiersVisitor(this, node.modifiers, ['abstract'], ['public', 'protected', 'private', 'final']);
+    this.methods = [];
+    this.fields = [];
+    this.modifiers = new ModifiersVisitor(this, node.modifiers, ['abstract'], ModifierLevel.Class);
     this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
     this.name = NameFactory.create(this, node.name);
     this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
@@ -95,7 +105,8 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
       builder.addLine();
       builder.pad(this.indent);
       // render children
-      builder.join(this.bodyDeclarations, this.pad()); // wrap children with new lines
+      builder.join(this.bodyDeclarations, '\n' + this.pad()); // wrap children with new lines
+      builder.addLine();
       builder.pad(this.parent.indent);
       builder.add('}');
       builder.addLine();
@@ -104,3 +115,5 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> {
     }
   }
 }
+
+export default TypeDeclarationVisitor;

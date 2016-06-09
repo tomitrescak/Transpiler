@@ -8,10 +8,13 @@ export function parseTree(source: string) {
 }
 
 export function transpile(source: string, handlerIn?: IHandler): IBuilder {
+  const tree = parseTree(source);
+  return transpileTree(tree);
+}
+
+export function transpileTree(tree: any, handlerIn?: IHandler): IBuilder {
 
   let builder = new Builder(handlerIn);
-
-  const tree = parseTree(source);
   let cu = new CompilationUnitVisitor(tree, builder.handler);
   cu.visit(builder);
 
