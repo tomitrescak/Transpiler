@@ -1,5 +1,5 @@
 # TEST Case
-- name: Enums
+- name: Enums > Correct
   input: |
     enum Animals {
       Cat,
@@ -12,7 +12,7 @@
     }
 
 # TEST Case
-- name: Enums > Errors
+- name: Errors
   input: |
     public enum Level {
       HIGH  (3),  //calls constructor with value 3
@@ -27,11 +27,15 @@
   errors:
     - SimpleEnumsOnlySupported|0
     - SimpleEnumsOnlySupported|1
+  warnings:
+    - IgnoredModifier|0|public
 
-- name: Enums > Errors Literals
+- name: Errors Literals
   input: |
     public enum Level {
       HIGH  (3),  //calls constructor with value 3
     }
   errors:
     - SimpleEnumsOnlySupported|1
+  warnings:
+    - IgnoredModifier|0|public

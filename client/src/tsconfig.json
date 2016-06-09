@@ -39,6 +39,7 @@
     "tests/expressions_test.ts",
     "tests/field_declarations_test.ts",
     "tests/functions_test.ts",
+    "tests/member_access_test.ts",
     "tests/modifiers_test.ts",
     "tests/source_maps_test.ts",
     "tests/statements_test.ts",

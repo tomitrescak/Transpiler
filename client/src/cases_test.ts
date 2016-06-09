@@ -81,8 +81,15 @@ export default function runTest(file: CaseFile) {
       expect(builder.text).to.equal(output, testName);
     }
 
+    if (!testCase.warnings) {
+      testCase.warnings = [];
+    }
+    if (!testCase.errors) {
+      testCase.errors = [];
+    }
+
+    expect(testCase.warnings.length, `${testName}: Warnings contain\n${builder.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(builder.handler.warnings.length);
     if (testCase.warnings) {
-      expect(testCase.warnings.length, `${testName}: Warnings contain\n${builder.handler.warnings.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(builder.handler.warnings.length);
       for (let warning of testCase.warnings) {
         let parts = warning.split('|');
         let messageName = builder.Warnigns[parts[0]];
@@ -96,8 +103,8 @@ export default function runTest(file: CaseFile) {
       }
     }
 
+    expect(testCase.errors && testCase.errors.length, `${testName}: Errors contain\n${builder.handler.errors.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(builder.handler.errors.length);
     if (testCase.errors) {
-      expect(testCase.errors.length, `${testName}: Errors contain\n${builder.handler.errors.map((w) => `[${w.line}] ${w.message}`).join('\n')}\n\n`).to.equal(builder.handler.errors.length);
       for (let error of testCase.errors) {
         let parts = error.split('|');
         let messageName = builder.Errors[parts[0]];

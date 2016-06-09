@@ -7,6 +7,12 @@ export default class ExpressionFactory {
         return new Expressions.SimpleVariableReference(parent, node as SimpleName);
       case 'QualifiedName':
         return new Expressions.QualifiedVariableReference(parent, node as QualifiedName);
+      case 'ThisExpression':
+        return new Expressions.ThisExpressionVisitor(parent, node as ThisExpression);
+      case 'SuperFieldAccess':
+        return new Expressions.SuperFieldAccessVisitor(parent, node as SuperFieldAccess);
+      case 'FieldAccess':
+        return new Expressions.FieldAccessVisitor(parent, node as FieldAccess);
       case 'PrefixExpression':
         return new Expressions.PrefixExpressionVisitor(parent, node as PrefixExpression);
       case 'PostfixExpression':
@@ -25,8 +31,6 @@ export default class ExpressionFactory {
         return new Expressions.ParenthesizedExpressionVisitor(parent, node as ParenthesizedExpression);
       case 'MethodInvocation':
         return new Expressions.MethodInvocationVisitor(parent, node as MethodInvocation);
-      case 'FieldAccess':
-        return new Expressions.FieldAccessVisitor(parent, node as FieldAccess);
       default:
         throw new Error(node.node + ' is not implemented');
     }

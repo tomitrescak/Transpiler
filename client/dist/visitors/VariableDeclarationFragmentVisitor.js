@@ -11,11 +11,13 @@ var NameFactory_1 = require('./factories/NameFactory');
 var ExpressionFactory_1 = require('./factories/ExpressionFactory');
 var VariableDeclarationFragmentVisitor = (function (_super) {
     __extends(VariableDeclarationFragmentVisitor, _super);
-    function VariableDeclarationFragmentVisitor(parent, node, typeDefinition, nodeName) {
+    function VariableDeclarationFragmentVisitor(parent, node, typeDefinition, isStatic, isFinal, nodeName) {
         if (nodeName === void 0) { nodeName = 'VariableDeclarationFragment'; }
         _super.call(this, parent, node, nodeName);
         this.name = NameFactory_1.default.create(this, node.name);
         this.type = TypeFactory_1.default.create(this, typeDefinition);
+        this.isStatic = isStatic;
+        this.isFinal = isFinal;
         // prepare initialiser and check for possible type clashes
         if (node.initializer) {
             this.initialiser = ExpressionFactory_1.default.create(this, node.initializer);
@@ -32,7 +34,7 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
         var initializerType = this.initialiser.returnType;
         var fidx = VariableDeclarationFragmentVisitor.order.indexOf(fieldType);
         var iidx = VariableDeclarationFragmentVisitor.order.indexOf(initializerType);
-        console.log('ITYPE: ' + initializerType);
+        // console.log('ITYPE: ' + initializerType)
         // check numbers
         if (fidx > -1 && iidx > -1) {
             if (fidx < iidx) {

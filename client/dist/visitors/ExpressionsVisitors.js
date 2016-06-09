@@ -117,13 +117,16 @@ var InfixExpressionVisitor = (function (_super) {
     });
     InfixExpressionVisitor.prototype.validate = function () {
         var _a = this, left = _a.left, right = _a.right;
-        // detect the return type for numbers
+        // detect the return type for string
         if (this.node.operator === '+' && (left.returnType === 'string' || right.returnType === 'string')) {
             this._returnType = 'string';
         }
+        else {
+            this._returnType = left.returnType;
+        }
         var lidx = order.indexOf(left.returnType);
         var ridx = order.indexOf(right.returnType);
-        // return type is the one which has bigger priority
+        // detect return type for numbers
         if (lidx > -1 && ridx > -1) {
             if (lidx < ridx) {
                 this._returnType = right.returnType;
@@ -136,7 +139,7 @@ var InfixExpressionVisitor = (function (_super) {
                 this.nonFloatingPointType = true;
             }
         }
-        // validate booleans, where both parts need to be boolean
+        // make sure that booleans are also correctly detected
         if (this.node.operator === '&&' || this.node.operator === '||') {
             if (left.returnType !== 'boolean') {
                 this.addError(Messages_1.default.Errors.TypeMismatch, left.returnType, 'boolean');
@@ -227,24 +230,34 @@ var VariableReference = (function (_super) {
     Object.defineProperty(VariableReference.prototype, "returnType", {
         get: function () {
             if (this._returnType === undefined) {
-                this.findType(this.parent);
+                this.findType();
             }
             return this._returnType;
         },
         enumerable: true,
         configurable: true
     });
-    VariableReference.prototype.findVariableInDeclaration = function (owner) {
-        var _this = this;
+    VariableReference.prototype.findVariableInDeclaration = function (owner, name) {
+        if (name === void 0) { name = this.name.name; }
         // method can either be on this type or on its superclass
-        var variable = owner.variables.find(function (m) { return m.name.name === _this.name.name; });
+        var variable = owner.variables.find(function (m) { return m.name.name === name; });
         if (variable) {
             this._returnType = variable.type.originalName;
-            this.classVariable = owner.node.node === 'TypeDeclaration';
+            // it is either a direct parent or in the block underneath
+            this.classVariable = owner.node.node === 'TypeDeclaration' || owner.parent.node.node === 'TypeDeclaration';
+            // if it is a classs variable it can be static
+            if (variable.isStatic) {
+                // finf the compilation name
+                var type = this.findParent('TypeDeclaration');
+                this.staticOwner = type.name.name;
+            }
         }
         return variable;
     };
-    VariableReference.prototype.findType = function (parent) {
+    VariableReference.prototype.findTypeInParent = function (parent) {
+        if (this._returnType) {
+            return;
+        }
         // find if name exists in the parent scope
         var vh = parent;
         if (vh.variables && vh.variables.length) {
@@ -253,7 +266,7 @@ var VariableReference = (function (_super) {
             }
         }
         if (parent.parent) {
-            this.findType(parent.parent);
+            this.findTypeInParent(parent.parent);
         }
         else {
             // we are in a compilation unit
@@ -264,7 +277,20 @@ var VariableReference = (function (_super) {
             throw new Error('Did not find variable: ' + this.name.name);
         }
     };
+    VariableReference.prototype.findType = function () {
+        return this.findTypeInParent(this.parent);
+    };
     VariableReference.prototype.visit = function (builder) {
+        // find the type and detect whether it is a class variable
+        this.findType();
+        // render this. if it is a class member
+        if (this.staticOwner) {
+            builder.add(this.staticOwner + '.');
+        }
+        else if (this.classVariable) {
+            builder.add('this.');
+        }
+        // render name
         this.name.visit(builder);
     };
     return VariableReference;
@@ -283,8 +309,22 @@ var QualifiedVariableReference = (function (_super) {
     __extends(QualifiedVariableReference, _super);
     function QualifiedVariableReference(parent, node) {
         _super.call(this, parent, node, 'QualifiedName');
-        this.name = NameFactory_1.default.create(this, node);
+        this.name = NameFactory_1.default.create(this, node.name);
+        this.qualifier = ExpressionFactory_1.default.create(this, node.qualifier);
     }
+    QualifiedVariableReference.prototype.findType = function () {
+        // find the parent field
+        // use field access to access all child properties
+        var q = this.qualifier;
+        while (q.qualifier) {
+            q = q.qualifier;
+        }
+        // q is the primary qualifier
+        // 1. we search for it first in the hierarchy
+        // 2. in the list of all compilation units' type declarations
+        var owner = this.findTypeInParent;
+        return this.findTypeInParent(this.parent);
+    };
     return QualifiedVariableReference;
 }(VariableReference));
 exports.QualifiedVariableReference = QualifiedVariableReference;
@@ -304,8 +344,7 @@ var MethodInvocationVisitor = (function (_super) {
         // method can either be on this type or on its superclass
         var method = owner.methods.find(function (m) { return m.name.name === _this.name.name; });
         if (method) {
-            this.returnType = method.returnType.originalName;
-            console.log(this.returnType);
+            this._returnType = method.returnType.originalName;
         }
         return method;
     };
@@ -322,6 +361,16 @@ var MethodInvocationVisitor = (function (_super) {
             throw new Error(Messages_1.default.Errors.MethodNotFound(this.name.name));
         }
     };
+    Object.defineProperty(MethodInvocationVisitor.prototype, "returnType", {
+        get: function () {
+            if (this._returnType === undefined) {
+                this.findType();
+            }
+            return this._returnType;
+        },
+        enumerable: true,
+        configurable: true
+    });
     MethodInvocationVisitor.prototype.visit = function (builder) {
         this.findType();
         if (this.expression) {
@@ -365,3 +414,27 @@ var FieldAccessVisitor = (function (_super) {
     return FieldAccessVisitor;
 }(BaseExpression));
 exports.FieldAccessVisitor = FieldAccessVisitor;
+var ThisExpressionVisitor = (function (_super) {
+    __extends(ThisExpressionVisitor, _super);
+    function ThisExpressionVisitor(parent, node) {
+        _super.call(this, parent, node, 'ThisExpression');
+    }
+    ThisExpressionVisitor.prototype.visit = function (builder) {
+        builder.add('this');
+    };
+    return ThisExpressionVisitor;
+}(Visitor_1.default));
+exports.ThisExpressionVisitor = ThisExpressionVisitor;
+var SuperFieldAccessVisitor = (function (_super) {
+    __extends(SuperFieldAccessVisitor, _super);
+    function SuperFieldAccessVisitor(parent, node) {
+        _super.call(this, parent, node, 'SuperFieldAccess');
+        this.name = NameFactory_1.default.create(this, node.name);
+    }
+    SuperFieldAccessVisitor.prototype.visit = function (builder) {
+        builder.add('super.');
+        this.name.visit(builder);
+    };
+    return SuperFieldAccessVisitor;
+}(Visitor_1.default));
+exports.SuperFieldAccessVisitor = SuperFieldAccessVisitor;

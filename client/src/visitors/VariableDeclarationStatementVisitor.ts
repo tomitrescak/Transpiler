@@ -8,9 +8,8 @@ declare global {
 export class VariableDeclarationStatementVisitor extends FieldDeclarationVisitor {
   constructor(parent: IVisitor, node: VariableDeclarationStatement) {
     super(parent, node, 'VariableDeclarationStatement');
-
     // reinit modifiers
-    this.modifiers = new ModifiersVisitor(this, node.modifiers, [], ModifierLevel.Variable);
+    this.modifiers = new ModifiersVisitor(this, node.modifiers, ['final'], ModifierLevel.Variable);
   }
 
   visit (builder: IBuilder) {

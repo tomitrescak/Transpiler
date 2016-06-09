@@ -62,15 +62,17 @@
   longRunning: true
   input: |
     A a() {
+      D d;
       b(3);
-      b(c(d,e));
+      b(c(d,d));
     }
     B b() {}
     C c(D d, E e) {}
   output: |
    a(): A {
+       let d: D = null;
        b(3);
-       b(c(d,e));
+       b(c(d,d));
      }
      b(): B {}
      c(d: D, e: E): C {}
@@ -89,9 +91,11 @@
 - name: Dot Chaining
   input: |
     A a() {
-      a(3,a,a() + a()).a(d).e;
+      int a;
+      a(3,a,a() + a()).a(a).e;
     }
   output: |
    a(): A {
-       a(3,a,a() + a()).a(d).e;
+       let a: number = 0;
+       a(3,a,a() + a()).a(a).e;
      }

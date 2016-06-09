@@ -1,13 +1,17 @@
 # TEST Case
-- name: Modifiers  > Duplicate
+- name: Duplicate
   input: public private protected class tomi {}
   output: |
     class tomi {}
   errors:
     - DuplicateAccessor|0|public,private,protected
+  warnings:
+    - IgnoredModifier|0|public
+    - IgnoredModifier|0|private
+    - IgnoredModifier|0|protected
 
 # TEST Case
-- name: Modifiers > Class Level
+- name: Class Level
   input: public static final abstract class tomi {}
   output: |
     abstract class tomi {}

@@ -15,7 +15,7 @@ var FieldDeclarationVisitor = (function (_super) {
         if (modifierLevel === void 0) { modifierLevel = ModifiersVisitor_1.ModifierLevel.Property; }
         _super.call(this, parent, node, nodeName);
         this.modifiers = new ModifiersVisitor_1.default(this, this.node.modifiers, allowedModifiers, modifierLevel);
-        this.fragments = DeclarationsFactory_1.default.createArray(this, this.node.fragments, this.node.type);
+        this.fragments = DeclarationsFactory_1.default.createArray(this, this.node.fragments, this.node.type, this.modifiers.isStatic, this.modifiers.isFinal);
     }
     FieldDeclarationVisitor.prototype.visit = function (builder) {
         this.modifiers.visit(builder);

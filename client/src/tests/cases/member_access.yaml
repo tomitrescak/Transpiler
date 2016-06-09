@@ -1,0 +1,39 @@
+- name: Class Members
+  input: |
+    class A {
+      int d;
+      static int b;
+
+      String c() {
+        int a = d + this.d + b + A.b;
+      }
+    }
+  output: |
+    class A {
+      d: number = 0;
+      static b: number = 0;
+      c(): string {
+        let a: number = this.d + this.d + A.b + A.b;
+      }
+    }
+
+- name: Type check static members
+  input: |
+    class A {
+      static double b;
+      String c() {
+        int a = A.b;
+      }
+    }
+  output: |
+    class A {
+      static b: number = 0;
+      c(): string {
+        let a: number = A.b;
+      }
+    }
+
+# # double d;
+# # int d() {
+#   int a = this.d
+# }

@@ -13,6 +13,7 @@ import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVis
 
 declare global {
   interface ITypeDeclarationVisitor extends IVisitor, VariableHolderVisitor, MethodHolderVisitor {
+    name: NameVisitor;
   }
 
   interface BaseTypeDeclaration extends AstElement {
@@ -32,7 +33,7 @@ declare global {
   type TypeDeclarations = TypeDeclaration | EnumDeclaration;
 }
 
-export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> implements ITypeDeclaration {
+export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> implements ITypeDeclarationVisitor {
   modifiers: ModifiersVisitor;
   typeDeclarationName: string;
   name: NameVisitor;

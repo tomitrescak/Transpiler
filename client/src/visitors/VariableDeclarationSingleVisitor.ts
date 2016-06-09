@@ -18,11 +18,13 @@ export class SingleVariableDeclarationVisitor extends VariableDeclarationFragmen
   varargs: boolean;
 
   constructor(parent: IVisitor, node: SingleVariableDeclaration) {
-    super(parent, node, node.type, 'SingleVariableDeclaration');
+    super(parent, node, node.type, false, false, 'SingleVariableDeclaration');
 
     this.varargs = node.varargs;
     if (node.modifiers.length) {
       this.modifiers = new ModifiersVisitor(this, node.modifiers, [], ModifierLevel.Parameter);
+      this.isStatic = this.modifiers.isStatic;
+      this.isFinal = this.modifiers.isFinal;
     }
   }
 

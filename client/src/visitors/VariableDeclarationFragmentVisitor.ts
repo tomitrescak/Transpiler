@@ -24,11 +24,15 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
   name: NameVisitor;
   initialiser: IExpressionVisitor;
   type: TypeVisitor;
+  isStatic: boolean;
+  isFinal: boolean;
 
-  constructor(parent: IVisitor, node: VariableDeclarationFragment, typeDefinition: Types, nodeName = 'VariableDeclarationFragment') {
+  constructor(parent: IVisitor, node: VariableDeclarationFragment, typeDefinition: Types, isStatic: boolean, isFinal: boolean, nodeName = 'VariableDeclarationFragment') {
     super(parent, node, nodeName);
     this.name = NameFactory.create(this, node.name);
     this.type = TypeFactory.create(this, typeDefinition);
+    this.isStatic = isStatic;
+    this.isFinal = isFinal;
 
     // prepare initialiser and check for possible type clashes
     if (node.initializer) {
@@ -51,7 +55,7 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
     const fidx = VariableDeclarationFragmentVisitor.order.indexOf(fieldType);
     const iidx = VariableDeclarationFragmentVisitor.order.indexOf(initializerType);
 
-    console.log('ITYPE: ' + initializerType)
+    // console.log('ITYPE: ' + initializerType)
 
     // check numbers
     if (fidx > -1 && iidx > -1) {

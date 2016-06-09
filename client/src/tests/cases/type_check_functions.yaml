@@ -10,8 +10,7 @@
   errors:
     - TypeMismatch|3|double|int
 
-- name: Types > In Rounding
-  ignored: true
+- name: Types > Int Rounding
   input: |
     class Foo {
       int a() {}
@@ -22,10 +21,28 @@
   output: |
     class Foo {
       a(): number {}
-      void run() {
-         let b: number = (a() / a()|0);
+      run(): void {
+        let b: number = (a() / a()|0);
       }
     }
+
+- name: Types > Double No Rounding
+  input: |
+    class Foo {
+      double a() {}
+      void run() {
+         int b = a() / a();
+      }
+    }
+  output: |
+    class Foo {
+      a(): number {}
+      run(): void {
+        let b: number = a() / a();
+      }
+    }
+  errors:
+    - TypeMismatch|3|double|int
 
 # - name: Types > Automated rounding of functions
 #   ignored: true

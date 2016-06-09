@@ -48,8 +48,14 @@ function runTest(file) {
             }
             chai_1.expect(builder.text).to.equal(output, testName);
         }
+        if (!testCase.warnings) {
+            testCase.warnings = [];
+        }
+        if (!testCase.errors) {
+            testCase.errors = [];
+        }
+        chai_1.expect(testCase.warnings.length, testName + ": Warnings contain\n" + builder.handler.warnings.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(builder.handler.warnings.length);
         if (testCase.warnings) {
-            chai_1.expect(testCase.warnings.length, testName + ": Warnings contain\n" + builder.handler.warnings.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(builder.handler.warnings.length);
             var _loop_2 = function(warning) {
                 var parts = warning.split('|');
                 var messageName = builder.Warnigns[parts[0]];
@@ -64,8 +70,8 @@ function runTest(file) {
                 _loop_2(warning);
             }
         }
+        chai_1.expect(testCase.errors && testCase.errors.length, testName + ": Errors contain\n" + builder.handler.errors.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(builder.handler.errors.length);
         if (testCase.errors) {
-            chai_1.expect(testCase.errors.length, testName + ": Errors contain\n" + builder.handler.errors.map(function (w) { return ("[" + w.line + "] " + w.message); }).join('\n') + "\n\n").to.equal(builder.handler.errors.length);
             var _loop_3 = function(error) {
                 var parts = error.split('|');
                 var messageName = builder.Errors[parts[0]];

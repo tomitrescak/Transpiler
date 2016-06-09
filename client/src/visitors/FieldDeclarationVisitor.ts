@@ -20,7 +20,7 @@ export class FieldDeclarationVisitor extends Visitor<FieldDeclaration> {
     super(parent, node, nodeName);
 
     this.modifiers = new ModifiersVisitor(this, this.node.modifiers, allowedModifiers, modifierLevel);
-    this.fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type);
+    this.fragments = FragmentsFactory.createArray(this, this.node.fragments, this.node.type, this.modifiers.isStatic, this.modifiers.isFinal);
   }
 
   visit(builder: IBuilder) {

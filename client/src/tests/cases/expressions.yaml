@@ -18,7 +18,7 @@
   output: |
     class tomi {
       b: number = 0;
-      a: number = (4 / ++b|0);
+      a: number = (4 / ++this.b|0);
     }
 
 - name: Expressions > Prefix Double Division
@@ -30,7 +30,7 @@
   output: |
     class tomi {
       b: number = 0;
-      a: number = 4 / ++b;
+      a: number = 4 / ++this.b;
     }
 
 - name: Expressions > Postfix Integer Division
@@ -42,7 +42,7 @@
   output: |
     class tomi {
       b: number = 0;
-      a: number = (4 / b++|0);
+      a: number = (4 / this.b++|0);
     }
 
 - name: Expressions > Logical and unary
@@ -54,7 +54,7 @@
   output: |
     class tomi {
       b: boolean = false;
-      a: boolean = true && false || !b;
+      a: boolean = true && false || !this.b;
     }
   sourceMap: [0,1]
 
