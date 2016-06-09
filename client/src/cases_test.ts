@@ -122,6 +122,6 @@ export default function runTest(file: CaseFile) {
 
     let duration = new Date().getTime() - time;
     console.log("Duration: " + duration + "ms");
-    // console.log('=======================================================')
+    console.log('=======================================================')
   }
 }

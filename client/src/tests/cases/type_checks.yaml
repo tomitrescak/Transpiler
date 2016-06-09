@@ -1,49 +1,82 @@
 # TEST Case
-- name: Types > Checks > string
+- name: string
   input: string a;
   errors:
     - CannotFindSymbol|1|string
 
-- name: Types > Checks > double to int
+- name: double to int
   input: int a = 3.1;
   errors:
     - TypeMismatch|1|double|int
 
-- name: Types > Checks > float to int
+- name: float to int
   input: int a = 3.1f;
   errors:
     - TypeMismatch|1|float|int
 
-- name: Types > Checks > double to float
+- name: double to float
   input: float a = 3.1;
   errors:
     - TypeMismatch|1|double|float
 
-- name: Types > Checks > double to float
+- name: double to float
   input: float a = 3.1d;
   errors:
     - TypeMismatch|1|double|float
 
-- name: Types > Checks > long to int
+- name: long to int
   input: byte a = 3.1;
   errors:
     - TypeMismatch|1|double|byte
 
-- name: Types > Checks > byte length
+- name: byte length
   input: byte a = 130;
   errors:
     - TypeMismatch|1|short|byte
 
-- name: Types > Checks > short length
+- name: short length
   input: short a = 1300000;
   errors:
     - TypeMismatch|1|int|short
 
-- name: Types > Checks > char to String
+- name: char to String
   input: String a = 'm';
   errors:
     - TypeMismatch|1|char|String
 
-- name: Types > Automated Rounding
+- name: String to left boolean
+  input: String a = true && "m";
+  errors:
+    - TypeMismatch|1|string|boolean
+
+- name: String to right boolean
+  input: String a = "m" && true;
+  errors:
+    - TypeMismatch|1|string|boolean
+
+- name: Automated Rounding
   input: int a = 4 / 3;
   output: a: number = (4 / 3|0);
+
+- name: Variable With Booleans
+  input: |
+    int a;
+    boolean b;
+    boolean c = a && b;
+  errors:
+    - TypeMismatch|3|int|boolean
+
+- name: Variable With Booleans2
+  input: |
+    boolean a;
+    double b;
+    boolean c = a && b;
+  errors:
+    - TypeMismatch|3|double|boolean
+
+- name: Variable integers
+  input: |
+    double a;
+    int b = a;
+  errors:
+    - TypeMismatch|2|double|int

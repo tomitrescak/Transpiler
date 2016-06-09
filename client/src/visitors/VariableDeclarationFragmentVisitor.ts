@@ -38,8 +38,6 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
     // add this method to the list of methods of the parent
 
     const variableHolder = this.findParent(['TypeDeclaration', 'MethodDeclaration', 'Block']) as VariableHolderVisitor;
-    console.log(variableHolder.node.node);
-    console.log(variableHolder.variables);
     variableHolder.variables.push(this);
   }
 

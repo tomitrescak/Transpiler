@@ -136,6 +136,15 @@ var InfixExpressionVisitor = (function (_super) {
                 this.nonFloatingPointType = true;
             }
         }
+        // validate booleans, where both parts need to be boolean
+        if (this.node.operator === '&&' || this.node.operator === '||') {
+            if (left.returnType !== 'boolean') {
+                this.addError(Messages_1.default.Errors.TypeMismatch, left.returnType, 'boolean');
+            }
+            else if (right.returnType !== 'boolean') {
+                this.addError(Messages_1.default.Errors.TypeMismatch, right.returnType, 'boolean');
+            }
+        }
     };
     InfixExpressionVisitor.prototype.visit = function (builder) {
         this.validate();

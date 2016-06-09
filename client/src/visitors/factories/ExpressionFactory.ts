@@ -1,5 +1,4 @@
 import * as Expressions from '../ExpressionsVisitors';
-import NameFactory from './NameFactory';
 
 export default class ExpressionFactory {
   static create(parent: IVisitor, node: AstElement): IExpressionVisitor {

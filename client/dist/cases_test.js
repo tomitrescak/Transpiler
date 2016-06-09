@@ -93,6 +93,7 @@ function runTest(file) {
         }
         var duration = new Date().getTime() - time;
         console.log("Duration: " + duration + "ms");
+        console.log('=======================================================');
     };
     for (var _d = 0, cases_1 = cases; _d < cases_1.length; _d++) {
         var testCase = cases_1[_d];

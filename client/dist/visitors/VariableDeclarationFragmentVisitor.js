@@ -22,8 +22,6 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
         }
         // add this method to the list of methods of the parent
         var variableHolder = this.findParent(['TypeDeclaration', 'MethodDeclaration', 'Block']);
-        console.log(variableHolder.node.node);
-        console.log(variableHolder.variables);
         variableHolder.variables.push(this);
     }
     VariableDeclarationFragmentVisitor.prototype.validate = function () {
