@@ -17,6 +17,7 @@ var TypeDeclarationVisitor = (function (_super) {
         _super.call(this, parent, node, 'TypeDeclaration');
         this.methods = [];
         this.fields = [];
+        this.variables = [];
         this.modifiers = new ModifiersVisitor_1.default(this, node.modifiers, ['abstract'], ModifiersVisitor_1.ModifierLevel.Class);
         this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
         this.name = NameFactory_1.default.create(this, node.name);

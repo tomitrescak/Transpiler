@@ -15,6 +15,7 @@ var MethodDeclarationVisitor = (function (_super) {
     __extends(MethodDeclarationVisitor, _super);
     function MethodDeclarationVisitor(parent, node) {
         _super.call(this, parent, node, 'MethodDeclaration');
+        this.variables = [];
         this.name = NameFactory_1.default.create(this, node.name);
         this.returnType = TypeFactory_1.default.create(this, node.returnType2);
         if (node.body) {

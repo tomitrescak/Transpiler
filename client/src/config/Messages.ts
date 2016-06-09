@@ -14,6 +14,9 @@ export default {
     },
     TypeMismatch(from: string, to: string) {
       return `Type mismatch: Cannot convert from '${from}' to '${to}'`;
+    },
+    MethodNotFound(name: string) {
+      return `Method '${name}' not found`;
     }
   },
   Warnings: {

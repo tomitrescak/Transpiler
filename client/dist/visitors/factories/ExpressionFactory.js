@@ -1,16 +1,18 @@
 "use strict";
 var Expressions = require('../ExpressionsVisitors');
-var NameFactory_1 = require('./NameFactory');
 var ExpressionFactory = (function () {
     function ExpressionFactory() {
     }
     ExpressionFactory.create = function (parent, node) {
         switch (node.node) {
             case 'SimpleName':
+                return new Expressions.SimpleVariableReference(parent, node);
             case 'QualifiedName':
-                return NameFactory_1.default.create(parent, node);
+                return new Expressions.QualifiedVariableReference(parent, node);
             case 'PrefixExpression':
                 return new Expressions.PrefixExpressionVisitor(parent, node);
+            case 'PostfixExpression':
+                return new Expressions.PostfixExpressionVisitor(parent, node);
             case 'BooleanLiteral':
                 return new Expressions.BooleanLiteralVisitor(parent, node);
             case 'StringLiteral':

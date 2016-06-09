@@ -21,7 +21,7 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
   static order = ['byte', 'short', 'int', 'long', 'float', 'double'];
   static maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
 
-  name: IVisitor;
+  name: NameVisitor;
   initialiser: IExpressionVisitor;
   type: TypeVisitor;
 
@@ -33,35 +33,41 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
     // prepare initialiser and check for possible type clashes
     if (node.initializer) {
       this.initialiser = ExpressionFactory.create(this, node.initializer);
+    }
 
-      const fieldType = this.type.originalName;
-      const initializerType = this.initialiser.returnType;
-      const fidx = VariableDeclarationFragmentVisitor.order.indexOf(fieldType);
-      const iidx = VariableDeclarationFragmentVisitor.order.indexOf(initializerType);
+    // add this method to the list of methods of the parent
 
-      // check numbers
-      if (fidx > -1 && iidx > -1) {
-        if (fidx < iidx) {
-          this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
-        }
-      }
+    const variableHolder = this.findParent(['TypeDeclaration', 'MethodDeclaration', 'Block']) as VariableHolderVisitor;
+    console.log(variableHolder.node.node);
+    console.log(variableHolder.variables);
+    variableHolder.variables.push(this);
+  }
 
-      // strings
-      if (fieldType === 'String' && initializerType === 'char') {
-        this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
-      }
-      if (fieldType === 'char' && initializerType === 'String') {
+  validate() {
+    if (!this.initialiser) {
+      return;
+    }
+
+    const fieldType = this.type.originalName;
+    const initializerType = this.initialiser.returnType;
+    const fidx = VariableDeclarationFragmentVisitor.order.indexOf(fieldType);
+    const iidx = VariableDeclarationFragmentVisitor.order.indexOf(initializerType);
+
+    console.log('ITYPE: ' + initializerType)
+
+    // check numbers
+    if (fidx > -1 && iidx > -1) {
+      if (fidx < iidx) {
         this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
       }
     }
 
-    // add this method to the list of methods of the parent
-    if (this.parent.node.node === 'TypeDeclaration' ||
-        this.parent.node.node === 'MethodDeclaration') {
-      const owner = this.parent as VariableHolderVisitor;
-      owner.variables.push(this);
-    } else {
-      throw new Error('Unexpected parent of method declaration: ' + this.parent.node.node);
+    // strings
+    if (fieldType === 'String' && initializerType === 'char') {
+      this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
+    }
+    if (fieldType === 'char' && initializerType === 'String') {
+      this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
     }
   }
 
@@ -101,12 +107,17 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
           case 'number':
             dinitialiser = '0';
             break;
+          case 'boolean':
+            dinitialiser = 'false';
+            break;
           default:
             dinitialiser = 'null';
         }
         builder.add(dinitialiser);
       }
     }
+
+    this.validate();
   }
 }
 

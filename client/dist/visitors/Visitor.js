@@ -84,6 +84,23 @@ var Visitor = (function () {
         }
         this.handler.addWarning(warning(args), location.line, location.column);
     };
+    Visitor.prototype.findParent = function (names) {
+        var parent = this.parent;
+        if (parent == null) {
+            throw new Error('Parent not found: ' + names);
+        }
+        if (Array.isArray(names)) {
+            if (names.indexOf(parent.node.node) > -1) {
+                return parent;
+            }
+        }
+        else {
+            if (names === parent.node.node) {
+                return parent;
+            }
+        }
+        return this.parent.findParent(names);
+    };
     /**
      * Checks the current name of the node, in case of failure it throws an exception
      * @param  {AstElement | AstElement[]}   node          [description]

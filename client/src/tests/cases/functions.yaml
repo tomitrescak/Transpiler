@@ -79,19 +79,19 @@
   longRunning: true
   input: |
     A a() {
-      b(3 + 3.4);
+      a(3 + 3.4);
     }
   output: |
    a(): A {
-       b(3 + 3.4);
+       a(3 + 3.4);
      }
 
 - name: Dot Chaining
   input: |
     A a() {
-      b(3,a,b() + c()).c(d).e;
+      a(3,a,a() + a()).a(d).e;
     }
   output: |
    a(): A {
-       b(3,a,b() + c()).c(d).e;
+       a(3,a,a() + a()).a(d).e;
      }

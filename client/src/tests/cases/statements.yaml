@@ -7,11 +7,9 @@
     if (true) {}
     else if (true && false) {}
     else {
-      d();
+      // tomi
     }
   output: |
     if (true) {}
         else if (true && false) {}
-        else {
-          d();
-        }
+        else {}

@@ -8,6 +8,7 @@ var Visitor_1 = require('./Visitor');
 var ExpressionFactory_1 = require('./factories/ExpressionFactory');
 var NameFactory_1 = require('./factories/NameFactory');
 var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
+var Messages_1 = require('../config/Messages');
 var order = ['byte', 'short', 'int', 'long', 'float', 'double'];
 var BaseExpression = (function (_super) {
     __extends(BaseExpression, _super);
@@ -20,7 +21,7 @@ var NamedExpressionVisitor = (function (_super) {
     __extends(NamedExpressionVisitor, _super);
     function NamedExpressionVisitor(parent, visitor) {
         _super.call(this, parent, visitor.node, null);
-        throw new Error("Not implemented ..");
+        throw new Error('Not implemented ..');
     }
     NamedExpressionVisitor.prototype.visit = function (builder) {
         this.nameVisitor.visit(builder);
@@ -99,31 +100,45 @@ var InfixExpressionVisitor = (function (_super) {
     __extends(InfixExpressionVisitor, _super);
     function InfixExpressionVisitor(parent, node) {
         _super.call(this, parent, node, 'InfixExpression');
-        var left = ExpressionFactory_1.default.create(this, this.node.leftOperand);
-        var right = ExpressionFactory_1.default.create(this, this.node.rightOperand);
+        this.left = ExpressionFactory_1.default.create(this, this.node.leftOperand);
+        this.right = ExpressionFactory_1.default.create(this, this.node.rightOperand);
+    }
+    Object.defineProperty(InfixExpressionVisitor.prototype, "returnType", {
+        // in the beggining the retun value is not initialised
+        // by calling validate the initial value is obtaned from children
+        get: function () {
+            if (this._returnType === undefined) {
+                this.validate();
+            }
+            return this._returnType;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    InfixExpressionVisitor.prototype.validate = function () {
+        var _a = this, left = _a.left, right = _a.right;
         // detect the return type for numbers
         if (this.node.operator === '+' && (left.returnType === 'string' || right.returnType === 'string')) {
-            this.returnType = 'string';
+            this._returnType = 'string';
         }
         var lidx = order.indexOf(left.returnType);
         var ridx = order.indexOf(right.returnType);
         // return type is the one which has bigger priority
-        if (lidx > -1 && lidx > -1) {
+        if (lidx > -1 && ridx > -1) {
             if (lidx < ridx) {
-                this.returnType = right.returnType;
+                this._returnType = right.returnType;
             }
             else {
-                this.returnType = left.returnType;
+                this._returnType = left.returnType;
             }
             // round non float types from long lower (idx of long is 4)
             if (lidx < 4 && ridx < 4 && this.node.operator === '/') {
                 this.nonFloatingPointType = true;
             }
         }
-        this.left = left;
-        this.right = right;
-    }
+    };
     InfixExpressionVisitor.prototype.visit = function (builder) {
+        this.validate();
         // non floating point types are wrapped with rounding
         if (this.nonFloatingPointType) {
             builder.add('(');
@@ -153,6 +168,21 @@ var PrefixExpressionVisitor = (function (_super) {
     return PrefixExpressionVisitor;
 }(BaseExpression));
 exports.PrefixExpressionVisitor = PrefixExpressionVisitor;
+var PostfixExpressionVisitor = (function (_super) {
+    __extends(PostfixExpressionVisitor, _super);
+    function PostfixExpressionVisitor(parent, node) {
+        _super.call(this, parent, node, 'PostfixExpression');
+        this.operand = ExpressionFactory_1.default.create(this, this.node.operand);
+        this.returnType = this.operand.returnType;
+    }
+    PostfixExpressionVisitor.prototype.visit = function (builder) {
+        this.operand.visit(builder);
+        builder.add(this.node.operator, this.location);
+        return this;
+    };
+    return PostfixExpressionVisitor;
+}(BaseExpression));
+exports.PostfixExpressionVisitor = PostfixExpressionVisitor;
 var ParenthesizedExpressionVisitor = (function (_super) {
     __extends(ParenthesizedExpressionVisitor, _super);
     function ParenthesizedExpressionVisitor(parent, node) {
@@ -180,6 +210,75 @@ var BooleanLiteralVisitor = (function (_super) {
     return BooleanLiteralVisitor;
 }(BaseExpression));
 exports.BooleanLiteralVisitor = BooleanLiteralVisitor;
+var VariableReference = (function (_super) {
+    __extends(VariableReference, _super);
+    function VariableReference() {
+        _super.apply(this, arguments);
+    }
+    Object.defineProperty(VariableReference.prototype, "returnType", {
+        get: function () {
+            if (this._returnType === undefined) {
+                this.findType(this.parent);
+            }
+            return this._returnType;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    VariableReference.prototype.findVariableInDeclaration = function (owner) {
+        var _this = this;
+        // method can either be on this type or on its superclass
+        var variable = owner.variables.find(function (m) { return m.name.name === _this.name.name; });
+        if (variable) {
+            this._returnType = variable.type.originalName;
+            this.classVariable = owner.node.node === 'TypeDeclaration';
+        }
+        return variable;
+    };
+    VariableReference.prototype.findType = function (parent) {
+        // find if name exists in the parent scope
+        var vh = parent;
+        if (vh.variables && vh.variables.length) {
+            if (this.findVariableInDeclaration(vh)) {
+                return;
+            }
+        }
+        if (parent.parent) {
+            this.findType(parent.parent);
+        }
+        else {
+            // we are in a compilation unit
+            // let cu = parent as ICompilationUnitVisitor;
+            // for (let type of cu.declarations) {
+            //   this.findType
+            // }
+            throw new Error('Did not find variable: ' + this.name.name);
+        }
+    };
+    VariableReference.prototype.visit = function (builder) {
+        this.name.visit(builder);
+    };
+    return VariableReference;
+}(BaseExpression));
+exports.VariableReference = VariableReference;
+var SimpleVariableReference = (function (_super) {
+    __extends(SimpleVariableReference, _super);
+    function SimpleVariableReference(parent, node) {
+        _super.call(this, parent, node, 'SimpleName');
+        this.name = NameFactory_1.default.create(this, node);
+    }
+    return SimpleVariableReference;
+}(VariableReference));
+exports.SimpleVariableReference = SimpleVariableReference;
+var QualifiedVariableReference = (function (_super) {
+    __extends(QualifiedVariableReference, _super);
+    function QualifiedVariableReference(parent, node) {
+        _super.call(this, parent, node, 'QualifiedName');
+        this.name = NameFactory_1.default.create(this, node);
+    }
+    return QualifiedVariableReference;
+}(VariableReference));
+exports.QualifiedVariableReference = QualifiedVariableReference;
 var MethodInvocationVisitor = (function (_super) {
     __extends(MethodInvocationVisitor, _super);
     function MethodInvocationVisitor(parent, node) {
@@ -191,8 +290,31 @@ var MethodInvocationVisitor = (function (_super) {
         }
         this.typeArguments = new TypeParameterVisitor_1.default(this, node.typeArguments);
     }
+    MethodInvocationVisitor.prototype.findTypeInTypeDeclaration = function (owner) {
+        var _this = this;
+        // method can either be on this type or on its superclass
+        var method = owner.methods.find(function (m) { return m.name.name === _this.name.name; });
+        if (method) {
+            this.returnType = method.returnType.originalName;
+            console.log(this.returnType);
+        }
+        return method;
+    };
+    MethodInvocationVisitor.prototype.findType = function () {
+        // browse till type declaration and find the return type of this method
+        var owner = this.findParent('TypeDeclaration');
+        var method = this.findTypeInTypeDeclaration(owner);
+        if (!method) {
+            // check all supertypes
+            var cu = this.findParent('CompilationUnit');
+        }
+        if (!method) {
+            this.addError(Messages_1.default.Errors.MethodNotFound, this.name.name);
+            throw new Error(Messages_1.default.Errors.MethodNotFound(this.name.name));
+        }
+    };
     MethodInvocationVisitor.prototype.visit = function (builder) {
-        // TODO: find return type
+        this.findType();
         if (this.expression) {
             this.expression.visit(builder);
             builder.add('.');

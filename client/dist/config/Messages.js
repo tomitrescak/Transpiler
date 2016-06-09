@@ -20,6 +20,9 @@ exports.default = {
         },
         TypeMismatch: function (from, to) {
             return "Type mismatch: Cannot convert from '" + from + "' to '" + to + "'";
+        },
+        MethodNotFound: function (name) {
+            return "Method '" + name + "' not found";
         }
     },
     Warnings: {

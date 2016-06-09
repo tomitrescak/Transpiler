@@ -10,6 +10,7 @@ var BlockVisitor = (function (_super) {
     __extends(BlockVisitor, _super);
     function BlockVisitor(parent, node) {
         _super.call(this, parent, node, 'Block');
+        this.variables = [];
         if (node.statements.length) {
             this.statements = BlockFactory_1.default.createArray(this, node.statements);
         }

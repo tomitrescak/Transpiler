@@ -2,6 +2,10 @@ import Visitor from './Visitor';
 import TypeDeclarationsFactory from './factories/TypeDeclarationsFactory';
 
 declare global {
+  interface ICompilationUnitVisitor extends IVisitor {
+    declarations: ITypeDeclarationVisitor[];
+  }
+
   interface CompilationUnit extends AstElement {
     imports: ImportDeclaration[];
     node: 'ImportDeclaration';

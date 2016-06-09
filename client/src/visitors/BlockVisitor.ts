@@ -1,5 +1,6 @@
 import Visitor from './Visitor';
 import BlockFactory from './factories/BlockFactory';
+import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
 
 declare global {
   interface Block extends AstElement {
@@ -8,12 +9,14 @@ declare global {
   }
 }
 
-export class BlockVisitor extends Visitor<Block> {
+export class BlockVisitor extends Visitor<Block> implements VariableHolderVisitor {
   statements: IVisitor[];
+  variables: VariableDeclarationFragmentVisitor[];
 
   constructor(parent: IVisitor, node: Block) {
     super(parent, node, 'Block');
 
+    this.variables = [];
     if (node.statements.length) {
       this.statements = BlockFactory.createArray(this, node.statements);
     }

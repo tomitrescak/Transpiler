@@ -12,6 +12,9 @@ import FieldDeclarationVisitor from './FieldDeclarationVisitor';
 import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
 
 declare global {
+  interface ITypeDeclarationVisitor extends IVisitor, VariableHolderVisitor, MethodHolderVisitor {
+  }
+
   interface BaseTypeDeclaration extends AstElement {
     bodyDeclarations: BodyDeclarations[];
     modifiers: (Modifier | MarkerAnnotation)[];
@@ -29,7 +32,7 @@ declare global {
   type TypeDeclarations = TypeDeclaration | EnumDeclaration;
 }
 
-export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> implements VariableHolderVisitor, MethodHolderVisitor {
+export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> implements ITypeDeclaration {
   modifiers: ModifiersVisitor;
   typeDeclarationName: string;
   name: NameVisitor;
@@ -48,6 +51,7 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> impleme
 
     this.methods = [];
     this.fields = [];
+    this.variables = [];
     this.modifiers = new ModifiersVisitor(this, node.modifiers, ['abstract'], ModifierLevel.Class);
     this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
     this.name = NameFactory.create(this, node.name);

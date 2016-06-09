@@ -22,6 +22,7 @@ declare global {
     addWarning(error: Function, ...args: any[]): void;
     addWarningAtLocation(location: AstLocation, error: Function, ...args: any[]): void;
     visit(builder: IBuilder, ...args: any[]): void;
+    findParent(names: string[] | string): IVisitor;
   }
 }
 
@@ -103,6 +104,24 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       return;
     }
     this.handler.addWarning(warning(args), location.line, location.column);
+  }
+
+  public findParent(names: string[] | string): IVisitor {
+    let parent = this.parent;
+    if (parent == null) {
+      throw new Error('Parent not found: ' + names);
+    }
+    if (Array.isArray(names)) {
+      if (names.indexOf(parent.node.node) > -1) {
+        return parent;
+      }
+    } else {
+      if (names === parent.node.node) {
+        return parent;
+      }
+    }
+
+    return this.parent.findParent(names);
   }
 
   /**

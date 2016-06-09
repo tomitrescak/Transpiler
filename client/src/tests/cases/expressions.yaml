@@ -9,14 +9,52 @@
     }
   sourceMap: [0,1]
 
-- name: Expressions > Logical and unary
+- name: Expressions > Prefix Integer Division
   input: |
     class tomi {
-      boolean a = true && false || !a;
+      int b;
+      int a = 4 / ++b;
     }
   output: |
     class tomi {
-      a: boolean = true && false || !a;
+      b: number = 0;
+      a: number = (4 / ++b|0);
+    }
+
+- name: Expressions > Prefix Double Division
+  input: |
+    class tomi {
+      double b = 0;
+      double a = 4 / ++b;
+    }
+  output: |
+    class tomi {
+      b: number = 0;
+      a: number = 4 / ++b;
+    }
+
+- name: Expressions > Postfix Integer Division
+  input: |
+    class tomi {
+      int b;
+      int a = 4 / b++;
+    }
+  output: |
+    class tomi {
+      b: number = 0;
+      a: number = (4 / b++|0);
+    }
+
+- name: Expressions > Logical and unary
+  input: |
+    class tomi {
+      boolean b;
+      boolean a = true && false || !b;
+    }
+  output: |
+    class tomi {
+      b: boolean = false;
+      a: boolean = true && false || !b;
     }
   sourceMap: [0,1]
 

@@ -38,6 +38,7 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> impleme
   constructor(parent: IVisitor, node: MethodDeclaration) {
     super(parent, node, 'MethodDeclaration');
 
+    this.variables = [];
     this.name = NameFactory.create(this, node.name);
 
     this.returnType = TypeFactory.create(this, node.returnType2);

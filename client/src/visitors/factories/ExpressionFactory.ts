@@ -5,10 +5,13 @@ export default class ExpressionFactory {
   static create(parent: IVisitor, node: AstElement): IExpressionVisitor {
     switch (node.node) {
       case 'SimpleName':
+        return new Expressions.SimpleVariableReference(parent, node as SimpleName);
       case 'QualifiedName':
-        return NameFactory.create(parent, <Names> node);
+        return new Expressions.QualifiedVariableReference(parent, node as QualifiedName);
       case 'PrefixExpression':
         return new Expressions.PrefixExpressionVisitor(parent, node as PrefixExpression);
+      case 'PostfixExpression':
+        return new Expressions.PostfixExpressionVisitor(parent, node as PrefixExpression);
       case 'BooleanLiteral':
         return new Expressions.BooleanLiteralVisitor(parent, node as BooleanLiteral);
       case 'StringLiteral':
