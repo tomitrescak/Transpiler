@@ -30,8 +30,8 @@ exports.default = {
         TypeNotFound: function (name) {
             return "Type '" + name + "' not found";
         },
-        FieldNotFound: function (name) {
-            return "Field '" + name + "' not found";
+        FieldNotFound: function (name, typeName) {
+            return "Field '" + name + "' not found on type '" + typeName + "'";
         },
         MissingReturnType: function () {
             return "Missing return type";

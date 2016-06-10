@@ -39,15 +39,46 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
   _indent: number;
   handler: IHandler;
 
+  static order = ['byte', 'short', 'int', 'long', 'float', 'double'];
+  static maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
 
   // static bits
+
+  findMethodType(visitor: IVisitor) {
+    const child = visitor['expression'];
+    const name = visitor['name'] ? visitor['name'].name : null;
+
+    if (child) {
+      // child can be field access or just a qualified name
+      const callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
+
+      // find the owner, and pass MethodInvocation as the paren of this call
+      let type = this.findVariableType(child, callChildName, 'MethodInvocation');
+
+      // now find the method in the owner and return type
+      const method = type.findMethodInSuperClass(name);
+      if (!method) {
+        this.addError(Messages.Errors.MethodNotFound, name);
+        throw new Error(Messages.Errors.MethodNotFound(name));
+      }
+      const typ = method.returnType.originalName;
+      return this.owner.compilationUnit.findDeclaration(typ);
+    }
+  }
 
   findVariableType(visitor: IVisitor, childName = 'qualifier', nodeName: (string|string[]) = 'QualifiedName'): ITypeDeclarationVisitor {
     const child = visitor[childName];
     const name = visitor['name'] ? visitor['name'].name : null;
 
-    if (visitor[childName]) {
-      let type = this.findVariableType(child);
+    if (child) {
+      // child can also be method invocation
+
+      const callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
+      const callNodeName = child.node.node === 'QualifiedName' ? 'QualifiedName' : 'FieldAccess';
+
+      let type = child.node.node === 'MethodInvocation' ?
+                    this.findMethodType(child) :
+                    this.findVariableType(child, callChildName, callNodeName);
 
       // check if type exists
       if (!type) {
@@ -79,8 +110,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       }
       if (visitor.node.node === 'SuperFieldAccess') {
         // find the type of the super reference
-        const superClass = visitor.findSuperClass();
-        const field = superClass.findField(visitor['name'].name);
+        const field = visitor.owner.findFieldInSuperClass(visitor['name'].name);
         if (!field) {
           return null;
         }
@@ -227,6 +257,28 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
     }
 
     return this.parent.findParent(names);
+  }
+
+  public checkAssignment(left: string, right: string) {
+    const fidx = Visitor.order.indexOf(left);
+    const iidx = Visitor.order.indexOf(right);
+
+    // console.log('ITYPE: ' + initializerType)
+
+    // check numbers
+    if (fidx > -1 && iidx > -1) {
+      if (fidx < iidx) {
+        this.addError(Messages.Errors.TypeMismatch, right, left);
+      }
+    }
+
+    // strings
+    if (left === 'String' && right === 'char') {
+      this.addError(Messages.Errors.TypeMismatch, right, left);
+    }
+    if (left === 'char' && right === 'String') {
+      this.addError(Messages.Errors.TypeMismatch, right, left);
+    }
   }
 
   /**

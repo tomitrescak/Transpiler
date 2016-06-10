@@ -5,7 +5,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var Visitor_1 = require('./Visitor');
-var Messages_1 = require('../config/Messages');
 var TypeFactory_1 = require('./factories/TypeFactory');
 var NameFactory_1 = require('./factories/NameFactory');
 var ExpressionFactory_1 = require('./factories/ExpressionFactory');
@@ -44,22 +43,7 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
         }
         var fieldType = this.type.originalName;
         var initializerType = this.initialiser.returnType;
-        var fidx = VariableDeclarationFragmentVisitor.order.indexOf(fieldType);
-        var iidx = VariableDeclarationFragmentVisitor.order.indexOf(initializerType);
-        // console.log('ITYPE: ' + initializerType)
-        // check numbers
-        if (fidx > -1 && iidx > -1) {
-            if (fidx < iidx) {
-                this.addError(Messages_1.default.Errors.TypeMismatch, initializerType, fieldType);
-            }
-        }
-        // strings
-        if (fieldType === 'String' && initializerType === 'char') {
-            this.addError(Messages_1.default.Errors.TypeMismatch, initializerType, fieldType);
-        }
-        if (fieldType === 'char' && initializerType === 'String') {
-            this.addError(Messages_1.default.Errors.TypeMismatch, initializerType, fieldType);
-        }
+        this.checkAssignment(fieldType, initializerType);
     };
     VariableDeclarationFragmentVisitor.prototype.visit = function (builder, lineDeclaration) {
         if (lineDeclaration === void 0) { lineDeclaration = true; }
@@ -104,8 +88,6 @@ var VariableDeclarationFragmentVisitor = (function (_super) {
         }
         this.validate();
     };
-    VariableDeclarationFragmentVisitor.order = ['byte', 'short', 'int', 'long', 'float', 'double'];
-    VariableDeclarationFragmentVisitor.maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
     return VariableDeclarationFragmentVisitor;
 }(Visitor_1.default));
 exports.VariableDeclarationFragmentVisitor = VariableDeclarationFragmentVisitor;

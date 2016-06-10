@@ -318,8 +318,9 @@ var QualifiedVariableReference = (function (_super) {
 exports.QualifiedVariableReference = QualifiedVariableReference;
 var MethodInvocationVisitor = (function (_super) {
     __extends(MethodInvocationVisitor, _super);
-    function MethodInvocationVisitor(parent, node) {
-        _super.call(this, parent, node, 'MethodInvocation');
+    function MethodInvocationVisitor(parent, node, nodeName) {
+        if (nodeName === void 0) { nodeName = 'MethodInvocation'; }
+        _super.call(this, parent, node, nodeName);
         this.name = NameFactory_1.default.create(this, node.name);
         this.arguments = ExpressionFactory_1.default.createArray(this, node.arguments);
         if (node.expression) {
@@ -327,25 +328,37 @@ var MethodInvocationVisitor = (function (_super) {
         }
         this.typeArguments = new TypeParameterVisitor_1.default(this, node.typeArguments);
     }
-    MethodInvocationVisitor.prototype.findTypeInTypeDeclaration = function (owner) {
-        var _this = this;
-        // method can either be on this type or on its superclass
-        var method = owner.methods.find(function (m) { return m.name.name === _this.name.name; });
-        if (method) {
-            this._returnType = method.returnType.originalName;
-        }
-        return method;
-    };
+    Object.defineProperty(MethodInvocationVisitor.prototype, "method", {
+        get: function () {
+            if (!this._method) {
+                var owner = this.owner;
+                if (this.expression) {
+                    owner = this.findVariableType(this.expression, 'qualifier', ['QualifiedName', 'MethodInvocation']);
+                }
+                // browse till type declaration and find the return type of this method
+                if (owner) {
+                    this._method = owner.findMethod(this.name.name);
+                    // maybe the method is in the parent
+                    if (!this._method) {
+                        this._method = owner.findMethodInSuperClass(this.name.name);
+                    }
+                }
+                else {
+                    this.addError(Messages_1.default.Errors.CannotFindSymbol, this.expression['name'].name);
+                }
+            }
+            return this._method;
+        },
+        enumerable: true,
+        configurable: true
+    });
     MethodInvocationVisitor.prototype.findMethodType = function () {
-        var owner = this.owner;
-        if (this.expression) {
-            owner = this.findVariableType(this.expression, 'qualifier', ['QualifiedName', 'MethodInvocation']);
+        if (this.method) {
+            this._returnType = this.method.returnType.originalName;
         }
-        // browse till type declaration and find the return type of this method
-        var method = owner.findMethod(this.name.name);
-        if (!method) {
+        else {
+            this._returnType = null;
             this.addError(Messages_1.default.Errors.MethodNotFound, this.name.name);
-            throw new Error(Messages_1.default.Errors.MethodNotFound(this.name.name));
         }
     };
     Object.defineProperty(MethodInvocationVisitor.prototype, "returnType", {
@@ -360,10 +373,23 @@ var MethodInvocationVisitor = (function (_super) {
     });
     MethodInvocationVisitor.prototype.visit = function (builder) {
         //this.findMethodType();
+        // if there is no expression (prefix) before the method
+        // we either ad this. or static qualifier
         if (this.expression) {
             this.expression.visit(builder);
-            builder.add('.');
         }
+        else {
+            if (this.method.modifiers.isStatic) {
+                builder.add(this.method.owner.name.name);
+            }
+            else if (this.node.node === 'SuperMethodInvocation') {
+                builder.add('super');
+            }
+            else {
+                builder.add('this');
+            }
+        }
+        builder.add('.');
         this.name.visit(builder);
         builder.add('(');
         builder.join(this.arguments, ',');
@@ -372,6 +398,27 @@ var MethodInvocationVisitor = (function (_super) {
     return MethodInvocationVisitor;
 }(BaseExpression));
 exports.MethodInvocationVisitor = MethodInvocationVisitor;
+var SuperMethodInvocationVisitor = (function (_super) {
+    __extends(SuperMethodInvocationVisitor, _super);
+    function SuperMethodInvocationVisitor(parent, node) {
+        _super.call(this, parent, node, 'SuperMethodInvocation');
+    }
+    Object.defineProperty(SuperMethodInvocationVisitor.prototype, "method", {
+        get: function () {
+            if (!this._method) {
+                this._method = this.owner.findMethodInSuperClass(this.name.name);
+            }
+            return this._method;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    SuperMethodInvocationVisitor.prototype.visit = function (builder) {
+        _super.prototype.visit.call(this, builder);
+    };
+    return SuperMethodInvocationVisitor;
+}(MethodInvocationVisitor));
+exports.SuperMethodInvocationVisitor = SuperMethodInvocationVisitor;
 var ExpressionStatementVisitor = (function (_super) {
     __extends(ExpressionStatementVisitor, _super);
     function ExpressionStatementVisitor(parent, node) {
@@ -416,7 +463,11 @@ var FieldAccessVisitor = (function (_super) {
         var type = this.findVariableType(this, 'expression', 'FieldAccess');
         // find type of the qualifier
         if (type) {
-            return type.findField(this.name.name);
+            var field = type.findField(this.name.name);
+            if (!field) {
+                this.addError(Messages_1.default.Errors.FieldNotFound, this.name.name, type.name.name);
+            }
+            return field;
         }
         return null;
     };
@@ -471,3 +522,22 @@ var SuperFieldAccessVisitor = (function (_super) {
     return SuperFieldAccessVisitor;
 }(Visitor_1.default));
 exports.SuperFieldAccessVisitor = SuperFieldAccessVisitor;
+var AssignmentVisitor = (function (_super) {
+    __extends(AssignmentVisitor, _super);
+    function AssignmentVisitor(parent, node) {
+        _super.call(this, parent, node, 'Assignment');
+        this.leftHandSide = ExpressionFactory_1.default.create(this, node.leftHandSide);
+        this.rightHandSide = ExpressionFactory_1.default.create(this, node.rightHandSide);
+        this.operator = node.operator;
+    }
+    AssignmentVisitor.prototype.visit = function (builder) {
+        var leftType = this.leftHandSide.returnType;
+        var rightType = this.rightHandSide.returnType;
+        this.checkAssignment(leftType, rightType);
+        this.leftHandSide.visit(builder);
+        builder.add(' ' + this.operator + ' ');
+        this.rightHandSide.visit(builder);
+    };
+    return AssignmentVisitor;
+}(Visitor_1.default));
+exports.AssignmentVisitor = AssignmentVisitor;

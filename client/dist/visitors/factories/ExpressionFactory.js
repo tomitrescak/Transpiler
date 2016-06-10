@@ -33,6 +33,10 @@ var ExpressionFactory = (function () {
                 return new Expressions.ParenthesizedExpressionVisitor(parent, node);
             case 'MethodInvocation':
                 return new Expressions.MethodInvocationVisitor(parent, node);
+            case 'SuperMethodInvocation':
+                return new Expressions.SuperMethodInvocationVisitor(parent, node);
+            case 'Assignment':
+                return new Expressions.AssignmentVisitor(parent, node);
             default:
                 throw new Error(node.node + ' is not implemented');
         }

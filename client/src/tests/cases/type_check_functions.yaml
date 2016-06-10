@@ -4,7 +4,7 @@
     class Foo {
       double a() {}
       void run() {
-         int b = a();
+         int b = this.a();
       }
     }
   errors:
@@ -15,14 +15,14 @@
     class Foo {
       int a() {}
       void run() {
-         int b = a() / a();
+         int b = a() / this.a();
       }
     }
   output: |
     class Foo {
       a(): number {}
       run(): void {
-        let b: number = (a() / a()|0);
+        let b: number = (this.a() / this.a()|0);
       }
     }
 
@@ -31,14 +31,14 @@
     class Foo {
       double a() {}
       void run() {
-         int b = a() / a();
+         int b = this.a() / a();
       }
     }
   output: |
     class Foo {
       a(): number {}
       run(): void {
-        let b: number = a() / a();
+        let b: number = this.a() / this.a();
       }
     }
   errors:

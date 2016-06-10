@@ -13,9 +13,10 @@ declare global {
     methods: MethodDeclarationVisitor[];
   }
 
-  interface IMethodVisitor {
+  interface IMethodVisitor extends IVisitor {
     name: NameVisitor;
     returnType: TypeVisitor;
+    modifiers: ModifiersVisitor;
   }
 
   interface MethodDeclaration extends AstElement {

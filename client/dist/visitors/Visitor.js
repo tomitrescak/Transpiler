@@ -9,13 +9,36 @@ var Visitor = (function () {
         this.node = node;
     }
     // static bits
+    Visitor.prototype.findMethodType = function (visitor) {
+        var child = visitor['expression'];
+        var name = visitor['name'] ? visitor['name'].name : null;
+        if (child) {
+            // child can be field access or just a qualified name
+            var callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
+            // find the owner, and pass MethodInvocation as the paren of this call
+            var type = this.findVariableType(child, callChildName, 'MethodInvocation');
+            // now find the method in the owner and return type
+            var method = type.findMethodInSuperClass(name);
+            if (!method) {
+                this.addError(Messages_1.default.Errors.MethodNotFound, name);
+                throw new Error(Messages_1.default.Errors.MethodNotFound(name));
+            }
+            var typ = method.returnType.originalName;
+            return this.owner.compilationUnit.findDeclaration(typ);
+        }
+    };
     Visitor.prototype.findVariableType = function (visitor, childName, nodeName) {
         if (childName === void 0) { childName = 'qualifier'; }
         if (nodeName === void 0) { nodeName = 'QualifiedName'; }
         var child = visitor[childName];
         var name = visitor['name'] ? visitor['name'].name : null;
-        if (visitor[childName]) {
-            var type = this.findVariableType(child);
+        if (child) {
+            // child can also be method invocation
+            var callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
+            var callNodeName = child.node.node === 'QualifiedName' ? 'QualifiedName' : 'FieldAccess';
+            var type = child.node.node === 'MethodInvocation' ?
+                this.findMethodType(child) :
+                this.findVariableType(child, callChildName, callNodeName);
             // check if type exists
             if (!type) {
                 this.addError(Messages_1.default.Errors.VariableNotFound, child.name.name);
@@ -44,8 +67,7 @@ var Visitor = (function () {
             }
             if (visitor.node.node === 'SuperFieldAccess') {
                 // find the type of the super reference
-                var superClass = visitor.findSuperClass();
-                var field = superClass.findField(visitor['name'].name);
+                var field = visitor.owner.findFieldInSuperClass(visitor['name'].name);
                 if (!field) {
                     return null;
                 }
@@ -201,6 +223,24 @@ var Visitor = (function () {
         }
         return this.parent.findParent(names);
     };
+    Visitor.prototype.checkAssignment = function (left, right) {
+        var fidx = Visitor.order.indexOf(left);
+        var iidx = Visitor.order.indexOf(right);
+        // console.log('ITYPE: ' + initializerType)
+        // check numbers
+        if (fidx > -1 && iidx > -1) {
+            if (fidx < iidx) {
+                this.addError(Messages_1.default.Errors.TypeMismatch, right, left);
+            }
+        }
+        // strings
+        if (left === 'String' && right === 'char') {
+            this.addError(Messages_1.default.Errors.TypeMismatch, right, left);
+        }
+        if (left === 'char' && right === 'String') {
+            this.addError(Messages_1.default.Errors.TypeMismatch, right, left);
+        }
+    };
     /**
      * Checks the current name of the node, in case of failure it throws an exception
      * @param  {AstElement | AstElement[]}   node          [description]
@@ -219,6 +259,8 @@ var Visitor = (function () {
             throw new Error("Unexpected node '" + node.node + "' expected '" + expectedNames + "'");
         }
     };
+    Visitor.order = ['byte', 'short', 'int', 'long', 'float', 'double'];
+    Visitor.maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
     return Visitor;
 }());
 Object.defineProperty(exports, "__esModule", { value: true });

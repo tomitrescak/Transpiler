@@ -24,8 +24,8 @@ export default {
     TypeNotFound(name: string) {
       return `Type '${name}' not found`;
     },
-    FieldNotFound(name: string) {
-      return `Field '${name}' not found`;
+    FieldNotFound(name: string, typeName: string) {
+      return `Field '${name}' not found on type '${typeName}'`;
     },
     MissingReturnType() {
       return `Missing return type`;

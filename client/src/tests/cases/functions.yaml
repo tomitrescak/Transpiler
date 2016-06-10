@@ -71,8 +71,8 @@
   output: |
    a(): A {
        let d: D = null;
-       b(3);
-       b(c(d,d));
+       this.b(3);
+       this.b(this.c(d,d));
      }
      b(): B {}
      c(d: D, e: E): C {}
@@ -85,7 +85,7 @@
     }
   output: |
    a(): A {
-       a(3 + 3.4);
+       this.a(3 + 3.4);
      }
 
 - name: Dot Chaining
@@ -97,5 +97,5 @@
   output: |
    a(): A {
        let a: number = 0;
-       a(3,a,a() + a()).a(a).e;
+       this.a(3,a,this.a() + this.a()).a(a).e;
      }

@@ -35,8 +35,30 @@ var TypeDeclarationVisitor = (function (_super) {
     TypeDeclarationVisitor.prototype.findField = function (name) {
         return this.findVariable(name);
     };
+    TypeDeclarationVisitor.prototype.findFieldInSuperClass = function (name) {
+        var field = this.findField(name);
+        if (field) {
+            return field;
+        }
+        var superC = this.findSuperClass();
+        if (superC) {
+            return superC.findFieldInSuperClass(name);
+        }
+        return null;
+    };
     TypeDeclarationVisitor.prototype.findMethod = function (name) {
         return this.methods.find(function (m) { return m.name.name === name; });
+    };
+    TypeDeclarationVisitor.prototype.findMethodInSuperClass = function (name) {
+        var method = this.findMethod(name);
+        if (method) {
+            return method;
+        }
+        var superC = this.findSuperClass();
+        if (superC) {
+            return superC.findMethodInSuperClass(name);
+        }
+        return null;
     };
     TypeDeclarationVisitor.prototype.visit = function (builder) {
         // indent

@@ -34,9 +34,6 @@ export abstract class VariableHolderVisitor<T extends AstElement> extends Visito
 }
 
 export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarationFragment> implements IVariableVisitor {
-  static order = ['byte', 'short', 'int', 'long', 'float', 'double'];
-  static maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
-
   name: NameVisitor;
   initialiser: IExpressionVisitor;
   type: TypeVisitor;
@@ -68,25 +65,7 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
 
     const fieldType = this.type.originalName;
     const initializerType = this.initialiser.returnType;
-    const fidx = VariableDeclarationFragmentVisitor.order.indexOf(fieldType);
-    const iidx = VariableDeclarationFragmentVisitor.order.indexOf(initializerType);
-
-    // console.log('ITYPE: ' + initializerType)
-
-    // check numbers
-    if (fidx > -1 && iidx > -1) {
-      if (fidx < iidx) {
-        this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
-      }
-    }
-
-    // strings
-    if (fieldType === 'String' && initializerType === 'char') {
-      this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
-    }
-    if (fieldType === 'char' && initializerType === 'String') {
-      this.addError(Messages.Errors.TypeMismatch, initializerType, fieldType);
-    }
+    this.checkAssignment(fieldType, initializerType);
   }
 
   visit(builder: IBuilder, lineDeclaration = true) {

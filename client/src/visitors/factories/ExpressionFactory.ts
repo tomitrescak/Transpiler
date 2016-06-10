@@ -31,6 +31,10 @@ export default class ExpressionFactory {
         return new Expressions.ParenthesizedExpressionVisitor(parent, node as ParenthesizedExpression);
       case 'MethodInvocation':
         return new Expressions.MethodInvocationVisitor(parent, node as MethodInvocation);
+      case 'SuperMethodInvocation':
+        return new Expressions.SuperMethodInvocationVisitor(parent, node as SuperMethodInvocation);
+      case 'Assignment':
+        return new Expressions.AssignmentVisitor(parent, node as Assignment);
       default:
         throw new Error(node.node + ' is not implemented');
     }

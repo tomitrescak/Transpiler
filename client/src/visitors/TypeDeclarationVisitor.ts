@@ -19,6 +19,8 @@ declare global {
     superClassType: string;
     findField(name: string): IVariableVisitor;
     findMethod(name: string): IMethodVisitor;
+    findMethodInSuperClass(name: string): IMethodVisitor;
+    findFieldInSuperClass(name: string): IVariableVisitor;
   }
 
   interface BaseTypeDeclaration extends AstElement {
@@ -80,8 +82,32 @@ export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaratio
     return this.findVariable(name);
   }
 
+  findFieldInSuperClass(name: string): IVariableVisitor {
+    let field = this.findField(name);
+    if (field) {
+      return field;
+    }
+    const superC = this.findSuperClass();
+    if (superC) {
+      return superC.findFieldInSuperClass(name);
+    }
+    return null;
+  }
+
   findMethod(name: string): IMethodVisitor {
     return this.methods.find((m) => m.name.name === name);
+  }
+
+  findMethodInSuperClass(name: string): IMethodVisitor {
+    let method = this.findMethod(name);
+    if (method) {
+      return method;
+    }
+    const superC = this.findSuperClass();
+    if (superC) {
+      return superC.findMethodInSuperClass(name);
+    }
+    return null;
   }
 
   visit(builder: IBuilder) {

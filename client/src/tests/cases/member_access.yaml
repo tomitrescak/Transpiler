@@ -17,28 +17,51 @@
       }
     }
 
+- name: Class Methods
+  input: |
+    class A {
+      int d() {}
+      static int b() {}
+      String c() {
+        int a = d() + this.d() + b() + A.b();
+      }
+    }
+  output: |
+    class A {
+      d(): number {}
+      static b(): number {}
+      c(): string {
+        let a: number = this.d() + this.d() + A.b() + A.b();
+      }
+    }
+
 - name: Super access
   input: |
     class X {
       double x;
+      double m() {}
     }
     class Y extends X {
       int b() {
         int c = x;
+        int d = m();
       }
     }
   output: |
     class X {
       x: number = 0;
+      m(): number {}
     }
 
     class Y extends X {
       b(): number {
         let c: number = this.x;
+        let d: number = this.m();
       }
     }
   errors:
-    - TypeMismatch|5|double|int
+    - TypeMismatch|6|double|int
+    - TypeMismatch|7|double|int
 
 - name: Variable override
   input: |
@@ -89,24 +112,29 @@
   input: |
     class X {
       double x;
+      double y() {}
     }
     class A extends X {
       int b() {
         int c = super.x;
+        c = super.y();
       }
     }
   output: |
     class X {
       x: number = 0;
+      y(): number {}
     }
 
     class A extends X {
       b(): number {
         let c: number = super.x;
+        c = super.y();
       }
     }
   errors:
-    - TypeMismatch|5|double|int
+    - TypeMismatch|6|double|int
+    - TypeMismatch|7|double|int
 
 - name: Super with chained access
   input: |
@@ -222,32 +250,34 @@
 - name: Multple Class Access For Methods
   input: |
     class A {
-      double a() {}
+      B a() {}
     }
     class B {
+      double x;
       A b;
     }
     class C {
       B c;
       int d() {
-        int x = c.b.a();
+        int x = c.b.a().b.a().x;
       }
     }
   errors:
-    - TypeMismatch|9|double|int
+    - TypeMismatch|10|double|int
   output: |
     class A {
-      a(): number {}
+      a(): B {}
     }
 
     class B {
+      x: number = 0;
       b: A = null;
     }
 
     class C {
       c: B = null;
       d(): number {
-        let x: number = this.c.b.a();
+        let x: number = this.c.b.a().b.a().x;
       }
     }
 
