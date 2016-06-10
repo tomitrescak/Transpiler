@@ -1,5 +1,4 @@
-import VisitorNode from './Visitor';
-
+import { VariableHolderVisitor } from './VariableDeclarationFragmentVisitor';
 
 import NameFactory from './factories/NameFactory';
 import TypeFactory from './factories/TypeFactory';
@@ -10,10 +9,15 @@ import ModifiersVisitor, { ModifierLevel } from './ModifiersVisitor';
 import MethodDeclarationVisitor from './MethodDeclarationVisitor';
 import FieldDeclarationVisitor from './FieldDeclarationVisitor';
 import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
+import {QualifiedVariableReference} from './ExpressionsVisitors';
+
+import Messages from '../config/Messages';
 
 declare global {
-  interface ITypeDeclarationVisitor extends IVisitor, VariableHolderVisitor, MethodHolderVisitor {
+  interface ITypeDeclarationVisitor extends IVariableHolderVisitor, IMethodHolderVisitor {
     name: NameVisitor;
+    superClassType: string;
+    findField(name: string): IVariableVisitor;
   }
 
   interface BaseTypeDeclaration extends AstElement {
@@ -33,7 +37,7 @@ declare global {
   type TypeDeclarations = TypeDeclaration | EnumDeclaration;
 }
 
-export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> implements ITypeDeclarationVisitor {
+export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaration> implements ITypeDeclarationVisitor {
   modifiers: ModifiersVisitor;
   typeDeclarationName: string;
   name: NameVisitor;
@@ -69,6 +73,15 @@ export class TypeDeclarationVisitor extends VisitorNode<TypeDeclaration> impleme
     if (node.bodyDeclarations.length) {
       this.bodyDeclarations = node.bodyDeclarations.map((b) => BodyDeclarationsFactory.create(this, b));
     }
+  }
+
+  findField(name: string): IVariableVisitor {
+    return this.findVariable(name);
+    // if (!field) {
+    //   this.addError(Messages.Errors.FieldNotFound, name);
+    //   return null;
+    // }
+    // return field;
   }
 
   visit(builder: IBuilder) {

@@ -1,4 +1,4 @@
-import Visitor from './Visitor';
+import { VariableHolderVisitor } from './VariableDeclarationFragmentVisitor';
 import BlockVisitor from './BlockVisitor';
 import NameFactory from './factories/NameFactory';
 import TypeFactory from './factories/TypeFactory';
@@ -6,9 +6,10 @@ import TypeParametersVisitor from './TypeParameterVisitor';
 import ModifiersVisitor, { ModifierLevel} from './ModifiersVisitor';
 import SingleVariableDeclarationsVisitor from './VariableDeclarationSingleVisitor';
 import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
+import Messages from '../config/Messages';
 
 declare global {
-  interface MethodHolderVisitor extends IVisitor {
+  interface IMethodHolderVisitor extends IVisitor {
     methods: MethodDeclarationVisitor[];
   }
 
@@ -25,7 +26,7 @@ declare global {
   }
 }
 
-export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> implements VariableHolderVisitor {
+export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclaration> {
   name: NameVisitor;
   returnType: TypeVisitor;
   thrownExceptions: NameVisitor[];
@@ -33,13 +34,17 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> impleme
   modifiers: ModifiersVisitor;
   parameters: SingleVariableDeclarationsVisitor;
   body: BlockVisitor;
-  variables: VariableDeclarationFragmentVisitor[];
 
   constructor(parent: IVisitor, node: MethodDeclaration) {
     super(parent, node, 'MethodDeclaration');
 
     this.variables = [];
     this.name = NameFactory.create(this, node.name);
+
+    if (!node.returnType2) {
+      this.addError(Messages.Errors.MissingReturnType);
+      return;
+    }
 
     this.returnType = TypeFactory.create(this, node.returnType2);
     if (node.body) {
@@ -59,7 +64,7 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> impleme
 
     // add this method to the list of methods of the parent
     if (this.parent.node.node === 'TypeDeclaration') {
-      const owner = this.parent as MethodHolderVisitor;
+      const owner = this.parent as IMethodHolderVisitor;
       owner.methods.push(this);
     } else {
       throw new Error('Unexpected parent of method declaration: ' + this.parent.node.node);
@@ -68,7 +73,9 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> impleme
 
   visit (builder: IBuilder) {
     // add modifiers
-    this.modifiers.visit(builder);
+    if (this.modifiers) {
+      this.modifiers.visit(builder);
+    }
 
     // example: <X,Y> int[][] name(String n, int g[][], M<T> t) throws Ex {  }
     this.name.visit(builder);
@@ -85,10 +92,12 @@ export class MethodDeclarationVisitor extends Visitor<MethodDeclaration> impleme
     }
     builder.add(')');
 
-    // type
-    builder.add(': ');
-    this.returnType.visit(builder);
-    builder.add(' ');
+    if (this.returnType) {
+      // type
+      builder.add(': ');
+      this.returnType.visit(builder);
+      builder.add(' ');
+    }
 
     // body
     if (this.body) {

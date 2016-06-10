@@ -1,4 +1,4 @@
-import Visitor from './Visitor';
+import { VariableHolderVisitor } from './VariableDeclarationFragmentVisitor';
 import BlockFactory from './factories/BlockFactory';
 import VariableDeclarationFragmentVisitor from './VariableDeclarationFragmentVisitor';
 
@@ -9,7 +9,7 @@ declare global {
   }
 }
 
-export class BlockVisitor extends Visitor<Block> implements VariableHolderVisitor {
+export class BlockVisitor extends VariableHolderVisitor<Block> {
   statements: IVisitor[];
   variables: VariableDeclarationFragmentVisitor[];
 

@@ -23,6 +23,18 @@ exports.default = {
         },
         MethodNotFound: function (name) {
             return "Method '" + name + "' not found";
+        },
+        VariableNotFound: function (name) {
+            return "Variable '" + name + "' not found";
+        },
+        TypeNotFound: function (name) {
+            return "Type '" + name + "' not found";
+        },
+        FieldNotFound: function (name) {
+            return "Field '" + name + "' not found";
+        },
+        MissingReturnType: function () {
+            return "Missing return type";
         }
     },
     Warnings: {

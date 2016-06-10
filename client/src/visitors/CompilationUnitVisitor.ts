@@ -4,6 +4,7 @@ import TypeDeclarationsFactory from './factories/TypeDeclarationsFactory';
 declare global {
   interface ICompilationUnitVisitor extends IVisitor {
     declarations: ITypeDeclarationVisitor[];
+    findDeclaration(name: string): ITypeDeclarationVisitor;
   }
 
   interface CompilationUnit extends AstElement {
@@ -15,7 +16,7 @@ declare global {
 }
 
 export default class CompilationUnitNode extends Visitor<CompilationUnit> {
-  declarations: IVisitor[];
+  declarations: ITypeDeclarationVisitor[];
 
   constructor(node: CompilationUnit, handler: IHandler) {
     super(null, node, 'CompilationUnit');
@@ -26,5 +27,9 @@ export default class CompilationUnitNode extends Visitor<CompilationUnit> {
 
   visit(builder: IBuilder) {
     builder.join(this.declarations, '\n');
+  }
+
+  findDeclaration(name: string): ITypeDeclarationVisitor {
+    return this.declarations.find((d) => d.name.name === name)
   }
 }

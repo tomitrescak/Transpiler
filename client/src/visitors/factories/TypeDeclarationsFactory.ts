@@ -2,7 +2,7 @@ import { TypeDeclarationVisitor } from '../TypeDeclarationVisitor';
 import { EnumDeclarationVisitor } from '../EnumDeclarationVisitor';
 
 export default class TypeDeclarationsFactory {
-  static create(parent: IVisitor, type: TypeDeclaration | EnumDeclaration): IVisitor {
+  static create(parent: IVisitor, type: TypeDeclaration | EnumDeclaration): ITypeDeclarationVisitor {
     switch (type.node) {
       case 'TypeDeclaration':
         return new TypeDeclarationVisitor(parent, <TypeDeclaration>type);
@@ -13,7 +13,7 @@ export default class TypeDeclarationsFactory {
     }
   }
 
-  static createArray(parent: IVisitor, types: (TypeDeclaration | EnumDeclaration)[]) {
+  static createArray(parent: IVisitor, types: (TypeDeclaration | EnumDeclaration)[]): ITypeDeclarationVisitor[] {
     return types.map((t) => TypeDeclarationsFactory.create(parent, t));
   }
 }

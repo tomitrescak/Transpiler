@@ -16,6 +16,9 @@ declare global {
     node: AstElement;
     indent: number;
     handler: IHandler;
+    owner: ITypeDeclarationVisitor;
+    compilationUnit: ICompilationUnitVisitor;
+
 
     addError(error: Function, ...args: any[]): void;
     addErrorAtLocation(location: AstLocation, error: Function, ...args: any[]): void;
@@ -23,6 +26,9 @@ declare global {
     addWarningAtLocation(location: AstLocation, error: Function, ...args: any[]): void;
     visit(builder: IBuilder, ...args: any[]): void;
     findParent(names: string[] | string): IVisitor;
+    findSuperClass(): ITypeDeclarationVisitor;
+    findVariableInSuperClass(name: string): IVariableVisitor;
+    findVariableInParent(parent: IVisitor, name: string): IVariableVisitor;
   }
 }
 
@@ -34,6 +40,40 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
 
   // static bits
+
+  findSuperClass(): ITypeDeclarationVisitor {
+    const owner = this.owner; // that's the compilation unit
+    if (!owner.superClassType) {
+      return null;
+    }
+    return owner.compilationUnit.findDeclaration(owner.superClassType);
+  }
+
+  findVariableInSuperClass(name: string): IVariableVisitor {
+    const superClass = this.findSuperClass();
+    if (!superClass) {
+      return null;
+    }
+    return superClass.findVariable(name);
+  }
+
+  findVariableInParent(parent: IVisitor, name: string): IVariableVisitor {
+    // find if name exists in the parent scope
+    let vh = <IVariableHolderVisitor> parent;
+    if (vh.variables && vh.variables.length) {
+      let variable = vh.findVariable(name);
+      if (variable) {
+        return variable;
+      }
+    }
+    if (parent.parent.node.node !== 'CompilationUnit') {
+      return this.findVariableInParent(parent.parent, name);
+    } else {
+      return this.findVariableInSuperClass(name);
+    }
+  }
+
+  // absstrcat bits
 
   abstract visit(builder: IBuilder, ...args: any[]): void;
 
@@ -62,6 +102,14 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       return this.parent.indent;
     }
     return 0;
+  }
+
+  get owner(): ITypeDeclarationVisitor {
+    return this.findParent('TypeDeclaration') as ITypeDeclarationVisitor;
+  }
+
+  get compilationUnit(): ICompilationUnitVisitor {
+    return this.findParent('CompilationUnit') as ICompilationUnitVisitor;
   }
 
   // methods
@@ -107,7 +155,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
   }
 
   public findParent(names: string[] | string): IVisitor {
-    let parent = this.parent;
+    let parent = this;
     if (parent == null) {
       throw new Error('Parent not found: ' + names);
     }

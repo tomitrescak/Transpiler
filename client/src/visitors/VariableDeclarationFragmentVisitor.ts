@@ -5,8 +5,16 @@ import NameFactory from './factories/NameFactory';
 import ExpressionFactory from './factories/ExpressionFactory';
 
 declare global {
-  interface VariableHolderVisitor extends IVisitor {
+  interface IVariableHolderVisitor extends IVisitor {
     variables: VariableDeclarationFragmentVisitor[];
+    findVariable(name: string): IVariableVisitor;
+  }
+
+  interface IVariableVisitor extends IVisitor {
+    name: NameVisitor;
+    type: TypeVisitor;
+    isStatic: boolean;
+    isFinal: boolean;
   }
 
   interface VariableDeclarationFragment extends AstElement {
@@ -17,7 +25,15 @@ declare global {
   }
 }
 
-export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarationFragment> {
+export abstract class VariableHolderVisitor<T extends AstElement> extends Visitor<T> implements IVariableHolderVisitor {
+  variables: VariableDeclarationFragmentVisitor[] = [];
+
+  findVariable(name: string): IVariableVisitor {
+    return this.variables.find((m) => m.name.name === name);
+  }
+}
+
+export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarationFragment> implements IVariableVisitor {
   static order = ['byte', 'short', 'int', 'long', 'float', 'double'];
   static maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
 
@@ -41,7 +57,7 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
 
     // add this method to the list of methods of the parent
 
-    const variableHolder = this.findParent(['TypeDeclaration', 'MethodDeclaration', 'Block']) as VariableHolderVisitor;
+    const variableHolder = this.findParent(['TypeDeclaration', 'MethodDeclaration', 'Block']) as IVariableHolderVisitor;
     variableHolder.variables.push(this);
   }
 

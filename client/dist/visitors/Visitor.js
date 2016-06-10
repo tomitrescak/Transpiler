@@ -7,6 +7,37 @@ var Visitor = (function () {
         this.parent = parent;
         this.node = node;
     }
+    // static bits
+    Visitor.prototype.findSuperClass = function () {
+        var owner = this.owner; // that's the compilation unit
+        if (!owner.superClassType) {
+            return null;
+        }
+        return owner.compilationUnit.findDeclaration(owner.superClassType);
+    };
+    Visitor.prototype.findVariableInSuperClass = function (name) {
+        var superClass = this.findSuperClass();
+        if (!superClass) {
+            return null;
+        }
+        return superClass.findVariable(name);
+    };
+    Visitor.prototype.findVariableInParent = function (parent, name) {
+        // find if name exists in the parent scope
+        var vh = parent;
+        if (vh.variables && vh.variables.length) {
+            var variable = vh.findVariable(name);
+            if (variable) {
+                return variable;
+            }
+        }
+        if (parent.parent.node.node !== 'CompilationUnit') {
+            return this.findVariableInParent(parent.parent, name);
+        }
+        else {
+            return this.findVariableInSuperClass(name);
+        }
+    };
     Object.defineProperty(Visitor.prototype, "location", {
         // properties
         get: function () {
@@ -27,6 +58,20 @@ var Visitor = (function () {
         },
         set: function (ind) {
             this._indent = ind;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Visitor.prototype, "owner", {
+        get: function () {
+            return this.findParent('TypeDeclaration');
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Visitor.prototype, "compilationUnit", {
+        get: function () {
+            return this.findParent('CompilationUnit');
         },
         enumerable: true,
         configurable: true
@@ -85,7 +130,7 @@ var Visitor = (function () {
         this.handler.addWarning(warning(args), location.line, location.column);
     };
     Visitor.prototype.findParent = function (names) {
-        var parent = this.parent;
+        var parent = this;
         if (parent == null) {
             throw new Error('Parent not found: ' + names);
         }

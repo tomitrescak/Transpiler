@@ -17,6 +17,18 @@ export default {
     },
     MethodNotFound(name: string) {
       return `Method '${name}' not found`;
+    },
+    VariableNotFound(name: string) {
+      return `Variable '${name}' not found`;
+    },
+    TypeNotFound(name: string) {
+      return `Type '${name}' not found`;
+    },
+    FieldNotFound(name: string) {
+      return `Field '${name}' not found`;
+    },
+    MissingReturnType() {
+      return `Missing return type`;
     }
   },
   Warnings: {

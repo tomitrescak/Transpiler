@@ -16,6 +16,9 @@ var CompilationUnitNode = (function (_super) {
     CompilationUnitNode.prototype.visit = function (builder) {
         builder.join(this.declarations, '\n');
     };
+    CompilationUnitNode.prototype.findDeclaration = function (name) {
+        return this.declarations.find(function (d) { return d.name.name === name; });
+    };
     return CompilationUnitNode;
 }(Visitor_1.default));
 Object.defineProperty(exports, "__esModule", { value: true });

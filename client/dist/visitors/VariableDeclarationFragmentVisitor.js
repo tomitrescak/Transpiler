@@ -9,6 +9,18 @@ var Messages_1 = require('../config/Messages');
 var TypeFactory_1 = require('./factories/TypeFactory');
 var NameFactory_1 = require('./factories/NameFactory');
 var ExpressionFactory_1 = require('./factories/ExpressionFactory');
+var VariableHolderVisitor = (function (_super) {
+    __extends(VariableHolderVisitor, _super);
+    function VariableHolderVisitor() {
+        _super.apply(this, arguments);
+        this.variables = [];
+    }
+    VariableHolderVisitor.prototype.findVariable = function (name) {
+        return this.variables.find(function (m) { return m.name.name === name; });
+    };
+    return VariableHolderVisitor;
+}(Visitor_1.default));
+exports.VariableHolderVisitor = VariableHolderVisitor;
 var VariableDeclarationFragmentVisitor = (function (_super) {
     __extends(VariableDeclarationFragmentVisitor, _super);
     function VariableDeclarationFragmentVisitor(parent, node, typeDefinition, isStatic, isFinal, nodeName) {

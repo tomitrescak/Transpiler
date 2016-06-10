@@ -17,12 +17,48 @@
       }
     }
 
+- name: Multple Class Access
+  input: |
+    class A {
+      double a;
+    }
+    class B {
+      A b;
+      static int s;
+    }
+    class C {
+      B c;
+      int d() {
+        int x = c.b.a;
+        int y = B.s;
+      }
+    }
+  errors:
+    - TypeMismatch|10|double|int
+  output: |
+    class A {
+      a: number = 0;
+    }
+
+    class B {
+      b: A = null;
+      static s: number = 0;
+    }
+
+    class C {
+      c: B = null;
+      d(): number {
+        let x: number = this.c.b.a;
+        let y: number = B.s;
+      }
+    }
+
 - name: Type check static members
   input: |
     class A {
       static double b;
       String c() {
-        int a = A.b;
+        int a = b;
       }
     }
   output: |
@@ -32,6 +68,8 @@
         let a: number = A.b;
       }
     }
+  errors:
+    - TypeMismatch|3|double|int
 
 # # double d;
 # # int d() {

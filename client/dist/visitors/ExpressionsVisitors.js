@@ -229,63 +229,48 @@ var VariableReference = (function (_super) {
     }
     Object.defineProperty(VariableReference.prototype, "returnType", {
         get: function () {
-            if (this._returnType === undefined) {
-                this.findType();
+            if (this.variable) {
+                return this.variable.type.originalName;
             }
-            return this._returnType;
+            return null;
         },
         enumerable: true,
         configurable: true
     });
-    VariableReference.prototype.findVariableInDeclaration = function (owner, name) {
-        if (name === void 0) { name = this.name.name; }
-        // method can either be on this type or on its superclass
-        var variable = owner.variables.find(function (m) { return m.name.name === name; });
-        if (variable) {
-            this._returnType = variable.type.originalName;
-            // it is either a direct parent or in the block underneath
-            this.classVariable = owner.node.node === 'TypeDeclaration' || owner.parent.node.node === 'TypeDeclaration';
-            // if it is a classs variable it can be static
-            if (variable.isStatic) {
-                // finf the compilation name
-                var type = this.findParent('TypeDeclaration');
-                this.staticOwner = type.name.name;
+    Object.defineProperty(VariableReference.prototype, "variable", {
+        get: function () {
+            if (this._variable === undefined) {
+                this._variable = this.findVariable(this);
             }
-        }
-        return variable;
-    };
-    VariableReference.prototype.findTypeInParent = function (parent) {
-        if (this._returnType) {
-            return;
-        }
-        // find if name exists in the parent scope
-        var vh = parent;
-        if (vh.variables && vh.variables.length) {
-            if (this.findVariableInDeclaration(vh)) {
-                return;
-            }
-        }
-        if (parent.parent) {
-            this.findTypeInParent(parent.parent);
-        }
-        else {
-            // we are in a compilation unit
-            // let cu = parent as ICompilationUnitVisitor;
-            // for (let type of cu.declarations) {
-            //   this.findType
-            // }
-            throw new Error('Did not find variable: ' + this.name.name);
-        }
-    };
-    VariableReference.prototype.findType = function () {
-        return this.findTypeInParent(this.parent);
+            return this._variable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    VariableReference.prototype.findVariable = function (parent) {
+        // find variable in current parent
+        return parent.findVariableInParent(parent, this.name.name);
     };
     VariableReference.prototype.visit = function (builder) {
-        // find the type and detect whether it is a class variable
-        this.findType();
+        var variable = this.variable;
+        if (variable) {
+            // check whether it is a class variable
+            this.classVariable = variable.parent.node.node === 'TypeDeclaration' ||
+                variable.parent.parent.node.node === 'TypeDeclaration';
+            // check whether it is a static variable
+            if (variable.isStatic) {
+                // finf the compilation name
+                var type = variable.owner;
+                this.qualifierName = type.name.name;
+            }
+        }
+        else if (!this.compilationUnit.findDeclaration(this.name.name)) {
+            // it is either a variable belonging to
+            this.addError(Messages_1.default.Errors.CannotFindSymbol, this.name.name);
+        }
         // render this. if it is a class member
-        if (this.staticOwner) {
-            builder.add(this.staticOwner + '.');
+        if (this.qualifierName) {
+            builder.add(this.qualifierName + '.');
         }
         else if (this.classVariable) {
             builder.add('this.');
@@ -312,18 +297,85 @@ var QualifiedVariableReference = (function (_super) {
         this.name = NameFactory_1.default.create(this, node.name);
         this.qualifier = ExpressionFactory_1.default.create(this, node.qualifier);
     }
-    QualifiedVariableReference.prototype.findType = function () {
-        // find the parent field
-        // use field access to access all child properties
-        var q = this.qualifier;
-        while (q.qualifier) {
-            q = q.qualifier;
+    QualifiedVariableReference.prototype.findType = function (visitor) {
+        if (visitor.qualifier) {
+            var type = this.findType(visitor.qualifier);
+            // check if type exists
+            if (!type) {
+                this.addError(Messages_1.default.Errors.VariableNotFound, visitor.qualifier.name.name);
+                throw new Error(Messages_1.default.Errors.VariableNotFound(visitor.qualifier.name.name));
+            }
+            // in case this is the last variable of the chain we return its type
+            if (visitor.parent.node.node !== 'QualifiedName') {
+                return type;
+            }
+            // othrwise we continue
+            // find the field with this name and find its type
+            var field = type.findField(visitor.name.name);
+            if (!field) {
+                return null;
+            }
+            // find the type declaration of this field
+            var typeName = field.type.originalName;
+            return this.compilationUnit.findDeclaration(typeName);
         }
-        // q is the primary qualifier
-        // 1. we search for it first in the hierarchy
-        // 2. in the list of all compilation units' type declarations
-        var owner = this.findTypeInParent;
-        return this.findTypeInParent(this.parent);
+        else {
+            // this is the end of the referecne chain A.b.c.d
+            // A can be either a class memeber or a static reference
+            var member = visitor.findVariableInParent(visitor, visitor.name.name);
+            if (member) {
+                return this.compilationUnit.findDeclaration(member.type.originalName);
+            }
+            else {
+                return visitor.compilationUnit.findDeclaration(visitor.name.name);
+            }
+        }
+    };
+    QualifiedVariableReference.prototype.findVariable = function (parent) {
+        var type = this.findType(this);
+        // find type of the qualifier
+        if (type) {
+            return type.findField(this.name.name);
+        }
+        return null;
+    };
+    // findType(): IVariableVisitor {
+    //   // find the parent field
+    //   // use field access to access all child properties
+    //   let q: QualifiedVariableReference = this.qualifier;
+    //   while (q.qualifier) {
+    //     q = q.qualifier;
+    //   }
+    //   // q is the primary qualifier
+    //   // 1. we search for it first in the hierarchy
+    //   // 2. in the list of all compilation units' type declarations
+    //
+    //   let variable = this.findVariableInParent(this.parent, q.name.name);
+    //   if (variable) {
+    //     this.checkVariable(variable);
+    //   } else {
+    //     // find the compilationUnit
+    //     const declaration = this.compilationUnit.findDeclaration(q.name.name);
+    //     if (!declaration) {
+    //       this.addError(Messages.Errors.TypeNotFound, q.name.name);
+    //     }
+    //     // find public variable in the type definition
+    //     return declaration.findField(q.parent as QualifiedVariableReference);
+    //   }
+    //   return null;
+    // }
+    QualifiedVariableReference.prototype.visit = function (builder) {
+        // render this. if it is a class member
+        if (this.qualifierName) {
+            builder.add(this.qualifierName + '.');
+        }
+        else if (this.classVariable) {
+            builder.add('this.');
+        }
+        this.qualifier.visit(builder);
+        builder.add('.');
+        // render name
+        this.name.visit(builder);
     };
     return QualifiedVariableReference;
 }(VariableReference));

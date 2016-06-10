@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Visitor_1 = require('./Visitor');
+var VariableDeclarationFragmentVisitor_1 = require('./VariableDeclarationFragmentVisitor');
 var NameFactory_1 = require('./factories/NameFactory');
 var TypeFactory_1 = require('./factories/TypeFactory');
 var BodyDeclarationsFactory_1 = require('./factories/BodyDeclarationsFactory');
@@ -32,6 +32,14 @@ var TypeDeclarationVisitor = (function (_super) {
             this.bodyDeclarations = node.bodyDeclarations.map(function (b) { return BodyDeclarationsFactory_1.default.create(_this, b); });
         }
     }
+    TypeDeclarationVisitor.prototype.findField = function (name) {
+        return this.findVariable(name);
+        // if (!field) {
+        //   this.addError(Messages.Errors.FieldNotFound, name);
+        //   return null;
+        // }
+        // return field;
+    };
     TypeDeclarationVisitor.prototype.visit = function (builder) {
         // indent
         builder.pad(this.indent);
@@ -74,7 +82,7 @@ var TypeDeclarationVisitor = (function (_super) {
         }
     };
     return TypeDeclarationVisitor;
-}(Visitor_1.default));
+}(VariableDeclarationFragmentVisitor_1.VariableHolderVisitor));
 exports.TypeDeclarationVisitor = TypeDeclarationVisitor;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = TypeDeclarationVisitor;

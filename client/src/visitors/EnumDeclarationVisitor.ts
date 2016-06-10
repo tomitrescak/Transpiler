@@ -19,7 +19,8 @@ declare global {
 }
 
 class EnumConstantDeclarationVisitor extends Visitor<EnumConstantDeclaration> {
-  name: string;
+  name: NameVisitor;
+
   constructor(parent: IVisitor, node: EnumConstantDeclaration) {
     super(parent, node, 'EnumConstantDeclaration');
 
@@ -27,18 +28,25 @@ class EnumConstantDeclarationVisitor extends Visitor<EnumConstantDeclaration> {
       this.addError(Messages.Errors.SimpleEnumsOnlySupported);
     }
 
-    this.name = NamesFactory.create(this, node.name).name;
+    this.name = NamesFactory.create(this, node.name);
   }
 
   visit(builder: IBuilder) {
     builder.pad(this.indent);
-    builder.add(this.name);
+    this.name.visit(builder);
   }
 }
 
-export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
+export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> implements ITypeDeclarationVisitor {
+  name: NameVisitor;
+  superClassType: string = null;
+  variables: any[] = null;
+  methods: any[] = null;
+
   constructor(parent: IVisitor, node: EnumDeclaration) {
     super(parent, node, 'EnumDeclaration');
+
+    this.name = NamesFactory.create(this, node.name);
 
     // validate
     if (this.node.bodyDeclarations.length) {
@@ -47,11 +55,15 @@ export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
     }
   }
 
+  findVariable(name: string): IVariableVisitor {
+    return null;
+  }
+
   visit(builder: IBuilder) {
     const { node } = this;
     const constants = node.enumConstants.map((c: EnumConstantDeclaration) => new EnumConstantDeclarationVisitor(this, c));
     const modifiers = new ModifiersVisitor(this, node.modifiers, [], ModifierLevel.Class);
-    const name = NamesFactory.create(this, node.name).name;
+
 
     // pad from left
     builder.pad(this.indent);
@@ -66,7 +78,7 @@ export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> {
     builder.add('enum ');
 
     // add name
-    builder.add(name);
+    this.name.visit(builder);
 
     // add all constants and surround them with brackets
     builder.add(' {');

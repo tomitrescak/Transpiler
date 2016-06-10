@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Visitor_1 = require('./Visitor');
+var VariableDeclarationFragmentVisitor_1 = require('./VariableDeclarationFragmentVisitor');
 var BlockFactory_1 = require('./factories/BlockFactory');
 var BlockVisitor = (function (_super) {
     __extends(BlockVisitor, _super);
@@ -28,7 +28,7 @@ var BlockVisitor = (function (_super) {
         builder.add('}');
     };
     return BlockVisitor;
-}(Visitor_1.default));
+}(VariableDeclarationFragmentVisitor_1.VariableHolderVisitor));
 exports.BlockVisitor = BlockVisitor;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = BlockVisitor;
