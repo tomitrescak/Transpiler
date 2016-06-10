@@ -1,5 +1,6 @@
 "use strict";
 var LeftPad_1 = require('../config/LeftPad');
+var Messages_1 = require('../config/Messages');
 var Visitor = (function () {
     // constructor
     function Visitor(parent, node, nodeName) {
@@ -8,6 +9,50 @@ var Visitor = (function () {
         this.node = node;
     }
     // static bits
+    Visitor.prototype.findType = function (visitor, childName, nodeName) {
+        if (childName === void 0) { childName = 'qualifier'; }
+        if (nodeName === void 0) { nodeName = 'QualifiedName'; }
+        var child = visitor[childName];
+        var name = visitor['name'] ? visitor['name'].name : null;
+        if (visitor[childName]) {
+            var type = this.findType(child);
+            // check if type exists
+            if (!type) {
+                this.addError(Messages_1.default.Errors.VariableNotFound, child.name.name);
+                throw new Error(Messages_1.default.Errors.VariableNotFound(child.name.name));
+            }
+            // in case this is the last variable of the chain we return its type
+            if (visitor.parent.node.node !== 'QualifiedName') {
+                return type;
+            }
+            // othrwise we continue
+            // find the field with this name and find its type
+            var field = type.findField(name);
+            if (!field) {
+                return null;
+            }
+            // find the type declaration of this field
+            var typeName = field.type.originalName;
+            return this.compilationUnit.findDeclaration(typeName);
+        }
+        else {
+            // this is the end of the referecne chain A.b.c.d
+            // A can be either a this, super, class memeber or a static reference
+            if (visitor.node.node === 'ThisExpression') {
+                return visitor.owner;
+            }
+            if (visitor.node.node === 'SuperFieldAccess') {
+                return visitor.findSuperClass();
+            }
+            var member = visitor.findVariableInParent(visitor, name);
+            if (member) {
+                return this.compilationUnit.findDeclaration(member.type.originalName);
+            }
+            else {
+                return visitor.compilationUnit.findDeclaration(name);
+            }
+        }
+    };
     Visitor.prototype.findSuperClass = function () {
         var owner = this.owner; // that's the compilation unit
         if (!owner.superClassType) {

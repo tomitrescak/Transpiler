@@ -1,4 +1,5 @@
 import leftPad from '../config/LeftPad';
+import Messages from '../config/Messages';
 
 declare global {
   interface AstElement {
@@ -40,6 +41,53 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
 
   // static bits
+
+  findType(visitor: IVisitor, childName = 'qualifier', nodeName = 'QualifiedName'): ITypeDeclarationVisitor {
+    const child = visitor[childName];
+    const name = visitor['name'] ? visitor['name'].name : null;
+
+    if (visitor[childName]) {
+      let type = this.findType(child);
+
+      // check if type exists
+      if (!type) {
+        this.addError(Messages.Errors.VariableNotFound, child.name.name);
+        throw new Error(Messages.Errors.VariableNotFound(child.name.name));
+      }
+
+      // in case this is the last variable of the chain we return its type
+      if (visitor.parent.node.node !== 'QualifiedName') {
+        return type;
+      }
+
+      // othrwise we continue
+      // find the field with this name and find its type
+      const field = type.findField(name);
+      if (!field) {
+        return null;
+      }
+
+      // find the type declaration of this field
+      const typeName = field.type.originalName;
+      return this.compilationUnit.findDeclaration(typeName);
+    } else {
+      // this is the end of the referecne chain A.b.c.d
+      // A can be either a this, super, class memeber or a static reference
+      if (visitor.node.node === 'ThisExpression') {
+        return visitor.owner;
+      }
+      if (visitor.node.node === 'SuperFieldAccess') {
+        return visitor.findSuperClass();
+      }
+      let member = visitor.findVariableInParent(visitor, name);
+      if (member) {
+        return this.compilationUnit.findDeclaration(member.type.originalName);
+      } else {
+        return visitor.compilationUnit.findDeclaration(name);
+      }
+    }
+  }
+
 
   findSuperClass(): ITypeDeclarationVisitor {
     const owner = this.owner; // that's the compilation unit

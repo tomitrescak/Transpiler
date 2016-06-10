@@ -297,40 +297,6 @@ var QualifiedVariableReference = (function (_super) {
         this.name = NameFactory_1.default.create(this, node.name);
         this.qualifier = ExpressionFactory_1.default.create(this, node.qualifier);
     }
-    QualifiedVariableReference.prototype.findType = function (visitor) {
-        if (visitor.qualifier) {
-            var type = this.findType(visitor.qualifier);
-            // check if type exists
-            if (!type) {
-                this.addError(Messages_1.default.Errors.VariableNotFound, visitor.qualifier.name.name);
-                throw new Error(Messages_1.default.Errors.VariableNotFound(visitor.qualifier.name.name));
-            }
-            // in case this is the last variable of the chain we return its type
-            if (visitor.parent.node.node !== 'QualifiedName') {
-                return type;
-            }
-            // othrwise we continue
-            // find the field with this name and find its type
-            var field = type.findField(visitor.name.name);
-            if (!field) {
-                return null;
-            }
-            // find the type declaration of this field
-            var typeName = field.type.originalName;
-            return this.compilationUnit.findDeclaration(typeName);
-        }
-        else {
-            // this is the end of the referecne chain A.b.c.d
-            // A can be either a class memeber or a static reference
-            var member = visitor.findVariableInParent(visitor, visitor.name.name);
-            if (member) {
-                return this.compilationUnit.findDeclaration(member.type.originalName);
-            }
-            else {
-                return visitor.compilationUnit.findDeclaration(visitor.name.name);
-            }
-        }
-    };
     QualifiedVariableReference.prototype.findVariable = function (parent) {
         var type = this.findType(this);
         // find type of the qualifier
@@ -339,31 +305,6 @@ var QualifiedVariableReference = (function (_super) {
         }
         return null;
     };
-    // findType(): IVariableVisitor {
-    //   // find the parent field
-    //   // use field access to access all child properties
-    //   let q: QualifiedVariableReference = this.qualifier;
-    //   while (q.qualifier) {
-    //     q = q.qualifier;
-    //   }
-    //   // q is the primary qualifier
-    //   // 1. we search for it first in the hierarchy
-    //   // 2. in the list of all compilation units' type declarations
-    //
-    //   let variable = this.findVariableInParent(this.parent, q.name.name);
-    //   if (variable) {
-    //     this.checkVariable(variable);
-    //   } else {
-    //     // find the compilationUnit
-    //     const declaration = this.compilationUnit.findDeclaration(q.name.name);
-    //     if (!declaration) {
-    //       this.addError(Messages.Errors.TypeNotFound, q.name.name);
-    //     }
-    //     // find public variable in the type definition
-    //     return declaration.findField(q.parent as QualifiedVariableReference);
-    //   }
-    //   return null;
-    // }
     QualifiedVariableReference.prototype.visit = function (builder) {
         // render this. if it is a class member
         if (this.qualifierName) {
@@ -457,6 +398,34 @@ var FieldAccessVisitor = (function (_super) {
         this.name = NameFactory_1.default.create(this, node.name);
         this.expression = ExpressionFactory_1.default.create(this, node.expression);
     }
+    Object.defineProperty(FieldAccessVisitor.prototype, "returnType", {
+        get: function () {
+            if (this.variable) {
+                return this.variable.type.originalName;
+            }
+            return null;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(FieldAccessVisitor.prototype, "variable", {
+        get: function () {
+            if (this._variable === undefined) {
+                this._variable = this.findVariable(this);
+            }
+            return this._variable;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    FieldAccessVisitor.prototype.findVariable = function (parent) {
+        var type = this.findType(this, 'expression', 'FieldAccess');
+        // find type of the qualifier
+        if (type) {
+            return type.findField(this.name.name);
+        }
+        return null;
+    };
     FieldAccessVisitor.prototype.visit = function (builder) {
         // TODO: find return type and check expression a() / b() or assignment to variable
         this.expression.visit(builder);

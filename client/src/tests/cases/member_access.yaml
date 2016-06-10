@@ -17,6 +17,31 @@
       }
     }
 
+- name: This access
+  input: |
+    class X {
+      double x;
+    }
+    class A {
+      int a;
+      X y;
+      int b() {
+        int c = this.y.x;
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+    }
+
+    class A {
+      a: number = 0;
+      y: X = null;
+      b(): number {
+        let c: number = this.y.x;
+      }
+    }
+
 - name: Multple Class Access
   input: |
     class A {
