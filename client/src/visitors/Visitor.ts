@@ -56,7 +56,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       }
 
       // in case this is the last variable of the chain we return its type
-      if (visitor.parent.node.node !== 'QualifiedName') {
+      if (visitor.parent.node.node !== nodeName) {
         return type;
       }
 
@@ -77,12 +77,21 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
         return visitor.owner;
       }
       if (visitor.node.node === 'SuperFieldAccess') {
-        return visitor.findSuperClass();
+        // find the type of the super reference
+        const superClass = visitor.findSuperClass();
+        const field = superClass.findField(visitor['name'].name);
+        if (!field) {
+          return null;
+        }
+        const type = field.type.originalName;
+        return this.compilationUnit.findDeclaration(type);
       }
+      // member is announec this. expression
       let member = visitor.findVariableInParent(visitor, name);
       if (member) {
         return this.compilationUnit.findDeclaration(member.type.originalName);
       } else {
+        // static expression
         return visitor.compilationUnit.findDeclaration(name);
       }
     }

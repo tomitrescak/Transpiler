@@ -29,6 +29,9 @@ export default {
     },
     MissingReturnType() {
       return `Missing return type`;
+    },
+    NoSuperClass() {
+      return 'Class has no parent';
     }
   },
   Warnings: {

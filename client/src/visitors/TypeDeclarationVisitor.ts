@@ -30,7 +30,7 @@ declare global {
   interface TypeDeclaration extends BaseTypeDeclaration {
     node: 'TypeDeclaration';
     interface: boolean;
-    superClassType: SimpleType | ParametrizedType;
+    superclassType: SimpleType | ParametrizedType;
     typeParameters: TypeParameter[];
   }
 
@@ -62,8 +62,8 @@ export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaratio
     this.name = NameFactory.create(this, node.name);
     this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
 
-    if (node.superClassType) {
-      this.superClassType = TypeFactory.create(this, node.superClassType).name;
+    if (node.superclassType) {
+      this.superClassType = TypeFactory.create(this, node.superclassType).name;
     }
 
     if (node.superInterfaceTypes.length) {

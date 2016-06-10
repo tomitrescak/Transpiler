@@ -17,6 +17,47 @@
       }
     }
 
+- name: Super access
+  input: |
+    class X {
+      double x;
+    }
+    class Y extends X {
+      int b() {
+        int c = x;
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+    }
+
+    class Y extends X {
+      b(): number {
+        let c: number = this.x;
+      }
+    }
+  errors:
+    - TypeMismatch|5|double|int
+
+- name: Variable override
+  input: |
+    class Y {
+      int a;
+      int b() {
+        int a;
+        int b = a;
+      }
+    }
+  output: |
+    class Y {
+      a: number = 0;
+      b(): number {
+        let a: number = 0;
+        let b: number = a;
+      }
+    }
+
 - name: This access
   input: |
     class X {
@@ -41,6 +82,88 @@
         let c: number = this.y.x;
       }
     }
+  errors:
+    - TypeMismatch|7|double|int
+
+- name: Super with super access
+  input: |
+    class X {
+      double x;
+    }
+    class A extends X {
+      int b() {
+        int c = super.x;
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+    }
+
+    class A extends X {
+      b(): number {
+        let c: number = super.x;
+      }
+    }
+  errors:
+    - TypeMismatch|5|double|int
+
+- name: Super with chained access
+  input: |
+    class Y {
+      double y;
+    }
+    class X {
+      Y x;
+    }
+    class A extends X {
+      int b() {
+        int c = super.x.y;
+      }
+    }
+  output: |
+    class Y {
+      y: number = 0;
+    }
+
+    class X {
+      x: Y = null;
+    }
+
+    class A extends X {
+      b(): number {
+        let c: number = super.x.y;
+      }
+    }
+  errors:
+    - TypeMismatch|8|double|int
+
+- name: This access fill
+  input: |
+    class X {
+      double x;
+    }
+    class A {
+      int a;
+      X y;
+      int b() {
+        int c = y.x;
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+    }
+
+    class A {
+      a: number = 0;
+      y: X = null;
+      b(): number {
+        let c: number = this.y.x;
+      }
+    }
+  errors:
+    - TypeMismatch|7|double|int
 
 - name: Multple Class Access
   input: |
@@ -95,6 +218,39 @@
     }
   errors:
     - TypeMismatch|3|double|int
+
+- name: Multple Class Access For Methods
+  input: |
+    class A {
+      double a() {};
+    }
+    class B {
+      A b;
+    }
+    class C {
+      B c;
+      int d() {
+        int x = c.b.a();
+      }
+    }
+  errors:
+    - TypeMismatch|10|double|int
+  output: |
+    class A {
+      a: number = 0;
+    }
+
+    class B {
+      b: A = null;
+    }
+
+    class C {
+      c: B = null;
+      d(): number {
+        let x: number = this.c.b.a();
+      }
+    }
+
 
 # # double d;
 # # int d() {

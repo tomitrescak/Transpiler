@@ -35,6 +35,9 @@ exports.default = {
         },
         MissingReturnType: function () {
             return "Missing return type";
+        },
+        NoSuperClass: function () {
+            return 'Class has no parent';
         }
     },
     Warnings: {

@@ -306,14 +306,9 @@ var QualifiedVariableReference = (function (_super) {
         return null;
     };
     QualifiedVariableReference.prototype.visit = function (builder) {
-        // render this. if it is a class member
-        if (this.qualifierName) {
-            builder.add(this.qualifierName + '.');
-        }
-        else if (this.classVariable) {
-            builder.add('this.');
-        }
+        // render qualifier
         this.qualifier.visit(builder);
+        // connect with the name
         builder.add('.');
         // render name
         this.name.visit(builder);
@@ -444,7 +439,7 @@ var ThisExpressionVisitor = (function (_super) {
         builder.add('this');
     };
     return ThisExpressionVisitor;
-}(Visitor_1.default));
+}(BaseExpression));
 exports.ThisExpressionVisitor = ThisExpressionVisitor;
 var SuperFieldAccessVisitor = (function (_super) {
     __extends(SuperFieldAccessVisitor, _super);
@@ -452,6 +447,24 @@ var SuperFieldAccessVisitor = (function (_super) {
         _super.call(this, parent, node, 'SuperFieldAccess');
         this.name = NameFactory_1.default.create(this, node.name);
     }
+    Object.defineProperty(SuperFieldAccessVisitor.prototype, "returnType", {
+        get: function () {
+            var sup = this.findSuperClass();
+            if (!sup) {
+                this.addError(Messages_1.default.Errors.NoSuperClass);
+            }
+            var variable = sup.findField(this.name.name);
+            if (!variable) {
+                this.addError(Messages_1.default.Errors.VariableNotFound, this.name.name);
+            }
+            else {
+                return variable.type.originalName;
+            }
+            return null;
+        },
+        enumerable: true,
+        configurable: true
+    });
     SuperFieldAccessVisitor.prototype.visit = function (builder) {
         builder.add('super.');
         this.name.visit(builder);

@@ -22,8 +22,8 @@ var TypeDeclarationVisitor = (function (_super) {
         this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
         this.name = NameFactory_1.default.create(this, node.name);
         this.typeParameters = new TypeParameterVisitor_1.default(this, node.typeParameters);
-        if (node.superClassType) {
-            this.superClassType = TypeFactory_1.default.create(this, node.superClassType).name;
+        if (node.superclassType) {
+            this.superClassType = TypeFactory_1.default.create(this, node.superclassType).name;
         }
         if (node.superInterfaceTypes.length) {
             this.superInterfaceTypes = node.superInterfaceTypes.map(function (i) { return TypeFactory_1.default.create(_this, i); });

@@ -22,7 +22,7 @@ var Visitor = (function () {
                 throw new Error(Messages_1.default.Errors.VariableNotFound(child.name.name));
             }
             // in case this is the last variable of the chain we return its type
-            if (visitor.parent.node.node !== 'QualifiedName') {
+            if (visitor.parent.node.node !== nodeName) {
                 return type;
             }
             // othrwise we continue
@@ -42,13 +42,22 @@ var Visitor = (function () {
                 return visitor.owner;
             }
             if (visitor.node.node === 'SuperFieldAccess') {
-                return visitor.findSuperClass();
+                // find the type of the super reference
+                var superClass = visitor.findSuperClass();
+                var field = superClass.findField(visitor['name'].name);
+                if (!field) {
+                    return null;
+                }
+                var type = field.type.originalName;
+                return this.compilationUnit.findDeclaration(type);
             }
+            // member is announec this. expression
             var member = visitor.findVariableInParent(visitor, name);
             if (member) {
                 return this.compilationUnit.findDeclaration(member.type.originalName);
             }
             else {
+                // static expression
                 return visitor.compilationUnit.findDeclaration(name);
             }
         }
