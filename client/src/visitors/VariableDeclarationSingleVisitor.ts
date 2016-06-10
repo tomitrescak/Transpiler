@@ -39,7 +39,7 @@ export class SingleVariableDeclarationVisitor extends VariableDeclarationFragmen
     }
 
     // render variable declaration without initialiser
-    super.visit(builder, false);
+    super.visit(builder, !this.varargs);
 
     // vararags add [] at the end
     if (this.varargs) {

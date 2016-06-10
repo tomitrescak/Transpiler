@@ -16,27 +16,27 @@
 
 - name: Parameters > Simple
   input: int a(int b) {};
-  output: a(b: number): number {}
+  output: a(b: number = 0): number {}
 
 - name: Parameters > Multiple
   input: int a(int b, String c) {};
-  output: a(b: number, c: string): number {}
+  output: a(b: number = 0, c: string = null): number {}
 
 - name: Parameters > Parameterised
   input: A a(B<C,D<E>> b) {};
-  output: a(b: B<C,D<E>>): A {}
+  output: a(b: B<C,D<E>> = null): A {}
 
 - name: Parameters > Array
   input: int[][] a(int[] b[]) {};
-  output: a(b: number[][]): number[][] {}
+  output: a(b: number[][] = null): number[][] {}
 
-- name: Parameters > Variable
+- name: Parameters > Variable1
   input: int a(int b, String... c) {};
-  output: a(b: number, ...c: string[]): number {}
+  output: a(b: number = 0, ...c: string[]): number {}
 
 - name: Extra Complex
   input: public static <T> int[][] func(String a, int[] g[][], M<T> t, int... v) throws Ex1, Ex2 {}
-  output: public static func<T>(a: string, g: number[][][], t: M<T>, ...v: number[]): number[][] {}
+  output: public static func<T>(a: string = null, g: number[][][] = null, t: M<T> = null, ...v: number[]): number[][] {}
 
 - name: Variables
   input: |
@@ -75,7 +75,7 @@
        this.b(this.c(d,d));
      }
      b(): B {}
-     c(d: D, e: E): C {}
+     c(d: D = null, e: E = null): C {}
 
 - name: Expressions
   longRunning: true

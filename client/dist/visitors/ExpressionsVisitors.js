@@ -255,8 +255,10 @@ var VariableReference = (function (_super) {
         var variable = this.variable;
         if (variable) {
             // check whether it is a class variable
-            this.classVariable = variable.parent.node.node === 'TypeDeclaration' ||
-                variable.parent.parent.node.node === 'TypeDeclaration';
+            this.classVariable =
+                variable.parent.node.node !== 'MethodDeclaration' &&
+                    (variable.parent.node.node === 'TypeDeclaration' ||
+                        variable.parent.parent.node.node === 'TypeDeclaration');
             // check whether it is a static variable
             if (variable.isStatic) {
                 // finf the compilation name
@@ -352,19 +354,19 @@ var MethodInvocationVisitor = (function (_super) {
         enumerable: true,
         configurable: true
     });
-    MethodInvocationVisitor.prototype.findMethodType = function () {
+    MethodInvocationVisitor.prototype.findMethodTypeName = function () {
         if (this.method) {
-            this._returnType = this.method.returnType.originalName;
+            return this.method.returnType.originalName;
         }
         else {
-            this._returnType = null;
             this.addError(Messages_1.default.Errors.MethodNotFound, this.name.name);
+            return null;
         }
     };
     Object.defineProperty(MethodInvocationVisitor.prototype, "returnType", {
         get: function () {
             if (this._returnType === undefined) {
-                this.findMethodType();
+                this._returnType = this.findMethodTypeName();
             }
             return this._returnType;
         },

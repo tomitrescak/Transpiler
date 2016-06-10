@@ -27,7 +27,7 @@ var SingleVariableDeclarationVisitor = (function (_super) {
             builder.add('...');
         }
         // render variable declaration without initialiser
-        _super.prototype.visit.call(this, builder, false);
+        _super.prototype.visit.call(this, builder, !this.varargs);
         // vararags add [] at the end
         if (this.varargs) {
             builder.add('[]');

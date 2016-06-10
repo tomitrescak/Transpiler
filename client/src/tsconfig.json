@@ -38,6 +38,7 @@
     "tests/enum_test.ts",
     "tests/expressions_test.ts",
     "tests/field_declarations_test.ts",
+    "tests/function_parameters_test.ts",
     "tests/functions_test.ts",
     "tests/member_access_test.ts",
     "tests/modifiers_test.ts",
