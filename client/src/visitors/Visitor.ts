@@ -34,13 +34,13 @@ declare global {
 }
 
 abstract class Visitor<T extends AstElement> implements IVisitor {
+  static order = ['byte', 'short', 'int', 'long', 'float', 'double'];
+  static maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
+
   parent: IVisitor;
   node: T;
   _indent: number;
   handler: IHandler;
-
-  static order = ['byte', 'short', 'int', 'long', 'float', 'double'];
-  static maxValue = [128, 32768, 2147483648, 9.223372037E18, 0, 0];
 
   // static bits
 
@@ -52,7 +52,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       // child can be field access or just a qualified name
       const callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
 
-      // find the owner, and pass MethodInvocation as the paren of this call
+      // find the owner type, and pass MethodInvocation as the paren of this call
       let type = this.findVariableType(child, callChildName, 'MethodInvocation');
 
       // now find the method in the owner and return type
@@ -66,7 +66,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
     }
   }
 
-  findVariableType(visitor: IVisitor, childName = 'qualifier', nodeName: (string|string[]) = 'QualifiedName'): ITypeDeclarationVisitor {
+  findVariableType(visitor: IVisitor, childName = 'qualifier', nodeName: (string | string[]) = 'QualifiedName'): ITypeDeclarationVisitor {
     const child = visitor[childName];
     const name = visitor['name'] ? visitor['name'].name : null;
 
@@ -77,8 +77,8 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       const callNodeName = child.node.node === 'QualifiedName' ? 'QualifiedName' : 'FieldAccess';
 
       let type = child.node.node === 'MethodInvocation' ?
-                    this.findMethodType(child) :
-                    this.findVariableType(child, callChildName, callNodeName);
+        this.findMethodType(child) :
+        this.findVariableType(child, callChildName, callNodeName);
 
       // check if type exists
       if (!type) {
@@ -88,7 +88,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
       // in case this is the last variable of the chain we return its type
       if (Array.isArray(nodeName) && nodeName.indexOf(visitor.parent.node.node) === -1 ||
-         !Array.isArray(nodeName) && visitor.parent.node.node !== nodeName) {
+        !Array.isArray(nodeName) && visitor.parent.node.node !== nodeName) {
         return type;
       }
 
@@ -103,26 +103,26 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       const typeName = field.type.originalName;
       return this.compilationUnit.findDeclaration(typeName);
     } else {
-      // this is the end of the referecne chain A.b.c.d
+      // this is the end of the referecne chain {A}.b.c.d
       // A can be either a this, super, class memeber or a static reference
       if (visitor.node.node === 'ThisExpression') {
         return visitor.owner;
       }
       if (visitor.node.node === 'SuperFieldAccess') {
         // find the type of the super reference
-        const field = visitor.owner.findFieldInSuperClass(visitor['name'].name);
+        const field = visitor.owner.findFieldInSuperClass(name);
         if (!field) {
           return null;
         }
         const type = field.type.originalName;
         return this.compilationUnit.findDeclaration(type);
       }
-      // member is announec this. expression
+      // possible member is announced without this. expression
       let member = visitor.findVariableInParent(visitor, name);
       if (member) {
         return this.compilationUnit.findDeclaration(member.type.originalName);
       } else {
-        // static expression
+        // otherwise is just a static expression
         return visitor.compilationUnit.findDeclaration(name);
       }
     }
@@ -146,7 +146,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
   findVariableInParent(parent: IVisitor, name: string): IVariableVisitor {
     // find if name exists in the parent scope
-    let vh = <IVariableHolderVisitor> parent;
+    let vh = <IVariableHolderVisitor>parent;
     if (vh.variables && vh.variables.length) {
       let variable = vh.findVariable(name);
       if (variable) {

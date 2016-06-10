@@ -15,7 +15,7 @@ var Visitor = (function () {
         if (child) {
             // child can be field access or just a qualified name
             var callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
-            // find the owner, and pass MethodInvocation as the paren of this call
+            // find the owner type, and pass MethodInvocation as the paren of this call
             var type = this.findVariableType(child, callChildName, 'MethodInvocation');
             // now find the method in the owner and return type
             var method = type.findMethodInSuperClass(name);
@@ -60,27 +60,27 @@ var Visitor = (function () {
             return this.compilationUnit.findDeclaration(typeName);
         }
         else {
-            // this is the end of the referecne chain A.b.c.d
+            // this is the end of the referecne chain {A}.b.c.d
             // A can be either a this, super, class memeber or a static reference
             if (visitor.node.node === 'ThisExpression') {
                 return visitor.owner;
             }
             if (visitor.node.node === 'SuperFieldAccess') {
                 // find the type of the super reference
-                var field = visitor.owner.findFieldInSuperClass(visitor['name'].name);
+                var field = visitor.owner.findFieldInSuperClass(name);
                 if (!field) {
                     return null;
                 }
                 var type = field.type.originalName;
                 return this.compilationUnit.findDeclaration(type);
             }
-            // member is announec this. expression
+            // possible member is announced without this. expression
             var member = visitor.findVariableInParent(visitor, name);
             if (member) {
                 return this.compilationUnit.findDeclaration(member.type.originalName);
             }
             else {
-                // static expression
+                // otherwise is just a static expression
                 return visitor.compilationUnit.findDeclaration(name);
             }
         }
