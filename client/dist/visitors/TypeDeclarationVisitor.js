@@ -34,11 +34,9 @@ var TypeDeclarationVisitor = (function (_super) {
     }
     TypeDeclarationVisitor.prototype.findField = function (name) {
         return this.findVariable(name);
-        // if (!field) {
-        //   this.addError(Messages.Errors.FieldNotFound, name);
-        //   return null;
-        // }
-        // return field;
+    };
+    TypeDeclarationVisitor.prototype.findMethod = function (name) {
+        return this.methods.find(function (m) { return m.name.name === name; });
     };
     TypeDeclarationVisitor.prototype.visit = function (builder) {
         // indent

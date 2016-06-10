@@ -222,7 +222,7 @@
 - name: Multple Class Access For Methods
   input: |
     class A {
-      double a() {};
+      double a() {}
     }
     class B {
       A b;
@@ -234,10 +234,10 @@
       }
     }
   errors:
-    - TypeMismatch|10|double|int
+    - TypeMismatch|9|double|int
   output: |
     class A {
-      a: number = 0;
+      a(): number {}
     }
 
     class B {

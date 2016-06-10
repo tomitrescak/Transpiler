@@ -13,6 +13,11 @@ declare global {
     methods: MethodDeclarationVisitor[];
   }
 
+  interface IMethodVisitor {
+    name: NameVisitor;
+    returnType: TypeVisitor;
+  }
+
   interface MethodDeclaration extends AstElement {
     node: 'MethodDeclaration';
     typeParameters: TypeParameter[];

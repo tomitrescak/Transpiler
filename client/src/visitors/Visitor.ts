@@ -42,12 +42,12 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
   // static bits
 
-  findType(visitor: IVisitor, childName = 'qualifier', nodeName = 'QualifiedName'): ITypeDeclarationVisitor {
+  findVariableType(visitor: IVisitor, childName = 'qualifier', nodeName: (string|string[]) = 'QualifiedName'): ITypeDeclarationVisitor {
     const child = visitor[childName];
     const name = visitor['name'] ? visitor['name'].name : null;
 
     if (visitor[childName]) {
-      let type = this.findType(child);
+      let type = this.findVariableType(child);
 
       // check if type exists
       if (!type) {
@@ -56,7 +56,8 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       }
 
       // in case this is the last variable of the chain we return its type
-      if (visitor.parent.node.node !== nodeName) {
+      if (Array.isArray(nodeName) && nodeName.indexOf(visitor.parent.node.node) === -1 ||
+         !Array.isArray(nodeName) && visitor.parent.node.node !== nodeName) {
         return type;
       }
 
@@ -96,7 +97,6 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       }
     }
   }
-
 
   findSuperClass(): ITypeDeclarationVisitor {
     const owner = this.owner; // that's the compilation unit

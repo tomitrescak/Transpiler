@@ -298,7 +298,7 @@ var QualifiedVariableReference = (function (_super) {
         this.qualifier = ExpressionFactory_1.default.create(this, node.qualifier);
     }
     QualifiedVariableReference.prototype.findVariable = function (parent) {
-        var type = this.findType(this);
+        var type = this.findVariableType(this);
         // find type of the qualifier
         if (type) {
             return type.findField(this.name.name);
@@ -336,14 +336,13 @@ var MethodInvocationVisitor = (function (_super) {
         }
         return method;
     };
-    MethodInvocationVisitor.prototype.findType = function () {
-        // browse till type declaration and find the return type of this method
-        var owner = this.findParent('TypeDeclaration');
-        var method = this.findTypeInTypeDeclaration(owner);
-        if (!method) {
-            // check all supertypes
-            var cu = this.findParent('CompilationUnit');
+    MethodInvocationVisitor.prototype.findMethodType = function () {
+        var owner = this.owner;
+        if (this.expression) {
+            owner = this.findVariableType(this.expression, 'qualifier', ['QualifiedName', 'MethodInvocation']);
         }
+        // browse till type declaration and find the return type of this method
+        var method = owner.findMethod(this.name.name);
         if (!method) {
             this.addError(Messages_1.default.Errors.MethodNotFound, this.name.name);
             throw new Error(Messages_1.default.Errors.MethodNotFound(this.name.name));
@@ -352,7 +351,7 @@ var MethodInvocationVisitor = (function (_super) {
     Object.defineProperty(MethodInvocationVisitor.prototype, "returnType", {
         get: function () {
             if (this._returnType === undefined) {
-                this.findType();
+                this.findMethodType();
             }
             return this._returnType;
         },
@@ -360,7 +359,7 @@ var MethodInvocationVisitor = (function (_super) {
         configurable: true
     });
     MethodInvocationVisitor.prototype.visit = function (builder) {
-        this.findType();
+        //this.findMethodType();
         if (this.expression) {
             this.expression.visit(builder);
             builder.add('.');
@@ -414,7 +413,7 @@ var FieldAccessVisitor = (function (_super) {
         configurable: true
     });
     FieldAccessVisitor.prototype.findVariable = function (parent) {
-        var type = this.findType(this, 'expression', 'FieldAccess');
+        var type = this.findVariableType(this, 'expression', 'FieldAccess');
         // find type of the qualifier
         if (type) {
             return type.findField(this.name.name);

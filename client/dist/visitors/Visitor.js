@@ -9,20 +9,21 @@ var Visitor = (function () {
         this.node = node;
     }
     // static bits
-    Visitor.prototype.findType = function (visitor, childName, nodeName) {
+    Visitor.prototype.findVariableType = function (visitor, childName, nodeName) {
         if (childName === void 0) { childName = 'qualifier'; }
         if (nodeName === void 0) { nodeName = 'QualifiedName'; }
         var child = visitor[childName];
         var name = visitor['name'] ? visitor['name'].name : null;
         if (visitor[childName]) {
-            var type = this.findType(child);
+            var type = this.findVariableType(child);
             // check if type exists
             if (!type) {
                 this.addError(Messages_1.default.Errors.VariableNotFound, child.name.name);
                 throw new Error(Messages_1.default.Errors.VariableNotFound(child.name.name));
             }
             // in case this is the last variable of the chain we return its type
-            if (visitor.parent.node.node !== nodeName) {
+            if (Array.isArray(nodeName) && nodeName.indexOf(visitor.parent.node.node) === -1 ||
+                !Array.isArray(nodeName) && visitor.parent.node.node !== nodeName) {
                 return type;
             }
             // othrwise we continue
