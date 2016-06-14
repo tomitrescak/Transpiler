@@ -33,6 +33,7 @@
     "index.ts",
     "tests/typescript_test.ts",
     "types.ts",
+    "typescript-extras.d.ts",
     "typings/globals/jasmine/index.d.ts",
     "typings/index.d.ts",
     "typings/modules/chai/index.d.ts"

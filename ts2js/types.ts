@@ -32,10 +32,19 @@ export class FileSource implements Source {
   }
 }
 
+export interface CompilationError {
+  file: string;
+  line: number;
+  column: number;
+  category: string;
+  code: number;
+  message: string;
+}
+
 export interface CompilationResult {
   sources: { [index: string]: string };
   sourceMaps: {};
-  errors: string[];
+  errors: CompilationError[];
 }
 
 export interface CompilerOptions {

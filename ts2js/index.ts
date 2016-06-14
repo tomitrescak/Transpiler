@@ -1,17 +1,38 @@
 import * as ts from 'typescript';
 
 import CompositeCompilerHost from './compositeCompilerHost';
-import { SourceType, CompilerOptions, CompilationResult, FileSource, IResultWriterFn, Source, StringSource } from './types';
+import { SourceType, CompilerOptions, CompilationResult, FileSource, Source, StringSource } from './types';
 
 function formatError(diagnostic: ts.Diagnostic) {
-  let output = '';
+  // let output = '';
+  // if (diagnostic.file) {
+  //   let loc = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+  //   output += diagnostic.file.fileName + '(' + loc.line + ',' + loc.character + '): ';
+  // }
+  let category = ts.DiagnosticCategory[diagnostic.category].toLowerCase();
+  // output += category + ' TS' + diagnostic.code + ': ' + diagnostic.messageText + '\n';
+
+  // return output;
+
+  let line: number = null;
+  let character: number = null;
+  let fileName: string = null;
+
   if (diagnostic.file) {
     let loc = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-    output += diagnostic.file.fileName + '(' + loc.line + ',' + loc.character + '): ';
+    line = loc.line;
+    character = loc.character;
+    fileName = diagnostic.file.fileName;
   }
-  let category = ts.DiagnosticCategory[diagnostic.category].toLowerCase();
-  output += category + ' TS' + diagnostic.code + ': ' + diagnostic.messageText + '\n';
-  return output;
+
+  return {
+    file: fileName,
+    line: line,
+    column: character,
+    category: category,
+    code: diagnostic.code,
+    message: diagnostic.messageText.toString()
+  };
 }
 
 function forwardErrors(errors: any, onError: any) {
@@ -57,21 +78,18 @@ function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs?: any,
     // todo: make async
     forwardErrors(semanticErrors, onError);
 
-    // checker.getDiagnostics(); // TODO: Check
-
     // Generate output
     emitResult = program.emit();
-    // todo: make async
     forwardErrors(emitResult.diagnostics, onError);
 
-    errors = ts.concatenate(semanticErrors, emitResult.diagnostics);
+    errors = semanticErrors.concat(emitResult.diagnostics);
   }
 
   return {
     sources: host.outputs,
     sourceMaps: emitResult && emitResult.sourceMaps ? emitResult.sourceMaps : [],
-    errors: ts.map<any, string>(errors, e => {
-      return formatError(e)
+    errors: errors.map((e) => {
+      return formatError(e);
     })
   };
 }
@@ -93,7 +111,7 @@ export function compile(files: any, tscArgs?: any, options?: any, onError?: (mes
   }
 
   return _compile(new CompositeCompilerHost(options),
-    ts.map(<string[]>files, (f) => new FileSource(f)),
+    files.map((f: any) => new FileSource(f)),
     tscArgs, options, onError);
 }
 
@@ -114,7 +132,7 @@ export function compileStrings(input: any, tscArgs?: any, options?: CompilerOpti
   if (Array.isArray(input) && input.length) {
     // string[]
     if (typeof input[0] === 'string') {
-      sources = ts.map<string, StringSource>(input, s => new StringSource(s));
+      sources = input.map((s: any) => new StringSource(s));
     } else if (input[0] instanceof StringSource) {
       sources.concat(input);
     } else {
@@ -134,16 +152,16 @@ export function compileStrings(input: any, tscArgs?: any, options?: CompilerOpti
   return _compile(host, sources, tscArgs, options, onError);
 }
 
-export function compileString(input: StringSource, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): string
-export function compileString(input: StringSource, tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): string
-export function compileString(input: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): string
-export function compileString(input: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): string
-export function compileString(input: any, tscArgs?: any, options?: CompilerOptions, onError?: (message: any) => void): string {
+export function compileString(input: StringSource, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
+export function compileString(input: StringSource, tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
+export function compileString(input: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
+export function compileString(input: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
+export function compileString(input: any, tscArgs?: any, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult {
   if (typeof input !== 'string' && !(input instanceof StringSource)) {
     throw new Error('typescript-compiler#compileString: input parameter should be either a string or a StringSource object');
   }
 
-  if (input === '') { return ''; };
+  if (input === '') { return null; };
 
   let result = '';
 
@@ -152,7 +170,7 @@ export function compileString(input: any, tscArgs?: any, options?: CompilerOptio
     .writeToString()
     .redirectOutput((filename, data) => result += data);
 
-  _compile(host, [input instanceof StringSource ? input : new StringSource(input, 'string.ts')], tscArgs, options, onError);
+  let resultObj = _compile(host, [input instanceof StringSource ? input : new StringSource(input, 'string.ts')], tscArgs, options, onError);
 
-  return result;
+  return resultObj;
 }
