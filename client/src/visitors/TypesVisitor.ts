@@ -1,4 +1,4 @@
-import Messages from "../config/Messages";
+import Messages from '../config/Messages';
 import Visitor from './Visitor';
 import NameFactory from './factories/NameFactory';
 import TypeFactory from './factories/TypeFactory';
@@ -13,6 +13,11 @@ declare global {
     name: SimpleName | QualifiedName;
   }
 
+  interface UnionType extends AstElement {
+    node: 'UnionType';
+    types: Types[];
+  }
+
   interface ParametrizedType extends AstElement {
     node: 'ParametrizedType';
     type: Types;
@@ -21,7 +26,7 @@ declare global {
 
   interface ArrayType extends AstElement {
     node: 'ArrayType';
-    componentType: PrimitiveType | SimpleType | ParametrizedType | ArrayType;
+    componentType: Types;
   }
 
   interface TypeVisitor extends Visitor<Types> {
@@ -29,7 +34,7 @@ declare global {
     name: string;
   }
 
-  type Types = PrimitiveType | SimpleType | ParametrizedType | ArrayType;
+  type Types = PrimitiveType | SimpleType | ParametrizedType | ArrayType | UnionType;
 }
 
 export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements TypeVisitor {
@@ -52,7 +57,7 @@ export class PrimitiveTypeVisitor extends Visitor<PrimitiveType> implements Type
   }
 
   visit(builder: IBuilder) {
-    builder.add(this.name, this.node.location)
+    builder.add(this.name, this.node.location);
   }
 }
 
@@ -116,6 +121,25 @@ export class ArrayTypeVisitor extends Visitor<ArrayType> implements TypeVisitor 
 
   visit(builder: IBuilder) {
     builder.add(this.name);
+  }
+}
+
+export class UnionTypeVisitor extends Visitor<UnionType> implements TypeVisitor {
+  name: string;
+  originalName: string;
+  types: TypeVisitor[];
+
+  constructor(parent: IVisitor, node: UnionType) {
+    super(parent, node, 'UnionType');
+
+    this.types = TypeFactory.createArray(this, node.types);
+
+    this.name = this.types.map((t) => t.originalName).join('|');
+    this.originalName = this.name;
+  }
+
+  visit(builder: IBuilder) {
+    builder.join(this.types, '|');
   }
 }
 

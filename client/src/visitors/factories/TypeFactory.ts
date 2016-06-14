@@ -1,4 +1,4 @@
-import { PrimitiveTypeVisitor, SimpleTypeVisitor, ParametrizedTypeVisitor, ArrayTypeVisitor } from '../TypesVisitor';
+import { PrimitiveTypeVisitor, SimpleTypeVisitor, ParametrizedTypeVisitor, ArrayTypeVisitor, UnionTypeVisitor } from '../TypesVisitor';
 
 export class TypeFactory {
   static create(parent: IVisitor, type: Types): TypeVisitor {
@@ -11,6 +11,8 @@ export class TypeFactory {
         return new ParametrizedTypeVisitor(parent, <ParametrizedType>type);
       case 'ArrayType':
         return new ArrayTypeVisitor(parent, <ArrayType>type);
+      case 'UnionType':
+        return new UnionTypeVisitor(parent, <UnionType> type);
       default:
         throw new Error('Unsupported node ' + type.node);
     }

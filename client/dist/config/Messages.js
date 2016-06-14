@@ -50,6 +50,12 @@ exports.default = {
         },
         LabelsNotSupported: function () {
             return 'Labels are not supported';
+        },
+        TryResourcesNotSupported: function () {
+            return 'Try statement resources are not supported';
+        },
+        MoreCatchClausesNotSupported: function () {
+            return 'Only one catch clause is supported';
         }
     },
     Warnings: {

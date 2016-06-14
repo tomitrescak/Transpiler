@@ -659,8 +659,7 @@ module.exports = (function() {
                 node:          'ClassInstanceCreation',
                 type:           type,
                 typeArguments:  optionalList(args),
-                expression:     null,
-                location: simpleLocation()
+                expression:     null
               });
             },
         peg$c130 = function(qual, args, rest) { return buildTypeName(qual, args, rest); },
@@ -16436,7 +16435,7 @@ module.exports = (function() {
           if (props.hasOwnProperty(key)) {
             if (obj.hasOwnProperty(key)) {
               throw new Error(
-                'Property ' + key + ' exists ' + line() + '\n' + text() +
+                'Property ' + key + ' exists ' + simpleLocation().line + '\n' + text() +
                 '\nCurrent value: ' + JSON.stringify(obj[key], null, 2) +
                 '\nNew value: ' + JSON.stringify(props[key], null, 2)
               );

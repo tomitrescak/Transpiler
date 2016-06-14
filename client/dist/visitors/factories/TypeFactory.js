@@ -13,6 +13,8 @@ var TypeFactory = (function () {
                 return new TypesVisitor_1.ParametrizedTypeVisitor(parent, type);
             case 'ArrayType':
                 return new TypesVisitor_1.ArrayTypeVisitor(parent, type);
+            case 'UnionType':
+                return new TypesVisitor_1.UnionTypeVisitor(parent, type);
             default:
                 throw new Error('Unsupported node ' + type.node);
         }

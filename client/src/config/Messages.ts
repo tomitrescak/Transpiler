@@ -44,6 +44,12 @@ export default {
     },
     LabelsNotSupported() {
       return 'Labels are not supported';
+    },
+    TryResourcesNotSupported() {
+      return 'Try statement resources are not supported';
+    },
+    MoreCatchClausesNotSupported() {
+      return 'Only one catch clause is supported';
     }
   },
   Warnings: {

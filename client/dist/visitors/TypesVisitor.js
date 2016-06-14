@@ -4,7 +4,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var Messages_1 = require("../config/Messages");
+var Messages_1 = require('../config/Messages');
 var Visitor_1 = require('./Visitor');
 var NameFactory_1 = require('./factories/NameFactory');
 var TypeFactory_1 = require('./factories/TypeFactory');
@@ -79,6 +79,20 @@ var ArrayTypeVisitor = (function (_super) {
     return ArrayTypeVisitor;
 }(Visitor_1.default));
 exports.ArrayTypeVisitor = ArrayTypeVisitor;
+var UnionTypeVisitor = (function (_super) {
+    __extends(UnionTypeVisitor, _super);
+    function UnionTypeVisitor(parent, node) {
+        _super.call(this, parent, node, 'UnionType');
+        this.types = TypeFactory_1.default.createArray(this, node.types);
+        this.name = this.types.map(function (t) { return t.originalName; }).join('|');
+        this.originalName = this.name;
+    }
+    UnionTypeVisitor.prototype.visit = function (builder) {
+        builder.join(this.types, '|');
+    };
+    return UnionTypeVisitor;
+}(Visitor_1.default));
+exports.UnionTypeVisitor = UnionTypeVisitor;
 var TypesVisitor = (function () {
     function TypesVisitor() {
     }

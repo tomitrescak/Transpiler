@@ -3,6 +3,7 @@ import BlockFactory from './factories/BlockFactory';
 import ExpressionFactory from './factories/ExpressionFactory';
 import BlockVisitor from './BlockVisitor';
 import Messages from '../config/Messages';
+import { SingleVariableDeclarationVisitor } from './VariableDeclarationSingleVisitor';
 
 declare global {
   interface IfStatement extends AstElement {
@@ -40,7 +41,22 @@ declare global {
   }
 
   interface ReturnStatement extends AstElement {
+    node: 'ReturnStatement';
     expression: Expression;
+  }
+
+  interface CatchClause extends AstElement {
+    node: 'CatchClause';
+    body: Block;
+    exception:SingleVariableDeclaration;
+  }
+
+  interface TryStatement extends AstElement {
+    node: 'TryStatement';
+    body: Block;
+    catchClauses: CatchClause[];
+    finally: Block;
+    resources: Expression[];
   }
 }
 
@@ -111,12 +127,17 @@ export class SwitchStatementVisitor extends Visitor<SwitchStatement> {
     expression.visit(builder);
     builder.add(') {\n');
 
-    // body is either block or a single expression
-    const statements = BlockFactory.createArray(this, this.node.statements);
-    builder.join(statements, '\n');
+    this.incIndent();
 
     builder.pad(this.indent);
-    builder.add('}\n');
+
+    // body is either block or a single expression
+    const statements = BlockFactory.createArray(this, this.node.statements);
+    builder.join(statements, '\n' + this.pad());
+    builder.addLine();
+
+    builder.pad(this.parent.indent);
+    builder.add('}');
   }
 }
 
@@ -129,7 +150,6 @@ export class SwitchCaseVisitor extends Visitor<SwitchCase> {
     // condition
     // it's either a case node or default node
     if (this.node.expression) {
-      builder.pad(this.indent);
       builder.add('case ');
       console.log(this.node);
       const expression = ExpressionFactory.create(this, this.node.expression);
@@ -183,5 +203,71 @@ export class ReturnStatementVisitor extends Visitor<ReturnStatement> {
     const expression = ExpressionFactory.create(this, this.node.expression);
     expression.visit(builder);
     builder.add(';');
+  }
+}
+
+export class TryStatementVisitor extends Visitor<TryStatement> {
+  constructor(parent: IVisitor, node: TryStatement) {
+    super(parent, node, 'TryStatement');
+
+    // validate that there can be only one catch clauses
+    if (node.catchClauses.length > 1) {
+      this.addError(Messages.Errors.MoreCatchClausesNotSupported);
+    }
+
+    // try resources are not supported
+    if (node.resources.length) {
+      this.addError(Messages.Errors.TryResourcesNotSupported);
+    }
+  }
+
+  visit (builder: IBuilder) {
+    // condition
+    builder.add('try ');
+
+    // body of the try statement
+    const body = BlockFactory.create(this, this.node.body);
+    body.visit(builder);
+
+    // add new line and padding
+    builder.addLine();
+
+    if (this.node.catchClauses.length) {
+      builder.pad(this.indent);
+    }
+
+    // catch clauses
+    const catchClauses = BlockFactory.createArray(this, this.node.catchClauses);
+    builder.join(catchClauses, '\n' + this.pad());
+
+    // finally
+    if (this.node.finally) {
+      const finally = BlockFactory.create(this.node.finally);
+
+      builder.addLine();
+      builder.pad(this.indent);
+      builder.add('finally');
+      
+    }
+  }
+}
+
+export class CatchClauseVisitor extends Visitor<CatchClause> {
+  constructor(parent: IVisitor, node: CatchClause) {
+    super(parent, node, 'CatchClause');
+  }
+
+  visit (builder: IBuilder) {
+    const exception = new SingleVariableDeclarationVisitor(this, this.node.exception);
+    const body = BlockFactory.create(this, this.node.body);
+
+    // try resources are not supported
+    builder.add('catch (');
+    exception.name.visit(builder);
+    builder.add(') ');
+
+    body.visit(builder);
+
+
   }
 }

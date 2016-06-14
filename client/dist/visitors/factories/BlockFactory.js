@@ -28,6 +28,10 @@ var BlockFactory = (function () {
                 return new Statements.ContinueStatementVisitor(parent, node);
             case 'ReturnStatement':
                 return new Statements.ReturnStatementVisitor(parent, node);
+            case 'TryStatement':
+                return new Statements.TryStatementVisitor(parent, node);
+            case 'CatchClause':
+                return new Statements.CatchClauseVisitor(parent, node);
             default:
                 throw new Error('Unsupported block statement: ' + node.node);
         }
