@@ -26,6 +26,7 @@
     "placeOpenBraceOnNewLineForControlBlocks": false
   },
   "filesGlob": [
+    "../typings/**/*.ts",
     "**/*.ts"
   ],
   "files": [

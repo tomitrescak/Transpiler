@@ -7,11 +7,6 @@ export function parseTree(source: string) {
   return parser.parse(source);
 }
 
-export function transpile(source: string, handlerIn?: IHandler): IBuilder {
-  const tree = parseTree(source);
-  return transpileTree(tree);
-}
-
 export function transpileTree(tree: any, handlerIn?: IHandler): IBuilder {
 
   let builder = new Builder(handlerIn);
@@ -20,3 +15,10 @@ export function transpileTree(tree: any, handlerIn?: IHandler): IBuilder {
 
   return builder;
 }
+
+export function transpile(source: string, handlerIn?: IHandler): IBuilder {
+  const tree = parseTree(source);
+  return transpileTree(tree);
+}
+
+export default transpile;

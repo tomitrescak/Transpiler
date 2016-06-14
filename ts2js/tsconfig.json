@@ -26,17 +26,18 @@
     "placeOpenBraceOnNewLineForControlBlocks": false
   },
   "filesGlob": [
+    "../typings/**/*.ts",
     "**/*.ts"
   ],
   "files": [
+    "../typings/globals/jasmine/index.d.ts",
+    "../typings/index.d.ts",
+    "../typings/java-parser.d.ts",
+    "../typings/modules/chai/index.d.ts",
     "compositeCompilerHost.ts",
     "index.ts",
     "tests/typescript_test.ts",
-    "types.ts",
-    "typescript-extras.d.ts",
-    "typings/globals/jasmine/index.d.ts",
-    "typings/index.d.ts",
-    "typings/modules/chai/index.d.ts"
+    "types.ts"
   ],
   "atom": {
     "rewriteTsconfig": true

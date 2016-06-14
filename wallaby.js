@@ -10,13 +10,14 @@ module.exports = (wallaby) => {
       "java2ts/config/*.ts",
       "java2ts/visitors/*.ts",
       "java2ts/visitors/factories/*.ts",
-      "ts2js/typescript/**/*.ts",
-      "ts2js/*.ts"
+      "ts2js/*.ts",
+      "java2js/*.ts"
     ],
     tests: [
       { pattern: 'java2ts/**/*.yaml', instrument: true, load: false, ignore: false },
       "java2ts/tests/*.ts",
-      "ts2js/tests/*.ts"
+      "ts2js/tests/*.ts",
+      "java2js/tests/*.ts"
     ],
 
     compilers: {

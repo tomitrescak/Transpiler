@@ -6,7 +6,7 @@ import {
   createSourceFile,
 } from 'typescript';
 
-import { SourceType, CompilerOptions, IResultWriterFn, Source, StringSource } from './types';
+import { SourceType, StringSource } from './types';
 
 function shallowClone(obj: any) {
   let clone: Map<string> = {};

@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 
 import CompositeCompilerHost from './compositeCompilerHost';
-import { SourceType, CompilerOptions, CompilationResult, FileSource, Source, StringSource } from './types';
+import { SourceType, FileSource, StringSource } from './types';
 
 function formatError(diagnostic: ts.Diagnostic) {
   // let output = '';
@@ -134,7 +134,7 @@ export function compileStrings(input: any, tscArgs?: any, options?: CompilerOpti
     if (typeof input[0] === 'string') {
       sources = input.map((s: any) => new StringSource(s));
     } else if (input[0] instanceof StringSource) {
-      sources.concat(input);
+      sources = sources.concat(input);
     } else {
       throw new Error('Invalid value for input argument');
     }

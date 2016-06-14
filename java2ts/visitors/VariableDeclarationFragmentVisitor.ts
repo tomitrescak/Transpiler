@@ -114,7 +114,9 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
       }
     }
 
-    this.validate();
+    if (builder.handler.errors.length === 0) {
+      this.validate();
+    }
   }
 }
 

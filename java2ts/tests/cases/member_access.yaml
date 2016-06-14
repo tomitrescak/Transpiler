@@ -32,8 +32,6 @@
     }
   errors:
     - SymbolNotFound|2|b
-    - VariableNotFound|2|b
-    - VariableNotFound|2|c
 
 - name: Class Methods
   input: |
@@ -79,7 +77,6 @@
     }
   errors:
     - AssignTypeMismatch|6|double|int
-    - AssignTypeMismatch|7|double|int
 
 - name: Variable override
   input: |

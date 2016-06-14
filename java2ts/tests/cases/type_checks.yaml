@@ -48,7 +48,6 @@
   input: String a = true && "m";
   errors:
     - TypeMismatch|1|string|boolean
-    - AssignTypeMismatch|1|boolean|String
 
 - name: String to right boolean
   input: String a = "m" && true;
@@ -65,7 +64,6 @@
     boolean b;
     boolean c = a && b;
   errors:
-    - AssignTypeMismatch|3|int|boolean
     - TypeMismatch|3|int|boolean
 
 - name: Variable With Booleans2
@@ -81,7 +79,6 @@
     int a;
     boolean c = !a;
   errors:
-    - AssignTypeMismatch|2|int|boolean
     - TypeMismatch|2|int|boolean
 
 - name: Arithmetic expressions
