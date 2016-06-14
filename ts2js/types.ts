@@ -1,4 +1,4 @@
-import * as ts from 'typescript';
+import { ScriptTarget, SourceFile } from 'typescript';
 
 export enum SourceType { File, String }
 
@@ -43,7 +43,7 @@ export interface CompilerOptions {
 }
 
 export interface ISourceReaderFn {
-  (filename: string, languageVersion?: ts.ScriptTarget, onError?: (message: string) => void): ts.SourceFile;
+  (filename: string, languageVersion?: ScriptTarget, onError?: (message: string) => void): SourceFile;
 }
 
 export interface IResultWriterFn {

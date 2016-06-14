@@ -1,4 +1,5 @@
 import * as ts from 'typescript';
+
 import CompositeCompilerHost from './compositeCompilerHost';
 import { SourceType, CompilerOptions, CompilationResult, FileSource, IResultWriterFn, Source, StringSource } from './types';
 
@@ -9,7 +10,7 @@ function formatError(diagnostic: ts.Diagnostic) {
     output += diagnostic.file.fileName + '(' + loc.line + ',' + loc.character + '): ';
   }
   let category = ts.DiagnosticCategory[diagnostic.category].toLowerCase();
-  output += category + ' TS' + diagnostic.code + ': ' + diagnostic.messageText + ts.sys.newLine;
+  output += category + ' TS' + diagnostic.code + ': ' + diagnostic.messageText + '\n';
   return output;
 }
 
@@ -39,7 +40,7 @@ function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs?: any,
     sources.forEach(s => host.addSource(s.filename, s.contents));
     files = host.getSourcesFilenames();
   } else {
-    files = ts.map(sources, s => s.filename).concat(commandLine.fileNames);
+    files = ts.map(sources, (s: any) => s.filename).concat(commandLine.fileNames);
   }
 
   let program = ts.createProgram(files, commandLine.options, host);
@@ -54,7 +55,6 @@ function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs?: any,
   // Do not generate code in the presence of early errors
   if (!errors.length) {
     // Type check and get semanic errors
-    let checker = program.getTypeChecker();
     let semanticErrors = program.getSemanticDiagnostics();
     // todo: make async
     forwardErrors(semanticErrors, onError);

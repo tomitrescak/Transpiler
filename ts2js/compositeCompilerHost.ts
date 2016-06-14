@@ -1,9 +1,15 @@
-import * as ts from 'typescript';
+import {
+  ScriptTarget,
+  SourceFile,
+  Map,
+  CompilerHost,
+  createSourceFile,
+} from 'typescript';
+
 import { SourceType, CompilerOptions, IResultWriterFn, Source, StringSource } from './types';
-import * as path from 'path';
 
 function shallowClone(obj: any) {
-  let clone: ts.Map<string> = {};
+  let clone: Map<string> = {};
   for (let k in obj) {
     if (obj.hasOwnProperty(k)) {
       clone[k] = obj[k];
@@ -12,7 +18,7 @@ function shallowClone(obj: any) {
   return clone;
 }
 
-export class CompositeCompilerHost implements ts.CompilerHost {
+export class CompositeCompilerHost implements CompilerHost {
   public options: CompilerOptions;
   public fallbackToFiles: boolean = false;
   public readsFrom: SourceType = SourceType.File;
@@ -23,26 +29,26 @@ export class CompositeCompilerHost implements ts.CompilerHost {
 
   private _currentDirectory: string;
   private _writer: IResultWriterFn;
-  private _sources: ts.Map<string> = {};
-  private _outputs: ts.Map<string> = {};
+  private _sources: Map<string> = {};
+  private _outputs: Map<string> = {};
 
   /**
    * Whether to search for files if a string source isn't found or not
    */
-  get sources(): ts.Map<string> {
+  get sources(): Map<string> {
     return shallowClone(this._sources);
   }
 
-  get outputs(): ts.Map<string> {
+  get outputs(): Map<string> {
     return shallowClone(this._outputs);
   }
 
   constructor(options: CompilerOptions) {
-    this.readsFrom = SourceType.File;
-    this.getSourceFile = this._readFromFile;
+    this.readsFrom = SourceType.String;
+    this.getSourceFile = this._readFromStrings;
 
-    this.writesTo = SourceType.File;
-    this.writeFile = this._writeToFile;
+    this.writesTo = SourceType.String;
+    this.writeFile = this._writeToString;
 
     this.options = options || {};
     this.options.defaultLibFilename = this.options.defaultLibFilename || '';
@@ -53,11 +59,11 @@ export class CompositeCompilerHost implements ts.CompilerHost {
 
   // Implementing CompilerHost interface
   useCaseSensitiveFileNames(): boolean {
-    return ts.sys.useCaseSensitiveFileNames;
+    return true;
   }
 
   // Implementing CompilerHost interface
-  getSourceFile(fileName: string, languageVersion: ts.ScriptTarget, onError?: (message: string) => void): ts.SourceFile {
+  getSourceFile(fileName: string, languageVersion: ScriptTarget, onError?: (message: string) => void): SourceFile {
     throw new Error('Not implemented');
   }
 
@@ -71,35 +77,30 @@ export class CompositeCompilerHost implements ts.CompilerHost {
 
   // Implementing CompilerHost interface
   getCurrentDirectory(): string {
-    if (this.getSourceFile === this._readFromStrings) {
-      return '';
-    }
-
-    return this._currentDirectory || (this._currentDirectory = ts.sys.getCurrentDirectory());
+    // if (this.getSourceFile === this._readFromStrings) {
+    //   return '';
+    // }
+    //
+    // return this._currentDirectory || (this._currentDirectory = ts.sys.getCurrentDirectory());
+    return '';
   }
 
   // Implementing CompilerHost interface
   getDefaultLibFileName(): string {
-    return this.options.defaultLibFilename || path.join(__dirname, 'lib', 'lib.d.ts');
+    return this.options.defaultLibFilename || 'lib.d.ts';
   }
 
   // Implementing CompilerHost interface
   getCanonicalFileName(fileName: string): string {
     // if underlying system can distinguish between two files whose names differs only in cases then file name already in canonical form.
     // otherwise use toLowerCase as a canonical form.
-    return ts.sys.useCaseSensitiveFileNames ? fileName : fileName.toLowerCase();
+    return fileName;
   }
 
   readFromStrings(fallbackToFiles = false): CompositeCompilerHost {
     this.fallbackToFiles = fallbackToFiles;
     this.readsFrom = SourceType.String;
     this.getSourceFile = this._readFromStrings;
-    return this;
-  }
-
-  readFromFiles(): CompositeCompilerHost {
-    this.readsFrom = SourceType.File;
-    this.getSourceFile = this._readFromFile;
     return this;
   }
 
@@ -137,12 +138,6 @@ export class CompositeCompilerHost implements ts.CompilerHost {
     return this;
   }
 
-  writeToFiles(): CompositeCompilerHost {
-    this.writesTo = SourceType.File;
-    this.writeFile = this._writeToFile;
-    return this;
-  }
-
   redirectOutput(writer: boolean): CompositeCompilerHost
   redirectOutput(writer: IResultWriterFn): CompositeCompilerHost
   redirectOutput(writer: any): CompositeCompilerHost {
@@ -159,20 +154,11 @@ export class CompositeCompilerHost implements ts.CompilerHost {
   // private methods
   //////////////////////////////
 
-  private _readFromStrings(filename: string, languageVersion: ts.ScriptTarget, onError?: (message: string) => void): ts.SourceFile {
-
-    if (path.normalize(filename) === this.getDefaultLibFileName()) {
-      return this._readFromFile(filename, languageVersion, onError);
-    }
+  private _readFromStrings(filename: string, languageVersion: ScriptTarget, onError?: (message: string) => void): SourceFile {
 
     if (this._sources[filename]) {
-      return ts.createSourceFile(filename, this._sources[filename], languageVersion, false);
+      return createSourceFile(filename, this._sources[filename], languageVersion, false);
     }
-
-    if (this.fallbackToFiles) {
-      return this._readFromFile(filename, languageVersion, onError);
-    }
-
     return undefined;
   }
 
@@ -182,55 +168,6 @@ export class CompositeCompilerHost implements ts.CompilerHost {
 
     if (this._writer) {
       this._writer(filename, data, writeByteOrderMark, onError);
-    }
-  }
-
-  private _readFromFile(filename: string, languageVersion: ts.ScriptTarget, onError?: (message: string) => void): ts.SourceFile {
-    let text: string = null;
-    try {
-      text = ts.sys.readFile(path.normalize(filename));
-    } catch (e) {
-      if (onError) {
-        onError(e.message);
-      }
-
-      text = '';
-    }
-    return text !== undefined ? ts.createSourceFile(filename, text, languageVersion, false) : undefined;
-  }
-
-  private _writeToFile(fileName: string, data: string, writeByteOrderMark: boolean, onError?: (message: string) => void) {
-    let existingDirectories: ts.Map<boolean> = {};
-
-    function directoryExists(directoryPath: string): boolean {
-      if (ts.hasProperty(existingDirectories, directoryPath)) {
-        return true;
-      }
-      if (ts.sys.directoryExists(directoryPath)) {
-        existingDirectories[directoryPath] = true;
-        return true;
-      }
-      return false;
-    }
-
-    function ensureDirectoriesExist(directoryPath: string) {
-      if (directoryPath.length > ts.getRootLength(directoryPath) && !directoryExists(directoryPath)) {
-        let parentDirectory = ts.getDirectoryPath(directoryPath);
-        ensureDirectoriesExist(parentDirectory);
-        ts.sys.createDirectory(directoryPath);
-      }
-    }
-
-    try {
-      if (this._writer) {
-        this._writer(fileName, data, writeByteOrderMark, onError);
-      } else {
-        ensureDirectoriesExist(ts.getDirectoryPath(ts.normalizePath(fileName)));
-        ts.sys.writeFile(fileName, data, writeByteOrderMark);
-      }
-      this._outputs[fileName] = (writeByteOrderMark ? '\uFEFF' : '') + data;
-    } catch (e) {
-      if (onError) { onError(e.message); }
     }
   }
 }
