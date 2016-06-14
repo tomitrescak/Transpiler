@@ -28,4 +28,11 @@ Template.hello.events({
     console.log(java2ts.parseTree(source));
     instance.result.set(java2ts.transpile(source).text);
   },
+  'click .javascript'(event, instance) {
+    var source = document.getElementById('source').value;
+    // increment the counter when button is clicked
+    var ts = java2ts.transpile(source).text;
+    var js = ts2js.compileString(ts, null, null, function(err) { console.log(err) })
+    instance.result.set(js);
+  },
 });

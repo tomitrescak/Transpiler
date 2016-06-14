@@ -39,8 +39,6 @@ function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs?: any,
   if (host.readsFrom === SourceType.String) {
     sources.forEach(s => host.addSource(s.filename, s.contents));
     files = host.getSourcesFilenames();
-  } else {
-    files = ts.map(sources, (s: any) => s.filename).concat(commandLine.fileNames);
   }
 
   let program = ts.createProgram(files, commandLine.options, host);

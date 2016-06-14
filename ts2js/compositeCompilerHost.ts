@@ -155,7 +155,6 @@ export class CompositeCompilerHost implements CompilerHost {
   //////////////////////////////
 
   private _readFromStrings(filename: string, languageVersion: ScriptTarget, onError?: (message: string) => void): SourceFile {
-
     if (this._sources[filename]) {
       return createSourceFile(filename, this._sources[filename], languageVersion, false);
     }
