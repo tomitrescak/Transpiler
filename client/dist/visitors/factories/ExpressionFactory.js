@@ -35,6 +35,10 @@ var ExpressionFactory = (function () {
                 return new Expressions.MethodInvocationVisitor(parent, node);
             case 'SuperMethodInvocation':
                 return new Expressions.SuperMethodInvocationVisitor(parent, node);
+            case 'ArrayInitializer':
+                return new Expressions.ArrayInitializerVisitor(parent, node);
+            case 'ClassInstanceCreation':
+                return new Expressions.ClassInstanceCreationVisitor(parent, node);
             case 'Assignment':
                 return new Expressions.AssignmentVisitor(parent, node);
             default:

@@ -50,6 +50,12 @@ export default {
     },
     MoreCatchClausesNotSupported() {
       return 'Only one catch clause is supported';
+    },
+    ContructorExpressionNotSupported() {
+      return 'Contructor expressions not supported';
+    },
+    ConstructorTypeArgumentsNotSupported() {
+      return 'Contructor type arguments not supported';
     }
   },
   Warnings: {

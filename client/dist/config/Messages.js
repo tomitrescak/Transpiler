@@ -56,6 +56,12 @@ exports.default = {
         },
         MoreCatchClausesNotSupported: function () {
             return 'Only one catch clause is supported';
+        },
+        ContructorExpressionNotSupported: function () {
+            return 'Contructor expressions not supported';
+        },
+        ConstructorTypeArgumentsNotSupported: function () {
+            return 'Contructor type arguments not supported';
         }
     },
     Warnings: {

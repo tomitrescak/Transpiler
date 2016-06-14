@@ -1,7 +1,6 @@
 import Visitor from './Visitor';
 import BlockFactory from './factories/BlockFactory';
 import ExpressionFactory from './factories/ExpressionFactory';
-import BlockVisitor from './BlockVisitor';
 import Messages from '../config/Messages';
 import { SingleVariableDeclarationVisitor } from './VariableDeclarationSingleVisitor';
 
@@ -48,7 +47,7 @@ declare global {
   interface CatchClause extends AstElement {
     node: 'CatchClause';
     body: Block;
-    exception:SingleVariableDeclaration;
+    exception: SingleVariableDeclaration;
   }
 
   interface TryStatement extends AstElement {
@@ -74,7 +73,7 @@ export class IfStatementVisitor extends Visitor<IfStatement> {
     builder.add(') ');
 
     if (expression.returnType !== 'boolean') {
-      this.addError(Messages.Errors.ConditionTypeMismatch, expression.returnType, 'boolean')
+      this.addError(Messages.Errors.ConditionTypeMismatch, expression.returnType, 'boolean');
     }
 
     // if statement
@@ -105,7 +104,7 @@ export class WhileStatementVisitor extends Visitor<WhileStatement> {
     builder.add(') ');
 
     if (expression.returnType !== 'boolean') {
-      this.addError(Messages.Errors.ConditionTypeMismatch, expression.returnType, 'boolean')
+      this.addError(Messages.Errors.ConditionTypeMismatch, expression.returnType, 'boolean');
     }
 
     // body is either block or a single expression
@@ -242,12 +241,12 @@ export class TryStatementVisitor extends Visitor<TryStatement> {
 
     // finally
     if (this.node.finally) {
-      const finally = BlockFactory.create(this.node.finally);
+      const final = BlockFactory.create(this, this.node.finally);
 
       builder.addLine();
       builder.pad(this.indent);
-      builder.add('finally');
-      
+      builder.add('finally ');
+      final.visit(builder);
     }
   }
 }

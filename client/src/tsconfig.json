@@ -36,6 +36,7 @@
     "config/SourceMap.ts",
     "Java2ts.ts",
     "tests/access_checks_test.ts",
+    "tests/classes_test.ts",
     "tests/enum_test.ts",
     "tests/expressions_test.ts",
     "tests/field_declarations_test.ts",

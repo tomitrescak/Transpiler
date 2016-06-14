@@ -110,17 +110,20 @@ export class ParametrizedTypeVisitor extends Visitor<ParametrizedType> implement
 export class ArrayTypeVisitor extends Visitor<ArrayType> implements TypeVisitor {
   name: string;
   originalName: string;
+  nameNode: NameVisitor;
 
   constructor(parent: IVisitor, node: ArrayType) {
     super(parent, node, 'ArrayType');
 
-    this.name = TypeFactory.create(this, node.componentType).name;
+    this.nameNode = TypeFactory.create(this, node.componentType);
+    this.name = this.nameNode.name;
     this.originalName = this.name;
     this.name += '[]'; // add it to the local name
   }
 
   visit(builder: IBuilder) {
-    builder.add(this.name);
+    this.nameNode.visit(builder);
+    builder.add('[]');
   }
 }
 

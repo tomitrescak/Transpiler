@@ -9,6 +9,7 @@ var ExpressionFactory_1 = require('./factories/ExpressionFactory');
 var NameFactory_1 = require('./factories/NameFactory');
 var TypeParameterVisitor_1 = require('./TypeParameterVisitor');
 var Messages_1 = require('../config/Messages');
+var TypeFactory_1 = require('./factories/TypeFactory');
 var order = ['byte', 'short', 'int', 'long', 'float', 'double'];
 var BaseExpression = (function (_super) {
     __extends(BaseExpression, _super);
@@ -385,7 +386,7 @@ var MethodInvocationVisitor = (function (_super) {
         configurable: true
     });
     MethodInvocationVisitor.prototype.visit = function (builder) {
-        //this.findMethodType();
+        // this.findMethodType();
         // if there is no expression (prefix) before the method
         // we either ad this. or static qualifier
         if (this.expression) {
@@ -537,7 +538,7 @@ var SuperFieldAccessVisitor = (function (_super) {
         this.name.visit(builder);
     };
     return SuperFieldAccessVisitor;
-}(Visitor_1.default));
+}(BaseExpression));
 exports.SuperFieldAccessVisitor = SuperFieldAccessVisitor;
 var AssignmentVisitor = (function (_super) {
     __extends(AssignmentVisitor, _super);
@@ -547,6 +548,13 @@ var AssignmentVisitor = (function (_super) {
         this.rightHandSide = ExpressionFactory_1.default.create(this, node.rightHandSide);
         this.operator = node.operator;
     }
+    Object.defineProperty(AssignmentVisitor.prototype, "returnType", {
+        get: function () {
+            return this.rightHandSide.returnType;
+        },
+        enumerable: true,
+        configurable: true
+    });
     AssignmentVisitor.prototype.visit = function (builder) {
         // try to get the variable from the left side
         var variable = this.leftHandSide['variable'];
@@ -564,5 +572,59 @@ var AssignmentVisitor = (function (_super) {
         this.rightHandSide.visit(builder);
     };
     return AssignmentVisitor;
-}(Visitor_1.default));
+}(BaseExpression));
 exports.AssignmentVisitor = AssignmentVisitor;
+var ArrayInitializerVisitor = (function (_super) {
+    __extends(ArrayInitializerVisitor, _super);
+    function ArrayInitializerVisitor(parent, node) {
+        _super.call(this, parent, node, 'ArrayInitializer');
+    }
+    Object.defineProperty(ArrayInitializerVisitor.prototype, "returnType", {
+        get: function () {
+            return 'Array';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ArrayInitializerVisitor.prototype.visit = function (builder) {
+        builder.add('[');
+        builder.join(ExpressionFactory_1.default.createArray(this, this.node.expressions), ',');
+        builder.add(']');
+    };
+    return ArrayInitializerVisitor;
+}(BaseExpression));
+exports.ArrayInitializerVisitor = ArrayInitializerVisitor;
+var ClassInstanceCreationVisitor = (function (_super) {
+    __extends(ClassInstanceCreationVisitor, _super);
+    function ClassInstanceCreationVisitor(parent, node) {
+        _super.call(this, parent, node, 'ClassInstanceCreation');
+        this.type = TypeFactory_1.default.create(this, node.type);
+        if (node.expression) {
+            this.addError(Messages_1.default.Errors.ContructorExpressionNotSupported, JSON.stringify(node.expression));
+        }
+        if (node.typeArguments.length) {
+            this.addError(Messages_1.default.Errors.ConstructorTypeArgumentsNotSupported);
+        }
+    }
+    Object.defineProperty(ClassInstanceCreationVisitor.prototype, "returnType", {
+        get: function () {
+            return this.type.originalName;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ClassInstanceCreationVisitor.prototype.visit = function (builder) {
+        // new keyword
+        builder.add('new ');
+        // type initialiser
+        this.type.visit(builder);
+        builder.add('(');
+        if (this.node.arguments.length) {
+            var args = ExpressionFactory_1.default.createArray(this, this.node.arguments);
+            builder.join(args, ', ');
+        }
+        builder.add(')');
+    };
+    return ClassInstanceCreationVisitor;
+}(Visitor_1.default));
+exports.ClassInstanceCreationVisitor = ClassInstanceCreationVisitor;

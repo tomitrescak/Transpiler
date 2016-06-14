@@ -40,6 +40,10 @@ var EnumDeclarationVisitor = (function (_super) {
     EnumDeclarationVisitor.prototype.findVariable = function (name) {
         return null;
     };
+    EnumDeclarationVisitor.prototype.findField = function (name) { return null; };
+    EnumDeclarationVisitor.prototype.findMethod = function (name) { return null; };
+    EnumDeclarationVisitor.prototype.findMethodInSuperClass = function (name) { return null; };
+    EnumDeclarationVisitor.prototype.findFieldInSuperClass = function (name) { return null; };
     EnumDeclarationVisitor.prototype.visit = function (builder) {
         var _this = this;
         var node = this.node;

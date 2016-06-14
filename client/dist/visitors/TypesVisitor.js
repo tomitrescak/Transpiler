@@ -69,12 +69,14 @@ var ArrayTypeVisitor = (function (_super) {
     __extends(ArrayTypeVisitor, _super);
     function ArrayTypeVisitor(parent, node) {
         _super.call(this, parent, node, 'ArrayType');
-        this.name = TypeFactory_1.default.create(this, node.componentType).name;
+        this.nameNode = TypeFactory_1.default.create(this, node.componentType);
+        this.name = this.nameNode.name;
         this.originalName = this.name;
         this.name += '[]'; // add it to the local name
     }
     ArrayTypeVisitor.prototype.visit = function (builder) {
-        builder.add(this.name);
+        this.nameNode.visit(builder);
+        builder.add('[]');
     };
     return ArrayTypeVisitor;
 }(Visitor_1.default));

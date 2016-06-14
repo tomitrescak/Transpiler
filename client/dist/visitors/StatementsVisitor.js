@@ -179,13 +179,11 @@ var TryStatementVisitor = (function (_super) {
         builder.join(catchClauses, '\n' + this.pad());
         // finally
         if (this.node.finally) {
-            var ;
-            try { }
-            finally { }
-            BlockFactory_1.default.create(this.node.finally);
+            var final = BlockFactory_1.default.create(this, this.node.finally);
             builder.addLine();
             builder.pad(this.indent);
-            builder.add('finally');
+            builder.add('finally ');
+            final.visit(builder);
         }
     };
     return TryStatementVisitor;

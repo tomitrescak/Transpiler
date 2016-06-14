@@ -59,6 +59,11 @@ export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> implements 
     return null;
   }
 
+  findField(name: string): IVariableVisitor { return null; }
+  findMethod(name: string): IMethodVisitor { return null; }
+  findMethodInSuperClass(name: string): IMethodVisitor { return null; }
+  findFieldInSuperClass(name: string): IVariableVisitor { return null; }
+
   visit(builder: IBuilder) {
     const { node } = this;
     const constants = node.enumConstants.map((c: EnumConstantDeclaration) => new EnumConstantDeclarationVisitor(this, c));

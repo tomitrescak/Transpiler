@@ -94,6 +94,11 @@
       float d = 5.7f;
       double e = 7.8;
       double f = 0x56;
+      int[] g = {1,2,3};
+      int[][] h = {{1,2},{3,4}};
+      String[] i = {"a", "b"};
+      M j = new M(a, 3);
+      M<N> k = new M<N>();
     }
   output: |
     class tomi {
@@ -103,6 +108,11 @@
       d: number = 5.7;
       e: number = 7.8;
       f: number = 0x56;
+      g: number[] = [1,2,3];
+      h: number[][] = [[1,2],[3,4]];
+      i: string[] = ["a","b"];
+      j: M = new M(this.a, 3);
+      k: M<N> = new M<N>();
     }
 
 # TEST Case

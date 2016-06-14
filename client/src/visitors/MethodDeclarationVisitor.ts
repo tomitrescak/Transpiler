@@ -47,12 +47,18 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
     this.variables = [];
     this.name = NameFactory.create(this, node.name);
 
-    if (!node.returnType2) {
-      this.addError(Messages.Errors.MissingReturnType);
-      return;
+    // function parameters created first so that block has access to their definition
+    if (node.parameters.length) {
+      this.parameters = new SingleVariableDeclarationsVisitor(this, node.parameters);
     }
 
-    this.returnType = TypeFactory.create(this, node.returnType2);
+    if (node.returnType2) {
+      this.returnType = TypeFactory.create(this, node.returnType2);
+    } else {
+      if (!node.constructor) {
+        this.addError(Messages.Errors.MissingReturnType);
+      }
+    }
     if (node.body) {
       this.body = new BlockVisitor(this, node.body);
     }
@@ -61,11 +67,6 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
     // type parameters
     if (node.typeParameters.length) {
       this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
-    }
-
-    // function parameters
-    if (node.parameters.length) {
-      this.parameters = new SingleVariableDeclarationsVisitor(this, node.parameters);
     }
 
     // add this method to the list of methods of the parent
@@ -84,13 +85,17 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
     }
 
     // example: <X,Y> int[][] name(String n, int g[][], M<T> t) throws Ex {  }
-    this.name.visit(builder);
+    if (this.node.constructor) {
+      builder.add('constructor');
+    } else {
+      this.name.visit(builder);
+    }
 
     // type parameters
     if (this.typeParameters) {
       this.typeParameters.visit(builder);
     }
-
+    console.log(this.node.node)
     // header
     builder.add('(');
     if (this.parameters) {
@@ -102,8 +107,9 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
       // type
       builder.add(': ');
       this.returnType.visit(builder);
-      builder.add(' ');
     }
+
+    builder.add(' ');
 
     // body
     if (this.body) {

@@ -33,6 +33,10 @@ export default class ExpressionFactory {
         return new Expressions.MethodInvocationVisitor(parent, node as MethodInvocation);
       case 'SuperMethodInvocation':
         return new Expressions.SuperMethodInvocationVisitor(parent, node as SuperMethodInvocation);
+      case 'ArrayInitializer':
+        return new Expressions.ArrayInitializerVisitor(parent, node as ArrayInitializer);
+      case 'ClassInstanceCreation':
+        return new Expressions.ClassInstanceCreationVisitor(parent, node as ClassInstanceCreation);
       case 'Assignment':
         return new Expressions.AssignmentVisitor(parent, node as Assignment);
       default:
