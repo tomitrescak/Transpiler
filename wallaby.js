@@ -3,16 +3,20 @@ module.exports = (wallaby) => {
 
   return {
     files: [
-      "imports/parser.js",
+      "pegjs/parser.js",
       "client/src/tests/stubs.js",
-      "client/src/*.ts",
-      "client/src/config/*.ts",
-      "client/src/visitors/*.ts",
-      "client/src/visitors/factories/*.ts",
+      "java2ts/*.js",
+      "java2ts/*.ts",
+      "java2ts/config/*.ts",
+      "java2ts/visitors/*.ts",
+      "java2ts/visitors/factories/*.ts",
+      "ts2js/typescript/**/*.ts",
+      "ts2js/*.ts"
     ],
     tests: [
-      { pattern: 'client/**/*.yaml', instrument: true, load: false, ignore: false },
-      "client/src/tests/*.ts"
+      { pattern: 'java2ts/**/*.yaml', instrument: true, load: false, ignore: false },
+      "java2ts/tests/*.ts",
+      "ts2js/tests/*.ts"
     ],
 
     compilers: {
