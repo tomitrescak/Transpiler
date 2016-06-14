@@ -15,11 +15,17 @@ exports.default = {
         SimpleEnumsOnlySupported: function () {
             return 'Only simple enums are supported';
         },
-        CannotFindSymbol: function (name) {
+        SymbolNotFound: function (name) {
             return 'Cannot find symbol: ' + name;
         },
         TypeMismatch: function (from, to) {
             return "Type mismatch: Cannot convert from '" + from + "' to '" + to + "'";
+        },
+        ConditionTypeMismatch: function (from, to) {
+            return "Condition type mismatch: Cannot convert from '" + from + "' to boolean";
+        },
+        AssignTypeMismatch: function (from, to) {
+            return "Incorrect assignment: Cannot assign '" + from + "' to '" + to + "'";
         },
         MethodNotFound: function (name) {
             return "Method '" + name + "' not found";
@@ -38,6 +44,12 @@ exports.default = {
         },
         NoSuperClass: function () {
             return 'Class has no parent';
+        },
+        ConstantAssignment: function () {
+            return 'Cannot assign value to a constant';
+        },
+        LabelsNotSupported: function () {
+            return 'Labels are not supported';
         }
     },
     Warnings: {

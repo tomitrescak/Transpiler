@@ -17,6 +17,24 @@
       }
     }
 
+- name: Non Existent fields
+  input: |
+    class A {
+      String c() {
+        int a = b.c.d;
+      }
+    }
+  output: |
+    class A {
+      c(): string {
+        let a: number = b.c.d;
+      }
+    }
+  errors:
+    - SymbolNotFound|2|b
+    - VariableNotFound|2|b
+    - VariableNotFound|2|c
+
 - name: Class Methods
   input: |
     class A {
@@ -60,8 +78,8 @@
       }
     }
   errors:
-    - TypeMismatch|6|double|int
-    - TypeMismatch|7|double|int
+    - AssignTypeMismatch|6|double|int
+    - AssignTypeMismatch|7|double|int
 
 - name: Variable override
   input: |
@@ -106,7 +124,7 @@
       }
     }
   errors:
-    - TypeMismatch|7|double|int
+    - AssignTypeMismatch|7|double|int
 
 - name: Super with super access
   input: |
@@ -133,8 +151,8 @@
       }
     }
   errors:
-    - TypeMismatch|6|double|int
-    - TypeMismatch|7|double|int
+    - AssignTypeMismatch|6|double|int
+    - AssignTypeMismatch|7|double|int
 
 - name: Super with chained access
   input: |
@@ -164,7 +182,7 @@
       }
     }
   errors:
-    - TypeMismatch|8|double|int
+    - AssignTypeMismatch|8|double|int
 
 - name: This access fill
   input: |
@@ -191,7 +209,7 @@
       }
     }
   errors:
-    - TypeMismatch|7|double|int
+    - AssignTypeMismatch|7|double|int
 
 - name: Multple Class Access
   input: |
@@ -210,7 +228,7 @@
       }
     }
   errors:
-    - TypeMismatch|10|double|int
+    - AssignTypeMismatch|10|double|int
   output: |
     class A {
       a: number = 0;
@@ -245,7 +263,7 @@
       }
     }
   errors:
-    - TypeMismatch|3|double|int
+    - AssignTypeMismatch|3|double|int
 
 - name: Multple Class Access For Methods
   input: |
@@ -263,7 +281,7 @@
       }
     }
   errors:
-    - TypeMismatch|10|double|int
+    - AssignTypeMismatch|10|double|int
   output: |
     class A {
       a(): B {}

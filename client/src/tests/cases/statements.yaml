@@ -1,8 +1,8 @@
-- name: if > simple
+- name: Simple
   input: if (true) {}
   output: if (true) {}
 
-- name: if > else if
+- name: Else Ifs
   input: |
     if (true) {}
     else if (true && false) {}
@@ -13,3 +13,62 @@
     if (true) {}
         else if (true && false) {}
         else {}
+
+- name: No Brackets
+  input: |
+    int a;
+      if (true)
+       a++;
+      else if (true && false) a--;
+      else
+         a = 3 ;
+  output: |
+    let a: number = 0;
+        if (true) a++;
+        else if (true && false) a--;
+        else a = 3;
+
+- name: While Statement
+  input: |
+    int a;
+    while (true) {
+      a++;
+      break No;
+      continue No;
+    }
+  output: |
+    let a: number = 0;
+        while (true) {
+          a++;
+          break;
+          continue;
+        }
+  errors:
+    - LabelsNotSupported|5
+    - LabelsNotSupported|6
+
+- name: Switch Statement
+  input: |
+    String a;
+    switch (a) {
+      case "1":
+      case "2":
+        break;
+      case "3":
+        return true;
+      default:
+        return false;
+        break;
+    }
+  output: |
+    let a: string = null;
+        switch (a) {
+          case "1":
+          case "2":
+          break;
+          case "3":
+          return true;
+          default:
+          return false;
+          break;
+        }

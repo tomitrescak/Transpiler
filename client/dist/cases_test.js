@@ -91,7 +91,7 @@ function runTest(file) {
                 var line = builder.sourceMap.getLine(i);
                 // console.log(JSON.stringify(builder.sourceMap))
                 var filtered = line.filter(function (l) { return l.mapping.row === testCase.sourceMap[i]; });
-                chai_1.expect(filtered.length, testName + ": Source map matching failed").to.be.least(1);
+                chai_1.expect(filtered.length, testName + ": Source map matching failed " + i + " -> " + testCase.sourceMap[i] + ", current sourceMap:\n" + JSON.stringify(builder.sourceMap, null, 2)).to.be.least(1);
             };
             for (var i = 0; i < testCase.sourceMap.length; i++) {
                 _loop_4(i);

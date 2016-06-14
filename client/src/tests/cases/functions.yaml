@@ -88,6 +88,30 @@
        this.a(3 + 3.4);
      }
 
+- name: Non Existent
+  longRunning: true
+  input: |
+    A a() {
+      a(b(c));
+    }
+  output: |
+   a(): A {
+       this.a();
+     }
+  errors:
+    - MethodNotFound|2|b
+
+- name: Method Chaining
+  longRunning: true
+  input: |
+    A a() {
+      a(a(a()));
+    }
+  output: |
+   a(): A {
+       this.a(this.a(this.a()));
+     }
+
 - name: Dot Chaining
   input: |
     A a() {

@@ -9,16 +9,29 @@ declare global {
 
 export default class BlockFactory {
   static create(parent: IVisitor, node: AstElement): IVisitor {
-    if (node.node === 'Block') {
-      return new BlockVisitor(parent, <Block>node);
-    } else if (node.node === 'VariableDeclarationStatement') {
-      return new VariableDeclarationStatementVisitor(parent, <VariableDeclarationStatement>node);
-    } else if (node.node === 'ExpressionStatement') {
-      return new ExpressionStatementVisitor(parent, node as ExpressionStatement);
-    } else if (node.node === 'IfStatement') {
-      return new Statements.IfStatementVisitor(parent, node as IfStatement);
-    } else {
-      throw new Error('Unsupported node: ' + node.node);
+    switch (node.node) {
+      case 'Block':
+        return new BlockVisitor(parent, <Block>node);
+      case 'VariableDeclarationStatement':
+        return new VariableDeclarationStatementVisitor(parent, <VariableDeclarationStatement>node);
+      case 'ExpressionStatement':
+        return new ExpressionStatementVisitor(parent, node as ExpressionStatement);
+      case 'IfStatement':
+        return new Statements.IfStatementVisitor(parent, node as IfStatement);
+      case 'WhileStatement':
+        return new Statements.WhileStatementVisitor(parent, node as WhileStatement);
+      case 'SwitchStatement':
+        return new Statements.SwitchStatementVisitor(parent, node as SwitchStatement);
+      case 'SwitchCase':
+        return new Statements.SwitchCaseVisitor(parent, node as SwitchCase);
+      case 'BreakStatement':
+        return new Statements.BreakStatementVisitor(parent, node as BreakStatement);
+      case 'ContinueStatement':
+        return new Statements.ContinueStatementVisitor(parent, node as ContinueStatement);
+      case 'ReturnStatement':
+        return new Statements.ReturnStatementVisitor(parent, node as ReturnStatement);
+      default:
+        throw new Error('Unsupported block statement: ' + node.node);
     }
   }
 

@@ -96,6 +96,7 @@ var NumberLiteralVisitor = (function (_super) {
     return NumberLiteralVisitor;
 }(BaseExpression));
 exports.NumberLiteralVisitor = NumberLiteralVisitor;
+var artihmeticOperators = ['<', '<=', '==', '!=', '>', '>='];
 var InfixExpressionVisitor = (function (_super) {
     __extends(InfixExpressionVisitor, _super);
     function InfixExpressionVisitor(parent, node) {
@@ -117,17 +118,18 @@ var InfixExpressionVisitor = (function (_super) {
     });
     InfixExpressionVisitor.prototype.validate = function () {
         var _a = this, left = _a.left, right = _a.right;
+        var lidx = order.indexOf(left.returnType);
+        var ridx = order.indexOf(right.returnType);
         // detect the return type for string
         if (this.node.operator === '+' && (left.returnType === 'string' || right.returnType === 'string')) {
             this._returnType = 'string';
         }
-        else {
-            this._returnType = left.returnType;
+        else if (artihmeticOperators.indexOf(this.node.operator) >= 0) {
+            // detect arithmetic operations
+            this._returnType = 'boolean';
         }
-        var lidx = order.indexOf(left.returnType);
-        var ridx = order.indexOf(right.returnType);
-        // detect return type for numbers
-        if (lidx > -1 && ridx > -1) {
+        else if (lidx > -1 && ridx > -1) {
+            // detect return type for numbers
             if (lidx < ridx) {
                 this._returnType = right.returnType;
             }
@@ -138,6 +140,9 @@ var InfixExpressionVisitor = (function (_super) {
             if (lidx < 4 && ridx < 4 && this.node.operator === '/') {
                 this.nonFloatingPointType = true;
             }
+        }
+        else {
+            this._returnType = left.returnType;
         }
         // make sure that booleans are also correctly detected
         if (this.node.operator === '&&' || this.node.operator === '||') {
@@ -175,6 +180,12 @@ var PrefixExpressionVisitor = (function (_super) {
     PrefixExpressionVisitor.prototype.visit = function (builder) {
         builder.add(this.node.operator, this.location);
         this.operand.visit(builder);
+        // type check that negation only works on booleans
+        if (this.node.operator === '!') {
+            if (this.operand.returnType !== 'boolean') {
+                this.addError(Messages_1.default.Errors.TypeMismatch, this.operand.returnType, 'boolean');
+            }
+        }
         return this;
     };
     return PrefixExpressionVisitor;
@@ -260,15 +271,15 @@ var VariableReference = (function (_super) {
                     (variable.parent.node.node === 'TypeDeclaration' ||
                         variable.parent.parent.node.node === 'TypeDeclaration');
             // check whether it is a static variable
-            if (variable.isStatic) {
+            if (variable.isStatic || variable.isFinal) {
                 // finf the compilation name
                 var type = variable.owner;
                 this.qualifierName = type.name.name;
             }
         }
         else if (!this.compilationUnit.findDeclaration(this.name.name)) {
-            // it is either a variable belonging to
-            this.addError(Messages_1.default.Errors.CannotFindSymbol, this.name.name);
+            // we tried to get the symbol as a class name A.b from the compilation unit and we failed
+            this.addError(Messages_1.default.Errors.SymbolNotFound, this.name.name);
         }
         // render this. if it is a class member
         if (this.qualifierName) {
@@ -346,7 +357,7 @@ var MethodInvocationVisitor = (function (_super) {
                     }
                 }
                 else {
-                    this.addError(Messages_1.default.Errors.CannotFindSymbol, this.expression['name'].name);
+                    this.addError(Messages_1.default.Errors.SymbolNotFound, this.expression['name'].name);
                 }
             }
             return this._method;
@@ -381,7 +392,11 @@ var MethodInvocationVisitor = (function (_super) {
             this.expression.visit(builder);
         }
         else {
-            if (this.method.modifiers.isStatic) {
+            if (!this.method) {
+                this.addError(Messages_1.default.Errors.MethodNotFound, this.name.name);
+                return;
+            }
+            else if (this.method.modifiers.isStatic) {
                 builder.add(this.method.owner.name.name);
             }
             else if (this.node.node === 'SuperMethodInvocation') {
@@ -533,6 +548,14 @@ var AssignmentVisitor = (function (_super) {
         this.operator = node.operator;
     }
     AssignmentVisitor.prototype.visit = function (builder) {
+        // try to get the variable from the left side
+        var variable = this.leftHandSide['variable'];
+        if (variable) {
+            // check assignment to a constant
+            if (variable.isFinal) {
+                this.addError(Messages_1.default.Errors.ConstantAssignment);
+            }
+        }
         var leftType = this.leftHandSide.returnType;
         var rightType = this.rightHandSide.returnType;
         this.checkAssignment(leftType, rightType);

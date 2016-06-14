@@ -69,7 +69,7 @@ export class SimpleTypeVisitor extends Visitor<SimpleType> implements TypeVisito
     this.name = this.nameNode.name;
 
     if (this.name === 'string') {
-      this.addError(Messages.Errors.CannotFindSymbol, 'string');
+      this.addError(Messages.Errors.SymbolNotFound, 'string');
     }
   }
 

@@ -1,0 +1,46 @@
+- name: While Statement Check Boolean
+  input: |
+    int a() {}
+      boolean b() {}
+      void c() {
+        int d;
+        boolean e;
+        while (d) { d++; }
+        while (a()) { d++; }
+        while (e) { d++; }
+        while (b()) { d++; }
+        while (a() && b()) { d++; }
+        while (d && e) { d++; }
+        while (b() && e) { d++; }
+      }
+  errors:
+    - ConditionTypeMismatch|6|int|boolean
+    - ConditionTypeMismatch|7|int|boolean
+    - ConditionTypeMismatch|10|int|boolean
+    - TypeMismatch|10|int|boolean
+    - ConditionTypeMismatch|11|int|boolean
+    - TypeMismatch|11|int|boolean
+
+- name: If Statement Check Boolean
+  input: |
+    int a() {}
+      boolean b() {}
+      void c() {
+        int d;
+        boolean e;
+        if (d) { d++; }
+        if (a()) { d++; }
+        if (e) { d++; }
+        if (b()) { d++; }
+        if (a() && b()) { d++; }
+        if (d && e) { d++; }
+        if (b() && e) { d++; }
+        if (d > 3) { d++; }
+      }
+  errors:
+    - ConditionTypeMismatch|6|int|boolean
+    - ConditionTypeMismatch|7|int|boolean
+    - ConditionTypeMismatch|10|int|boolean
+    - TypeMismatch|10|int|boolean
+    - ConditionTypeMismatch|11|int|boolean
+    - TypeMismatch|11|int|boolean

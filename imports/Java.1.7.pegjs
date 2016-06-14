@@ -1210,7 +1210,8 @@ UnaryExpression
         : {
           node:    'PrefixExpression',
           operator: operator,
-          operand:  operand
+          operand:  operand,
+          location: simpleLocation()
         };
     }
     / UnaryExpressionNotPlusMinus

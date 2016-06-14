@@ -112,4 +112,4 @@
       string a;
     }
   errors:
-    - CannotFindSymbol|1|string
+    - SymbolNotFound|1|string

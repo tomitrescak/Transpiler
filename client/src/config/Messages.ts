@@ -9,11 +9,17 @@ export default {
     SimpleEnumsOnlySupported() {
       return 'Only simple enums are supported';
     },
-    CannotFindSymbol(name: string) {
+    SymbolNotFound(name: string) {
       return 'Cannot find symbol: ' + name;
     },
     TypeMismatch(from: string, to: string) {
       return `Type mismatch: Cannot convert from '${from}' to '${to}'`;
+    },
+    ConditionTypeMismatch(from: string, to: string) {
+      return `Condition type mismatch: Cannot convert from '${from}' to boolean`;
+    },
+    AssignTypeMismatch(from: string, to: string) {
+      return `Incorrect assignment: Cannot assign '${from}' to '${to}'`;
     },
     MethodNotFound(name: string) {
       return `Method '${name}' not found`;
@@ -32,6 +38,12 @@ export default {
     },
     NoSuperClass() {
       return 'Class has no parent';
+    },
+    ConstantAssignment() {
+      return 'Cannot assign value to a constant';
+    },
+    LabelsNotSupported() {
+      return 'Labels are not supported';
     }
   },
   Warnings: {

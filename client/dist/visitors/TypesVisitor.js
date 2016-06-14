@@ -38,7 +38,7 @@ var SimpleTypeVisitor = (function (_super) {
         this.originalName = this.nameNode.name;
         this.name = this.nameNode.name;
         if (this.name === 'string') {
-            this.addError(Messages_1.default.Errors.CannotFindSymbol, 'string');
+            this.addError(Messages_1.default.Errors.SymbolNotFound, 'string');
         }
     }
     SimpleTypeVisitor.prototype.visit = function (builder) {

@@ -42,7 +42,7 @@ var Visitor = (function () {
             // check if type exists
             if (!type) {
                 this.addError(Messages_1.default.Errors.VariableNotFound, child.name.name);
-                throw new Error(Messages_1.default.Errors.VariableNotFound(child.name.name));
+                return;
             }
             // in case this is the last variable of the chain we return its type
             if (Array.isArray(nodeName) && nodeName.indexOf(visitor.parent.node.node) === -1 ||
@@ -230,15 +230,22 @@ var Visitor = (function () {
         // check numbers
         if (fidx > -1 && iidx > -1) {
             if (fidx < iidx) {
-                this.addError(Messages_1.default.Errors.TypeMismatch, right, left);
+                this.addError(Messages_1.default.Errors.AssignTypeMismatch, right, left);
             }
         }
-        // strings
+        // strings and chars
         if (left === 'String' && right === 'char') {
-            this.addError(Messages_1.default.Errors.TypeMismatch, right, left);
+            this.addError(Messages_1.default.Errors.AssignTypeMismatch, right, left);
         }
         if (left === 'char' && right === 'String') {
-            this.addError(Messages_1.default.Errors.TypeMismatch, right, left);
+            this.addError(Messages_1.default.Errors.AssignTypeMismatch, right, left);
+        }
+        // booleans
+        if (left === 'boolean' && right !== 'boolean') {
+            this.addError(Messages_1.default.Errors.AssignTypeMismatch, right, left);
+        }
+        if (right === 'boolean' && left !== 'boolean') {
+            this.addError(Messages_1.default.Errors.AssignTypeMismatch, right, left);
         }
     };
     /**

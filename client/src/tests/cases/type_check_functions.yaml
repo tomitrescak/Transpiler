@@ -8,7 +8,7 @@
       }
     }
   errors:
-    - TypeMismatch|3|double|int
+    - AssignTypeMismatch|3|double|int
 
 - name: Types > Int Rounding
   input: |
@@ -42,7 +42,7 @@
       }
     }
   errors:
-    - TypeMismatch|3|double|int
+    - AssignTypeMismatch|3|double|int
 
 # - name: Types > Automated rounding of functions
 #   ignored: true

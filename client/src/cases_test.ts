@@ -123,7 +123,7 @@ export default function runTest(file: CaseFile) {
         const line = builder.sourceMap.getLine(i);
         // console.log(JSON.stringify(builder.sourceMap))
         const filtered = line.filter((l) => l.mapping.row === testCase.sourceMap[i]);
-        expect(filtered.length, `${testName}: Source map matching failed`).to.be.least(1);
+        expect(filtered.length, `${testName}: Source map matching failed ${i} -> ${testCase.sourceMap[i]}, current sourceMap:\n${JSON.stringify(builder.sourceMap,null,2)}`).to.be.least(1);
       }
     }
 

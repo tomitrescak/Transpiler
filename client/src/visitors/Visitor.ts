@@ -83,7 +83,8 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       // check if type exists
       if (!type) {
         this.addError(Messages.Errors.VariableNotFound, child.name.name);
-        throw new Error(Messages.Errors.VariableNotFound(child.name.name));
+        return;
+        // throw new Error(Messages.Errors.VariableNotFound(child.name.name));
       }
 
       // in case this is the last variable of the chain we return its type
@@ -268,16 +269,23 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
     // check numbers
     if (fidx > -1 && iidx > -1) {
       if (fidx < iidx) {
-        this.addError(Messages.Errors.TypeMismatch, right, left);
+        this.addError(Messages.Errors.AssignTypeMismatch, right, left);
       }
     }
 
-    // strings
+    // strings and chars
     if (left === 'String' && right === 'char') {
-      this.addError(Messages.Errors.TypeMismatch, right, left);
+      this.addError(Messages.Errors.AssignTypeMismatch, right, left);
     }
     if (left === 'char' && right === 'String') {
-      this.addError(Messages.Errors.TypeMismatch, right, left);
+      this.addError(Messages.Errors.AssignTypeMismatch, right, left);
+    }
+    // booleans
+    if (left === 'boolean' && right !== 'boolean') {
+      this.addError(Messages.Errors.AssignTypeMismatch, right, left);
+    }
+    if (right === 'boolean' && left !== 'boolean') {
+      this.addError(Messages.Errors.AssignTypeMismatch, right, left);
     }
   }
 

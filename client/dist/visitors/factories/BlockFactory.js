@@ -7,20 +7,29 @@ var BlockFactory = (function () {
     function BlockFactory() {
     }
     BlockFactory.create = function (parent, node) {
-        if (node.node === 'Block') {
-            return new BlockVisitor_1.BlockVisitor(parent, node);
-        }
-        else if (node.node === 'VariableDeclarationStatement') {
-            return new VariableDeclarationStatementVisitor_1.default(parent, node);
-        }
-        else if (node.node === 'ExpressionStatement') {
-            return new ExpressionsVisitors_1.ExpressionStatementVisitor(parent, node);
-        }
-        else if (node.node === 'IfStatement') {
-            return new Statements.IfStatementVisitor(parent, node);
-        }
-        else {
-            throw new Error('Unsupported node: ' + node.node);
+        switch (node.node) {
+            case 'Block':
+                return new BlockVisitor_1.BlockVisitor(parent, node);
+            case 'VariableDeclarationStatement':
+                return new VariableDeclarationStatementVisitor_1.default(parent, node);
+            case 'ExpressionStatement':
+                return new ExpressionsVisitors_1.ExpressionStatementVisitor(parent, node);
+            case 'IfStatement':
+                return new Statements.IfStatementVisitor(parent, node);
+            case 'WhileStatement':
+                return new Statements.WhileStatementVisitor(parent, node);
+            case 'SwitchStatement':
+                return new Statements.SwitchStatementVisitor(parent, node);
+            case 'SwitchCase':
+                return new Statements.SwitchCaseVisitor(parent, node);
+            case 'BreakStatement':
+                return new Statements.BreakStatementVisitor(parent, node);
+            case 'ContinueStatement':
+                return new Statements.ContinueStatementVisitor(parent, node);
+            case 'ReturnStatement':
+                return new Statements.ReturnStatementVisitor(parent, node);
+            default:
+                throw new Error('Unsupported block statement: ' + node.node);
         }
     };
     BlockFactory.createArray = function (parent, node) {
