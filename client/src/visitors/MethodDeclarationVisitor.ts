@@ -40,12 +40,29 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
   modifiers: ModifiersVisitor;
   parameters: SingleVariableDeclarationsVisitor;
   body: BlockVisitor;
+  isConstructor: boolean;
 
   constructor(parent: IVisitor, node: MethodDeclaration) {
     super(parent, node, 'MethodDeclaration');
 
     this.variables = [];
     this.name = NameFactory.create(this, node.name);
+    this.isConstructor = node.constructor;
+
+    // currently we support only one constructor and no method overloading
+    const type = parent as ITypeDeclarationVisitor;
+    if (node.constructor) {
+      const filtered = type.methods.filter((m) => m.isConstructor);
+      if (filtered.length) {
+        this.addError(Messages.Errors.ConstructorOverloadingNotSupported);
+      }
+    } else {
+      const filtered = type.methods.filter((m) => m.name.name === this.name.name);
+      if (filtered.length) {
+        this.addError(Messages.Errors.MethodOverloadingNotSupported);
+      }
+    }
+
 
     // function parameters created first so that block has access to their definition
     if (node.parameters.length) {

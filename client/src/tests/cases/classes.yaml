@@ -12,3 +12,21 @@
         a++;
       }
     }
+
+- name: Constructor overloading
+  input: |
+    class Foo {
+      Foo(int a) {}
+      Foo(int b, int c) {}
+    }
+  errors:
+    - ConstructorOverloadingNotSupported|2
+
+- name: Method overloading
+  input: |
+    class Foo {
+      int a(int a) {}
+      int a(int b, int c) {}
+    }
+  errors:
+    - MethodOverloadingNotSupported|2

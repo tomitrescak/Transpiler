@@ -15,9 +15,25 @@ var Messages_1 = require('../config/Messages');
 var MethodDeclarationVisitor = (function (_super) {
     __extends(MethodDeclarationVisitor, _super);
     function MethodDeclarationVisitor(parent, node) {
+        var _this = this;
         _super.call(this, parent, node, 'MethodDeclaration');
         this.variables = [];
         this.name = NameFactory_1.default.create(this, node.name);
+        this.isConstructor = node.constructor;
+        // currently we support only one constructor and no method overloading
+        var type = parent;
+        if (node.constructor) {
+            var filtered = type.methods.filter(function (m) { return m.isConstructor; });
+            if (filtered.length) {
+                this.addError(Messages_1.default.Errors.ConstructorOverloadingNotSupported);
+            }
+        }
+        else {
+            var filtered = type.methods.filter(function (m) { return m.name.name === _this.name.name; });
+            if (filtered.length) {
+                this.addError(Messages_1.default.Errors.MethodOverloadingNotSupported);
+            }
+        }
         // function parameters created first so that block has access to their definition
         if (node.parameters.length) {
             this.parameters = new VariableDeclarationSingleVisitor_1.default(this, node.parameters);

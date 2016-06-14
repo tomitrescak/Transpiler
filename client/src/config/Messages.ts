@@ -56,6 +56,12 @@ export default {
     },
     ConstructorTypeArgumentsNotSupported() {
       return 'Contructor type arguments not supported';
+    },
+    ConstructorOverloadingNotSupported() {
+      return 'Constructor overloading is not supported';
+    },
+    MethodOverloadingNotSupported() {
+      return 'Method overloading is not supported';
     }
   },
   Warnings: {

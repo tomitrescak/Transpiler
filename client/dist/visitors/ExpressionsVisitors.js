@@ -626,5 +626,5 @@ var ClassInstanceCreationVisitor = (function (_super) {
         builder.add(')');
     };
     return ClassInstanceCreationVisitor;
-}(Visitor_1.default));
+}(BaseExpression));
 exports.ClassInstanceCreationVisitor = ClassInstanceCreationVisitor;

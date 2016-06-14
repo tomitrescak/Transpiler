@@ -62,6 +62,12 @@ exports.default = {
         },
         ConstructorTypeArgumentsNotSupported: function () {
             return 'Contructor type arguments not supported';
+        },
+        ConstructorOverloadingNotSupported: function () {
+            return 'Constructor overloading is not supported';
+        },
+        MethodOverloadingNotSupported: function () {
+            return 'Method overloading is not supported';
         }
     },
     Warnings: {
