@@ -1,0 +1,303 @@
+- name: Class Members
+  input: |
+    class A {
+      int d;
+      static int b;
+
+      String c() {
+        int a = d + this.d + b + A.b;
+      }
+    }
+  output: |
+    class A {
+      d: number = 0;
+      static b: number = 0;
+      c(): string {
+        let a: number = this.d + this.d + A.b + A.b;
+      }
+    }
+
+- name: Non Existent fields
+  input: |
+    class A {
+      String c() {
+        int a = b.c.d;
+      }
+    }
+  output: |
+    class A {
+      c(): string {
+        let a: number = b.c.d;
+      }
+    }
+  errors:
+    - SymbolNotFound|2|b
+
+- name: Class Methods
+  input: |
+    class A {
+      int d() {}
+      static int b() {}
+      String c() {
+        int a = d() + this.d() + b() + A.b();
+      }
+    }
+  output: |
+    class A {
+      d(): number {}
+      static b(): number {}
+      c(): string {
+        let a: number = this.d() + this.d() + A.b() + A.b();
+      }
+    }
+
+- name: Super access
+  input: |
+    class X {
+      double x;
+      double m() {}
+    }
+    class Y extends X {
+      int b() {
+        int c = x;
+        int d = m();
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+      m(): number {}
+    }
+
+    class Y extends X {
+      b(): number {
+        let c: number = this.x;
+        let d: number = this.m();
+      }
+    }
+  errors:
+    - AssignTypeMismatch|6|double|int
+
+- name: Variable override
+  input: |
+    class Y {
+      int a;
+      int b() {
+        int a;
+        int b = a;
+      }
+    }
+  output: |
+    class Y {
+      a: number = 0;
+      b(): number {
+        let a: number = 0;
+        let b: number = a;
+      }
+    }
+
+- name: This access
+  input: |
+    class X {
+      double x;
+    }
+    class A {
+      int a;
+      X y;
+      int b() {
+        int c = this.y.x;
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+    }
+
+    class A {
+      a: number = 0;
+      y: X = null;
+      b(): number {
+        let c: number = this.y.x;
+      }
+    }
+  errors:
+    - AssignTypeMismatch|7|double|int
+
+- name: Super with super access
+  input: |
+    class X {
+      double x;
+      double y() {}
+    }
+    class A extends X {
+      int b() {
+        int c = super.x;
+        c = super.y();
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+      y(): number {}
+    }
+
+    class A extends X {
+      b(): number {
+        let c: number = super.x;
+        c = super.y();
+      }
+    }
+  errors:
+    - AssignTypeMismatch|6|double|int
+    - AssignTypeMismatch|7|double|int
+
+- name: Super with chained access
+  input: |
+    class Y {
+      double y;
+    }
+    class X {
+      Y x;
+    }
+    class A extends X {
+      int b() {
+        int c = super.x.y;
+      }
+    }
+  output: |
+    class Y {
+      y: number = 0;
+    }
+
+    class X {
+      x: Y = null;
+    }
+
+    class A extends X {
+      b(): number {
+        let c: number = super.x.y;
+      }
+    }
+  errors:
+    - AssignTypeMismatch|8|double|int
+
+- name: This access fill
+  input: |
+    class X {
+      double x;
+    }
+    class A {
+      int a;
+      X y;
+      int b() {
+        int c = y.x;
+      }
+    }
+  output: |
+    class X {
+      x: number = 0;
+    }
+
+    class A {
+      a: number = 0;
+      y: X = null;
+      b(): number {
+        let c: number = this.y.x;
+      }
+    }
+  errors:
+    - AssignTypeMismatch|7|double|int
+
+- name: Multple Class Access
+  input: |
+    class A {
+      double a;
+    }
+    class B {
+      A b;
+      static int s;
+    }
+    class C {
+      B c;
+      int d() {
+        int x = c.b.a;
+        int y = B.s;
+      }
+    }
+  errors:
+    - AssignTypeMismatch|10|double|int
+  output: |
+    class A {
+      a: number = 0;
+    }
+
+    class B {
+      b: A = null;
+      static s: number = 0;
+    }
+
+    class C {
+      c: B = null;
+      d(): number {
+        let x: number = this.c.b.a;
+        let y: number = B.s;
+      }
+    }
+
+- name: Type check static members
+  input: |
+    class A {
+      static double b;
+      String c() {
+        int a = b;
+      }
+    }
+  output: |
+    class A {
+      static b: number = 0;
+      c(): string {
+        let a: number = A.b;
+      }
+    }
+  errors:
+    - AssignTypeMismatch|3|double|int
+
+- name: Multple Class Access For Methods
+  input: |
+    class A {
+      B a() {}
+    }
+    class B {
+      double x;
+      A b;
+    }
+    class C {
+      B c;
+      int d() {
+        int x = c.b.a().b.a().x;
+      }
+    }
+  errors:
+    - AssignTypeMismatch|10|double|int
+  output: |
+    class A {
+      a(): B {}
+    }
+
+    class B {
+      x: number = 0;
+      b: A = null;
+    }
+
+    class C {
+      c: B = null;
+      d(): number {
+        let x: number = this.c.b.a().b.a().x;
+      }
+    }
+
+
+# # double d;
+# # int d() {
+#   int a = this.d
+# }

@@ -1,0 +1,10 @@
+# TEST Case
+- name: TypeDeclaration
+  input: interface tomi {}
+  output: |
+    interface tomi {}
+
+# TEST Case
+- input: class tomi {}
+  output: |
+    class tomi {}

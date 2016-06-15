@@ -1,0 +1,106 @@
+# TEST Case
+- name: string
+  input: string a;
+  errors:
+    - SymbolNotFound|1|string
+
+- name: double to int
+  input: int a = 3.1;
+  errors:
+    - AssignTypeMismatch|1|double|int
+
+- name: float to int
+  input: int a = 3.1f;
+  errors:
+    - AssignTypeMismatch|1|float|int
+
+- name: double to float
+  input: float a = 3.1;
+  errors:
+    - AssignTypeMismatch|1|double|float
+
+- name: double to float
+  input: float a = 3.1d;
+  errors:
+    - AssignTypeMismatch|1|double|float
+
+- name: long to int
+  input: byte a = 3.1;
+  errors:
+    - AssignTypeMismatch|1|double|byte
+
+- name: byte length
+  input: byte a = 130;
+  errors:
+    - AssignTypeMismatch|1|short|byte
+
+- name: short length
+  input: short a = 1300000;
+  errors:
+    - AssignTypeMismatch|1|int|short
+
+- name: char to String
+  input: String a = 'm';
+  errors:
+    - AssignTypeMismatch|1|char|String
+
+- name: String to left boolean
+  input: String a = true && "m";
+  errors:
+    - TypeMismatch|1|string|boolean
+
+- name: String to right boolean
+  input: String a = "m" && true;
+  errors:
+    - TypeMismatch|1|string|boolean
+
+- name: Automated Rounding
+  input: int a = 4 / 3;
+  output: a: number = (4 / 3|0);
+
+- name: Variable With Booleans
+  input: |
+    int a;
+    boolean b;
+    boolean c = a && b;
+  errors:
+    - TypeMismatch|3|int|boolean
+
+- name: Variable With Booleans2
+  input: |
+    boolean a;
+    double b;
+    boolean c = a && b;
+  errors:
+    - TypeMismatch|3|double|boolean
+
+- name: Negation
+  input: |
+    int a;
+    boolean c = !a;
+  errors:
+    - TypeMismatch|2|int|boolean
+
+- name: Arithmetic expressions
+  input: |
+    int a;
+    boolean c;
+    void foo() {
+      c = a;
+      c = a > 2;
+      c = a >= 2;
+      c = a < 2;
+      c = a <= 2;
+      c = a == 2;
+      c = a != 2;
+    }
+  errors:
+    - AssignTypeMismatch|4|int|boolean
+
+
+- name: Variable integers
+  input: |
+    double a;
+    int b = a;
+  errors:
+    - AssignTypeMismatch|2|double|int

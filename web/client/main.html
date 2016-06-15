@@ -1,0 +1,42 @@
+<head>
+  <title>simple</title>
+  <script src="java2ts.js"></script>
+  <script src="ts2js.js"></script>
+</head>
+
+<body>
+  {{>hello }}
+</body>
+
+<template name="hello">
+  <table style="width: 100%" cellpadding="10">
+    <tr>
+      <td style="width: 40%; vertical-align: top">
+        <textarea id="source" style="width: 100%; height: 200px">class Tomi {
+  void foo() {
+
+  }
+}</textarea>
+        <button class="pegjs">PegJS</button>
+        <button class="typescript">Typescript</button>
+        <button class="javascript">Javascript</button>
+      </td>
+      <td style="width: 60%; vertical-align: top">
+        <pre>{{result}}</pre>
+      </td>
+    </tr>
+  </table>
+
+
+
+</template>
+
+<template name="info">
+  <h2>Learn Meteor!</h2>
+  <ul>
+    <li><a href="https://www.meteor.com/try">Do the Tutorial</a></li>
+    <li><a href="http://guide.meteor.com">Follow the Guide</a></li>
+    <li><a href="https://docs.meteor.com">Read the Docs</a></li>
+    <li><a href="https://forums.meteor.com">Discussions</a></li>
+  </ul>
+</template>

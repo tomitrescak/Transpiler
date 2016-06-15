@@ -1,0 +1,125 @@
+- name: Modifiers
+  input: public static int a() {}
+  output: public static a(): number {}
+
+- name: Modifiers shortening
+  input: public static int a() {}
+  output: public static a(): number {}
+
+- name: Type Parameters
+  input: <T,U> int a() {}
+  output: a<T,U>(): number {}
+
+- name: Remove throws
+  input: int a() throws Ex1, Ex2 {}
+  output: a(): number {}
+
+- name: Parameters > Simple
+  input: int a(int b) {};
+  output: a(b: number = 0): number {}
+
+- name: Parameters > Multiple
+  input: int a(int b, String c) {};
+  output: a(b: number = 0, c: string = null): number {}
+
+- name: Parameters > Parameterised
+  input: A a(B<C,D<E>> b) {};
+  output: a(b: B<C,D<E>> = null): A {}
+
+- name: Parameters > Array
+  input: int[][] a(int[] b[]) {};
+  output: a(b: number[][] = null): number[][] {}
+
+- name: Parameters > Variable1
+  input: int a(int b, String... c) {};
+  output: a(b: number = 0, ...c: string[]): number {}
+
+- name: Extra Complex
+  input: public static <T> int[][] func(String a, int[] g[][], M<T> t, int... v) throws Ex1, Ex2 {}
+  output: public static func<T>(a: string = null, g: number[][][] = null, t: M<T> = null, ...v: number[]): number[][] {}
+
+- name: Variables
+  input: |
+    A a() {
+      B b;
+    }
+  output: |
+   a(): A {
+       let b: B = null;
+     }
+
+- name: Constants
+  input: |
+    A a() {
+      final B b;
+    }
+  output: |
+   a(): A {
+       const b: B = null;
+     }
+
+- name: Calls
+  longRunning: true
+  input: |
+    A a() {
+      D d;
+      b(3);
+      b(c(d,d));
+    }
+    B b() {}
+    C c(D d, E e) {}
+  output: |
+   a(): A {
+       let d: D = null;
+       this.b(3);
+       this.b(this.c(d,d));
+     }
+     b(): B {}
+     c(d: D = null, e: E = null): C {}
+
+- name: Expressions
+  longRunning: true
+  input: |
+    A a() {
+      a(3 + 3.4);
+    }
+  output: |
+   a(): A {
+       this.a(3 + 3.4);
+     }
+
+- name: Non Existent
+  longRunning: true
+  input: |
+    A a() {
+      a(b(c));
+    }
+  output: |
+   a(): A {
+       this.a();
+     }
+  errors:
+    - MethodNotFound|2|b
+
+- name: Method Chaining
+  longRunning: true
+  input: |
+    A a() {
+      a(a(a()));
+    }
+  output: |
+   a(): A {
+       this.a(this.a(this.a()));
+     }
+
+- name: Dot Chaining
+  input: |
+    A a() {
+      int a;
+      a(3,a,a() + a()).a(a).e;
+    }
+  output: |
+   a(): A {
+       let a: number = 0;
+       this.a(3,a,this.a() + this.a()).a(a).e;
+     }

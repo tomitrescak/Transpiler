@@ -3,29 +3,34 @@ module.exports = (wallaby) => {
 
   return {
     files: [
-      "imports/parser.js",
+      "pegjs/parser.js",
       "client/src/tests/stubs.js",
-      "client/src/*.ts",
-      "client/src/config/*.ts",
-      "client/src/visitors/*.ts",
+      "java2ts/*.js",
+      "java2ts/*.ts",
+      "java2ts/config/*.ts",
+      "java2ts/visitors/*.ts",
+      "java2ts/visitors/factories/*.ts",
+      "ts2js/*.ts",
+      "java2js/*.ts"
     ],
     tests: [
-      { pattern: 'client/**/*.yaml', instrument: true, load: false, ignore: false },
-      "client/src/tests/*.ts"
+      { pattern: 'java2ts/**/*.yaml', instrument: true, load: false, ignore: false },
+      "java2ts/tests/*.ts",
+      "ts2js/tests/*.ts",
+      "java2js/tests/*.ts"
     ],
-    // There is a weird error with the mui and mantra.
-    // See: https://goo.gl/cLH8ib
-    // Using require here seems to be the error.
-    // Renaming it into `load` just fixed the issue.
+
     compilers: {
-      // "**/*.js*": wallaby.compilers.babel({
-      //   babel: load("babel-core"),
-      //   presets: ["es2015", "stage-2", "react"]
-      // }),
       "**/*.ts*": wallaby.compilers.typeScript({
         module: "commonjs",
         jsx: "react"
       })
+    },
+    testFramework: "mocha",
+    setup: function(wallaby) {
+      //wallaby.testFramework.DEFAULT_TIMEOUT_INTERVAL = 5000;
+      var mocha = wallaby.testFramework;
+      mocha.timeout(60000);
     },
     env: {
       type: "node"

@@ -1,0 +1,18 @@
+# TEST Case
+- name: Const assignment
+  input: |
+    class A {
+      final String a = "2";
+      void b() {
+        a = "3";
+      }
+    }
+  output: |
+    class A {
+      static a: string = "2";
+      b(): void {
+        A.a = "3";
+      }
+    }
+  errors:
+    - ConstantAssignment|3

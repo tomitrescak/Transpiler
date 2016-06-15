@@ -1,0 +1,90 @@
+- name: Types > Check return type
+  ignored: true
+  input: |
+    class Foo {
+      double a() {}
+      void run() {
+         int b = this.a();
+      }
+    }
+  errors:
+    - AssignTypeMismatch|3|double|int
+
+- name: Types > Int Rounding
+  input: |
+    class Foo {
+      int a() {}
+      void run() {
+         int b = a() / this.a();
+      }
+    }
+  output: |
+    class Foo {
+      a(): number {}
+      run(): void {
+        let b: number = (this.a() / this.a()|0);
+      }
+    }
+
+- name: Types > Double No Rounding
+  input: |
+    class Foo {
+      double a() {}
+      void run() {
+         int b = this.a() / a();
+      }
+    }
+  output: |
+    class Foo {
+      a(): number {}
+      run(): void {
+        let b: number = this.a() / this.a();
+      }
+    }
+  errors:
+    - AssignTypeMismatch|3|double|int
+
+# - name: Types > Automated rounding of functions
+#   ignored: true
+#   input: |
+#     class Foo {
+#       int a() {}
+#       int b() {}
+#       void run() {
+#         double d = a() / b();
+#       }
+#     }
+#   output: |
+#     class Foo {
+#       a(): number {}
+#       b(): number {}
+#       run(): void {
+#         let d: number = (a() / b()|0);
+#       }
+#     }
+#
+# - name: Types > Automated rounding of functions
+#   ignoreTemplate: true
+#   input: |
+#     class A {
+#       public int a() {}
+#     }
+#     class B {
+#       int b() {}
+#       void run() {
+#         let c = new A();
+#         double d = c.a() / b();
+#       }
+#     }
+#
+#   output: |
+#     class A {
+#       public int a() {}
+#     }
+#     class B {
+#       int b() {}
+#       void run() {
+#         let c = new A();
+#         double d = c.a() / b();
+#       }
+#     }

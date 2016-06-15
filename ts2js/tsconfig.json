@@ -1,0 +1,47 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": false,
+    "noImplicitAny": true,
+    "removeComments": false,
+    "noLib": false,
+    "preserveConstEnums": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "sourceMap": false,
+    "outDir": "../build-ts2js"
+  },
+  "formatCodeOptions": {
+    "indentSize": 2,
+    "tabSize": 2,
+    "convertTabsToSpaces": true,
+    "insertSpaceAfterCommaDelimiter": true,
+    "insertSpaceAfterSemicolonInForStatements": true,
+    "insertSpaceBeforeAndAfterBinaryOperators": true,
+    "insertSpaceAfterKeywordsInControlFlowStatements": true,
+    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    "insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+    "placeOpenBraceOnNewLineForFunctions": false,
+    "placeOpenBraceOnNewLineForControlBlocks": false
+  },
+  "filesGlob": [
+    "../typings/**/*.ts",
+    "**/*.ts"
+  ],
+  "files": [
+    "../typings/globals/jasmine/index.d.ts",
+    "../typings/index.d.ts",
+    "../typings/java-parser.d.ts",
+    "../typings/modules/chai/index.d.ts",
+    "compiler.ts",
+    "compositeCompilerHost.ts",
+    "index.ts",
+    "lib.ts",
+    "tests/typescript_test.ts",
+    "types.ts"
+  ],
+  "atom": {
+    "rewriteTsconfig": true
+  }
+}

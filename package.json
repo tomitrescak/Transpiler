@@ -2,16 +2,25 @@
   "name": "Transpiler",
   "private": true,
   "scripts": {
-    "start": "meteor run"
+    "java2ts-final": "./node_modules/browserify/bin/cmd.js build-java2ts/Java2ts.js -s java2ts | ./node_modules/uglifyjs/bin/uglifyjs -c > ./web/public/java2ts.js",
+    "java2ts": "./node_modules/browserify/bin/cmd.js build-java2ts/Java2ts.js -s java2ts > ./web/public/java2ts.js",
+    "ts2js-final": "./node_modules/browserify/bin/cmd.js build-ts2js/index.js -s ts2js | ./node_modules/uglifyjs/bin/uglifyjs -c > ./web/public/ts2js.js",
+    "ts2js": "./node_modules/browserify/bin/cmd.js build-ts2js/index.js -s ts2js > ./web/public/ts2js.js",
+    "pegjs": "pegjs --cache ./pegjs/Java.1.7.pegjs ./pegjs/parser.js"
   },
   "dependencies": {
     "java-parser": "0.0.1",
     "left-pad": "^1.1.0",
-    "meteor-node-stubs": "~0.2.0"
+    "meteor-node-stubs": "~0.2.0",
+    "typescript": "^1.8.10"
   },
   "devDependencies": {
+    "browserify": "^13.0.1",
     "chai": "^3.5.0",
     "expect": "^1.20.1",
+    "mocha": "^2.5.3",
+    "uglify": "^0.1.5",
+    "uglifyjs": "^2.4.10",
     "yamljs": "^0.2.7"
   }
 }

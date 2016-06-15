@@ -1,0 +1,11 @@
+- name: Modifiers
+  input: |
+    int a;
+    void b(int a) {
+      int b = a;
+    }
+  output: |
+    a: number = 0;
+      b(a: number = 0): void {
+        let b: number = a;
+      }

@@ -1,0 +1,44 @@
+# TEST Case
+- name: Simple
+  input: |
+    class Foo {
+      Foo(int a, int b) {
+        a++;
+      }
+    }
+  output: |
+    class Foo {
+      constructor(a: number = 0, b: number = 0) {
+        a++;
+      }
+    }
+
+- name: Interface
+  input: |
+    interface Foo {
+      int a = 0;
+      int b(int c);
+    }
+  output: |
+    interface Foo {
+      a: number = 0;
+      b(c: number): number;
+    }
+
+- name: Constructor overloading
+  input: |
+    class Foo {
+      Foo(int a) {}
+      Foo(int b, int c) {}
+    }
+  errors:
+    - ConstructorOverloadingNotSupported|2
+
+- name: Method overloading
+  input: |
+    class Foo {
+      int a(int a) {}
+      int a(int b, int c) {}
+    }
+  errors:
+    - MethodOverloadingNotSupported|2

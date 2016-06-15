@@ -1,0 +1,106 @@
+- name: Simple
+  input: if (true) {}
+  output: if (true) {}
+
+- name: Else Ifs
+  input: |
+    if (true) {}
+    else if (true && false) {}
+    else {
+      // tomi
+    }
+  output: |
+    if (true) {}
+        else if (true && false) {}
+        else {}
+
+- name: No Brackets
+  input: |
+    int a;
+      if (true)
+       a++;
+      else if (true && false) a--;
+      else
+         a = 3 ;
+  output: |
+    let a: number = 0;
+        if (true) a++;
+        else if (true && false) a--;
+        else a = 3;
+
+- name: While Statement
+  input: |
+    int a;
+    while (true) {
+      a++;
+      break No;
+      continue No;
+    }
+  output: |
+    let a: number = 0;
+        while (true) {
+          a++;
+          break;
+          continue;
+        }
+  errors:
+    - LabelsNotSupported|5
+    - LabelsNotSupported|6
+
+- name: Switch Statement
+  input: |
+    String a;
+    switch (a) {
+      case "1":
+      case "2":
+        a++;
+        break;
+      case "3":
+        return true;
+      default:
+        return false;
+        break;
+    }
+  output: |
+    let a: string = null;
+        switch (a) {
+          case "1":
+          case "2":
+          a++;
+          break;
+          case "3":
+          return true;
+          default:
+          return false;
+          break;
+        }
+
+- name: Try-Catch-Finally
+  input: |
+    int a;
+    try (StringBuilder sb = new StringBuilder()) {
+      a++;
+    } catch (Exception1|Exception2 ex) {
+      a--;
+    } catch (Excpetion3 ex) {
+      a--;
+    } finally {
+      a++;
+    }
+  output: |
+    let a: number = 0;
+        try {
+          a++;
+        }
+        catch (ex) {
+          a--;
+        }
+        catch (ex) {
+          a--;
+        }
+        finally {
+          a++;
+        }
+  errors:
+    - TryResourcesNotSupported|3
+    - MoreCatchClausesNotSupported|3
