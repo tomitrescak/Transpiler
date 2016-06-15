@@ -63,7 +63,6 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
       }
     }
 
-
     // function parameters created first so that block has access to their definition
     if (node.parameters.length) {
       this.parameters = new SingleVariableDeclarationsVisitor(this, node.parameters);
@@ -112,7 +111,6 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
     if (this.typeParameters) {
       this.typeParameters.visit(builder);
     }
-    console.log(this.node.node)
     // header
     builder.add('(');
     if (this.parameters) {
@@ -126,11 +124,13 @@ export class MethodDeclarationVisitor extends VariableHolderVisitor<MethodDeclar
       this.returnType.visit(builder);
     }
 
-    builder.add(' ');
-
     // body
     if (this.body) {
+      builder.add(' ');
       this.body.visit(builder);
+    } else {
+      // abstract or interface method
+      builder.add(';');
     }
   }
 }

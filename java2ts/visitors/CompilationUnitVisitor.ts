@@ -18,8 +18,8 @@ declare global {
 export default class CompilationUnitNode extends Visitor<CompilationUnit> {
   declarations: ITypeDeclarationVisitor[];
 
-  constructor(node: CompilationUnit, handler: IHandler) {
-    super(null, node, 'CompilationUnit');
+  constructor(parent: IVisitor, node: CompilationUnit, handler: IHandler) {
+    super(parent, node, 'CompilationUnit');
 
     this.handler = handler;
     this.declarations = TypeDeclarationsFactory.createArray(this, node.types);

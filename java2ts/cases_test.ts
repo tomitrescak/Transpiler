@@ -1,5 +1,5 @@
 import {expect} from 'chai';
-import { parseTree, transpileTree } from './Java2ts';
+import { parseTree, transpileTree } from './index';
 const YAML = require('yamljs');
 
 interface CaseFile {

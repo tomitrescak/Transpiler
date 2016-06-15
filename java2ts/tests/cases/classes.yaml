@@ -13,6 +13,18 @@
       }
     }
 
+- name: Interface
+  input: |
+    interface Foo {
+      int a = 0;
+      int b(int c);
+    }
+  output: |
+    interface Foo {
+      a: number = 0;
+      b(c: number): number;
+    }
+
 - name: Constructor overloading
   input: |
     class Foo {

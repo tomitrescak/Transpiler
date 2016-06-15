@@ -1,176 +1,163 @@
 import * as ts from 'typescript';
+import lib from './lib';
 
-import CompositeCompilerHost from './compositeCompilerHost';
-import { SourceType, FileSource, StringSource } from './types';
-
-function formatError(diagnostic: ts.Diagnostic) {
-  // let output = '';
-  // if (diagnostic.file) {
-  //   let loc = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-  //   output += diagnostic.file.fileName + '(' + loc.line + ',' + loc.character + '): ';
-  // }
-  let category = ts.DiagnosticCategory[diagnostic.category].toLowerCase();
-  // output += category + ' TS' + diagnostic.code + ': ' + diagnostic.messageText + '\n';
-
-  // return output;
-
-  let line: number = null;
-  let character: number = null;
-  let fileName: string = null;
-
-  if (diagnostic.file) {
-    let loc = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-    line = loc.line;
-    character = loc.character;
-    fileName = diagnostic.file.fileName;
-  }
-
-  return {
-    file: fileName,
-    line: line,
-    column: character,
-    category: category,
-    code: diagnostic.code,
-    message: diagnostic.messageText.toString()
-  };
+interface IMessage {
+  file?: string;
+  line: number;
+  column: number;
+  message: string;
 }
 
-function forwardErrors(errors: any, onError: any) {
-  if (typeof onError === 'function') {
-    errors.forEach((e: any) => {
-      e.formattedMessage = formatError(e);
-      onError(e);
+interface ICompiledFile {
+  version?: number;
+  name?: string;
+  source?: string;
+  result?: string;
+}
+
+interface ICompilationResult {
+  files: ts.Map<ICompiledFile>;
+  warnings: IMessage[];
+  errors: IMessage[];
+}
+
+let emit: (fileName: string) => void;
+let files: ts.Map<ICompiledFile> = {};
+let result: ICompilationResult;
+
+export function serviceCompile(file: ICompiledFile): ICompilationResult {
+
+  // change in version
+  if (!files[file.name]) {
+    files[file.name] = {
+      version: 0,
+      name: file.name,
+    };
+  }
+
+  // create new result
+  result = {
+    files: files,
+    warnings: [],
+    errors: []
+  };
+
+  // modify current source
+  files[file.name].source = file.source;
+
+  // emit
+  emit(file.name);
+
+  // return changes
+  return result;
+}
+
+export function initService(rootFileNames: ICompiledFile[], options?: ts.CompilerOptions) {
+  files = {};
+
+  // initialize the list of files
+  rootFileNames.forEach(file => {
+    files[file.name] = {
+      version: 0,
+      source: file.source,
+      name: file.name
+    };
+  });
+
+  // Create the language service host to allow the LS to communicate with the host
+  const servicesHost: ts.LanguageServiceHost = {
+    getScriptFileNames: () => {
+      let names: string[] = [];
+      for (let file in files) {
+        names.push(files[file].name);
+      }
+      return names;
+    },
+    getScriptVersion: (fileName) => files[fileName] && files[fileName].version.toString(),
+    getScriptSnapshot: (fileName) => {
+      if (fileName.substring(fileName.length - 8) === 'lib.d.ts') {
+        return ts.ScriptSnapshot.fromString(lib);
+      }
+      return ts.ScriptSnapshot.fromString(files[fileName].source);
+    },
+    getCurrentDirectory: () => '',
+    getCompilationSettings: () => options,
+    getDefaultLibFileName: (opts) => ts.getDefaultLibFilePath(opts),
+  };
+
+  // Create the language service files
+  const services = ts.createLanguageService(servicesHost, ts.createDocumentRegistry())
+
+  // assign the global emit function
+  emit = (fileName: string) => {
+    // console.log(servicesHost.getScriptFileNames())
+
+    // Update the version to signal a change in the file
+    files[fileName].version++;
+
+    // write the changes to disk
+    emitFile(fileName);
+  };
+
+  // Now let's watch the files
+  rootFileNames.forEach(file => {
+    // First time around, emit all files
+    emitFile(file.name);
+  });
+
+  function emitFile(fileName: string) {
+    let output = services.getEmitOutput(fileName);
+
+    logErrors(fileName);
+
+    if (!output.emitSkipped) {
+      // console.log(`Emitting ${fileName}`);
+    } else {
+      // console.log(`Emitting ${fileName} failed`);
+      logErrors(fileName);
+    }
+
+    output.outputFiles.forEach(o => {
+      files[o.name.replace('.js', '.ts')].result = o.text;
+    });
+  }
+
+  function logErrors(fileName: string) {
+    let allDiagnostics = services.getCompilerOptionsDiagnostics()
+      .concat(services.getSyntacticDiagnostics(fileName))
+      .concat(services.getSemanticDiagnostics(fileName));
+
+    allDiagnostics.forEach(diagnostic => {
+      let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
+      if (diagnostic.file) {
+        let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
+
+        let category = ts.DiagnosticCategory[diagnostic.category].toLowerCase();
+        let mess: IMessage = {
+          message,
+          line: line,
+          column: character,
+          file: diagnostic.file.fileName
+        };
+        if (category === 'warning') {
+          result.warnings.push(mess);
+        } else {
+          result.errors.push(mess);
+        }
+
+        // console.log(`  Error ${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
+      } else {
+        result.errors.push({
+          message,
+          line: 0,
+          column: 0,
+          file: null
+        });
+        // console.log(`  Error: ${message}`);
+      }
     });
   }
 }
 
-function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-function _compile(host: CompositeCompilerHost, sources: Source[], tscArgs?: any, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult {
-
-  if (typeof tscArgs === 'string') {
-    tscArgs = tscArgs.split(' ');
-  } else {
-    tscArgs = tscArgs || [];
-  }
-
-  let commandLine = ts.parseCommandLine(tscArgs);
-  let files: any[];
-
-  if (host.readsFrom === SourceType.String) {
-    sources.forEach(s => host.addSource(s.filename, s.contents));
-    files = host.getSourcesFilenames();
-  }
-
-  let program = ts.createProgram(files, commandLine.options, host);
-
-  // Query for early errors
-  let errors = program.getSyntacticDiagnostics();
-  // todo: make async
-  forwardErrors(errors, onError);
-
-  let emitResult: any;
-
-  // Do not generate code in the presence of early errors
-  if (!errors.length) {
-    // Type check and get semanic errors
-    let semanticErrors = program.getSemanticDiagnostics();
-    // todo: make async
-    forwardErrors(semanticErrors, onError);
-
-    // Generate output
-    emitResult = program.emit();
-    forwardErrors(emitResult.diagnostics, onError);
-
-    errors = semanticErrors.concat(emitResult.diagnostics);
-  }
-
-  return {
-    sources: host.outputs,
-    sourceMaps: emitResult && emitResult.sourceMaps ? emitResult.sourceMaps : [],
-    errors: errors.map((e) => {
-      return formatError(e);
-    })
-  };
-}
-
-export function compileWithHost(host: CompositeCompilerHost, sources: Source[], tscArgs: ts.ParsedCommandLine, options?: CompilerOptions, onError?: (message: any) => void): any
-export function compileWithHost(host: CompositeCompilerHost, sources: Source[], tscArgs: string[], options?: CompilerOptions, onError?: (message: any) => void): any
-export function compileWithHost(host: CompositeCompilerHost, sources: Source[], tscArgs: any, options?: CompilerOptions, onError?: (message: any) => void): any {
-  return _compile(host, sources, tscArgs, options, onError);
-}
-
-export function compile(files: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compile(files: string, tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compile(files: string[], tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compile(files: string[], tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compile(files: any, tscArgs?: any, options?: any, onError?: (message: any) => void): CompilationResult {
-
-  if (typeof files === 'string') {
-    files = [files];
-  }
-
-  return _compile(new CompositeCompilerHost(options),
-    files.map((f: any) => new FileSource(f)),
-    tscArgs, options, onError);
-}
-
-export function compileStrings(input: ts.Map<string>, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileStrings(input: ts.Map<string>, tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileStrings(input: StringSource[], tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileStrings(input: StringSource[], tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileStrings(input: string[], tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileStrings(input: string[], tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileStrings(input: any, tscArgs?: any, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult {
-
-  let host = new CompositeCompilerHost(options)
-    .readFromStrings()
-    .writeToString();
-
-  let sources: any[] = [];
-
-  if (Array.isArray(input) && input.length) {
-    // string[]
-    if (typeof input[0] === 'string') {
-      sources = input.map((s: any) => new StringSource(s));
-    } else if (input[0] instanceof StringSource) {
-      sources = sources.concat(input);
-    } else {
-      throw new Error('Invalid value for input argument');
-    }
-  } else if (typeof input === 'object') {
-    // dictionary
-    for (let k in input) {
-      if (input.hasOwnProperty(k)) {
-        sources.push(new StringSource(input[k], k));
-      }
-    }
-  } else {
-    throw new Error('Invalid value for input argument');
-  }
-
-  return _compile(host, sources, tscArgs, options, onError);
-}
-
-export function compileString(input: StringSource, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileString(input: StringSource, tscArgs?: string[], options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileString(input: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileString(input: string, tscArgs?: string, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult
-export function compileString(input: any, tscArgs?: any, options?: CompilerOptions, onError?: (message: any) => void): CompilationResult {
-  if (typeof input !== 'string' && !(input instanceof StringSource)) {
-    throw new Error('typescript-compiler#compileString: input parameter should be either a string or a StringSource object');
-  }
-
-  if (input === '') { return null; };
-
-  let result = '';
-
-  let host = new CompositeCompilerHost(options)
-    .readFromStrings()
-    .writeToString()
-    .redirectOutput((filename, data) => result += data);
-
-  let resultObj = _compile(host, [input instanceof StringSource ? input : new StringSource(input, 'string.ts')], tscArgs, options, onError);
-
-  return resultObj;
-}
+// Start the watcher
+// watch(currentDirectoryFiles, { module: ts.ModuleKind.CommonJS });

@@ -16,6 +16,7 @@ import Messages from '../config/Messages';
 declare global {
   interface ITypeDeclarationVisitor extends IVariableHolderVisitor, IMethodHolderVisitor {
     name: NameVisitor;
+    interface: boolean;
     superClassType: string;
     findField(name: string): IVariableVisitor;
     findMethod(name: string): IMethodVisitor;
@@ -49,6 +50,7 @@ export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaratio
   superInterfaceTypes: TypeVisitor[];
   bodyDeclarations: IVisitor[];
   fields: FieldDeclarationVisitor[];
+  interface: boolean;
 
   methods: MethodDeclarationVisitor[];
   variables: VariableDeclarationFragmentVisitor[];
@@ -64,6 +66,7 @@ export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaratio
     this.typeDeclarationName = node.interface ? 'interface ' : 'class ';
     this.name = NameFactory.create(this, node.name);
     this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
+    this.interface = node.interface;
 
     if (node.superclassType) {
       this.superClassType = TypeFactory.create(this, node.superclassType).name;

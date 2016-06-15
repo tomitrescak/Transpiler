@@ -92,12 +92,15 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
     // line declarations have extra stuff such as initialiser
     if (lineDeclaration) {
 
-      // add iniitliser
-      builder.add(' = ');
-
       if (this.initialiser) {
+        // add iniitliser
+        builder.add(' = ');
+
         this.initialiser.visit(builder);
-      } else {
+      } else if (!this.owner.interface) {
+        // add iniitliser
+        builder.add(' = ');
+
         // initialise types to default values
         let dinitialiser = '';
         switch (this.type.name) {

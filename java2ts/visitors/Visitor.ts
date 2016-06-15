@@ -18,7 +18,7 @@ declare global {
     indent: number;
     handler: IHandler;
     owner: ITypeDeclarationVisitor;
-    compilationUnit: ICompilationUnitVisitor;
+    //compilationUnit: ICompilationUnitVisitor;
 
 
     addError(error: Function, ...args: any[]): void;
@@ -30,6 +30,7 @@ declare global {
     findSuperClass(): ITypeDeclarationVisitor;
     findVariableInSuperClass(name: string): IVariableVisitor;
     findVariableInParent(parent: IVisitor, name: string): IVariableVisitor;
+    findDeclaration(name: string): ITypeDeclarationVisitor;
   }
 }
 
@@ -62,7 +63,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
         throw new Error(Messages.Errors.MethodNotFound(name));
       }
       const typ = method.returnType.originalName;
-      return this.owner.compilationUnit.findDeclaration(typ);
+      return this.owner.findDeclaration(typ);
     }
   }
 
@@ -102,7 +103,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
       // find the type declaration of this field
       const typeName = field.type.originalName;
-      return this.compilationUnit.findDeclaration(typeName);
+      return this.findDeclaration(typeName);
     } else {
       // this is the end of the referecne chain {A}.b.c.d
       // A can be either a this, super, class memeber or a static reference
@@ -116,17 +117,26 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
           return null;
         }
         const type = field.type.originalName;
-        return this.compilationUnit.findDeclaration(type);
+        return this.findDeclaration(type);
       }
       // possible member is announced without this. expression
       let member = visitor.findVariableInParent(visitor, name);
       if (member) {
-        return this.compilationUnit.findDeclaration(member.type.originalName);
+        return this.findDeclaration(member.type.originalName);
       } else {
         // otherwise is just a static expression
-        return visitor.compilationUnit.findDeclaration(name);
+        return visitor.findDeclaration(name);
       }
     }
+  }
+
+  findDeclaration(name: string): ITypeDeclarationVisitor {
+    // find top level visitor and find the declaration there
+    let parent: IVisitor = this;
+    while (parent.parent != null) {
+      parent = parent.parent;
+    }
+    return parent.findDeclaration(name);
   }
 
   findSuperClass(): ITypeDeclarationVisitor {
@@ -134,7 +144,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
     if (!owner.superClassType) {
       return null;
     }
-    return owner.compilationUnit.findDeclaration(owner.superClassType);
+    return owner.findDeclaration(owner.superClassType);
   }
 
   findVariableInSuperClass(name: string): IVariableVisitor {
@@ -196,9 +206,9 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
     return this.findParent('TypeDeclaration') as ITypeDeclarationVisitor;
   }
 
-  get compilationUnit(): ICompilationUnitVisitor {
-    return this.findParent('CompilationUnit') as ICompilationUnitVisitor;
-  }
+  // get compilationUnit(): ICompilationUnitVisitor {
+  //   return this.findParent('CompilationUnit') as ICompilationUnitVisitor;
+  // }
 
   // methods
 
@@ -295,6 +305,9 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
    * @param  {string  | string[]}    expectedNames [description]
    */
   protected check(node: AstElement | AstElement[], expectedNames: string | string[]): void {
+    if (!node) {
+      return;
+    }
     if (Array.isArray(node)) {
       return;
     }

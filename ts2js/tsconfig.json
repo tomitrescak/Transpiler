@@ -34,8 +34,10 @@
     "../typings/index.d.ts",
     "../typings/java-parser.d.ts",
     "../typings/modules/chai/index.d.ts",
+    "compiler.ts",
     "compositeCompilerHost.ts",
     "index.ts",
+    "lib.ts",
     "tests/typescript_test.ts",
     "types.ts"
   ],

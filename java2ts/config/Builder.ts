@@ -40,8 +40,8 @@ export default class Builder implements IBuilder {
 
   // constructor
 
-  constructor(handler?: IHandler) {
-    this.handler = handler ? handler : new Handler();
+  constructor(handler?: IHandler, fileName?: string) {
+    this.handler = handler ? handler : new Handler(fileName);
     this.text = '';
     this.currentLine = 0;
     this.currentColumn = 0;

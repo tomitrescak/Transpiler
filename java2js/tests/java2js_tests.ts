@@ -1,24 +1,23 @@
 import {expect} from 'chai';
-import { java2js } from '../index';
+import { initService, compile } from '../index';
 
 describe('Java2Js', function() {
+  beforeEach(() => {
+    initService();
+  })
   it('breaks on syntax errors', () => {
-    const source = `
-      class A {
-        int a = Math.round(6)
-      }`;
+    // init compilation service
+
+    const source = `class A {
+  int a = Math.round(6)
+}`;
 
     let error: { message: string} = null;
-    let result: CompilationResult = null;
+    let result: any = null;
 
-    try {
-      result = java2js([{ name: 'File1.java', source: source }]);
-    } catch (ex) {
-      error = ex;
-    }
-
-    expect(result).to.be.null;
-    expect(error).to.not.equal(null);
+    result = compile({ name: 'File1.java', source: source });
+    console.log(result);
+    expect(result.errors.length).to.equal(1);
   });
 
   it('workd well with base library lib.d.ts', () => {
@@ -26,11 +25,22 @@ describe('Java2Js', function() {
       class A {
         int a = Math.round(6);
       }`;
-    const result = java2js([{ name: 'File1.java', source: source }]);
+    let result = compile({ name: 'File1.jave', source: source });
 
-    console.log(result.errors);
+    // console.log(result.errors);
+    expect(result.errors.length).to.equal(1);
 
-    expect(result).to.not.be.undefined;
+    const lib = `
+      class Math {
+        static int round(double num) { return 0; }
+      }`;
+
+    result = compile({ name: 'File2.java', source: lib });
+
+    console.log(result);
+
     expect(result.errors.length).to.equal(0);
+
+    //expect(result.errors.length).to.equal(0);
   });
 });
