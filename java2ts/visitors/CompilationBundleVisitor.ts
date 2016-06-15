@@ -1,5 +1,6 @@
 import Visitor from './Visitor';
 import Builder from '../config/Builder';
+import SourceMap from '../config/SourceMap';
 import CompilationUnitVisitor from './CompilationUnitVisitor';
 
 const parser = require('../../pegjs/parser');
@@ -34,6 +35,7 @@ declare global {
     files: Map<ICompiledFile>;
     warnings: IMessage[];
     errors: IMessage[];
+    sourceMap?: SourceMap;
   }
 }
 
@@ -70,9 +72,13 @@ export default class CompilationBundleVisitor extends Visitor<any> implements IC
     // create a new version
     file.version++;
 
+    // build file
+    const builder = new Builder(null, file.name);
+
     // first parse
     try {
       file.tree = parser.parse(file.source);
+      file.unit = new CompilationUnitVisitor(this, file.tree, builder.handler);
     } catch (ex) {
       compilationResult.errors.push({
         file: file.name,
@@ -89,10 +95,6 @@ export default class CompilationBundleVisitor extends Visitor<any> implements IC
 
     // second compile
     try {
-      // build file
-      const builder = new Builder(null, file.name);
-
-      file.unit = new CompilationUnitVisitor(this, file.tree, builder.handler);
       file.unit.visit(builder);
 
       // read result text
@@ -101,6 +103,7 @@ export default class CompilationBundleVisitor extends Visitor<any> implements IC
       // read result
       compilationResult.errors = compilationResult.errors.concat(builder.handler.errors);
       compilationResult.warnings = compilationResult.warnings.concat(builder.handler.warnings);
+      compilationResult.sourceMap = builder.sourceMap;
     } catch (ex) {
       compilationResult.errors.push({
         file: file.name,
@@ -108,6 +111,7 @@ export default class CompilationBundleVisitor extends Visitor<any> implements IC
         column: 0,
         message: ex
       });
+      throw ex;
     }
 
     // compilationResult.files = this.units.map((u) => {
@@ -122,7 +126,7 @@ export default class CompilationBundleVisitor extends Visitor<any> implements IC
     compilationResult.files['changed'] = {
       name: file.name,
       source: file.result,
-      version: file.version
+      version: file.version,
     };
 
     return compilationResult;

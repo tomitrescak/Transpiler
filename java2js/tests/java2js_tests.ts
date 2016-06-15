@@ -25,7 +25,7 @@ describe('Java2Js', function() {
       class A {
         int a = Math.round(6);
       }`;
-    let result = compile({ name: 'File1.jave', source: source });
+    let result = compile({ name: 'File1.java', source: source });
 
     // console.log(result.errors);
     expect(result.errors.length).to.equal(1);
@@ -35,12 +35,44 @@ describe('Java2Js', function() {
         static int round(double num) { return 0; }
       }`;
 
-    result = compile({ name: 'File2.java', source: lib });
-
+    result = compile({ name: 'File2.java', source: lib }, true);
     console.log(result);
 
     expect(result.errors.length).to.equal(0);
 
-    //expect(result.errors.length).to.equal(0);
+    // now recompile original file and all shall be well
+    result = compile({ name: 'File1.java', source: source });
+    console.log(result);
+
+    // console.log(result.errors);
+    expect(result.errors.length).to.equal(0);
+  });
+
+  it('finds correct lines', () => {
+    const source = `class A {
+
+
+        int a = "2"; int b = "3";
+      }`;
+    let result = compile({ name: 'File1.java', source: source });
+    console.log(result);
+    console.log(result.errors);
+    expect(result.errors.length).to.equal(2);
+    expect(result.errors[0].line).to.equal(3);
+    expect(result.errors[1].line).to.equal(3);
+  });
+
+  it('finds correct lines', () => {
+    const source = `class A {
+        boolean a =
+          (3 && true) ||
+          (4 && false);
+      }`;
+    let result = compile({ name: 'File1.java', source: source });
+    console.log(result);
+    console.log(result.errors);
+    expect(result.errors.length).to.equal(5);
+    expect(result.errors[0].line).to.equal(2);
+    expect(result.errors[1].line).to.equal(3);
   });
 });

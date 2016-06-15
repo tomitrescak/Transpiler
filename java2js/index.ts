@@ -18,25 +18,34 @@ interface IDoubleCompilationResult {
   warnings: IMessage[];
 }
 
-export function compile(file: IFile): IDoubleCompilationResult {
+export function compile(file: IFile, parseOnly = false): IDoubleCompilationResult {
   // compile to typescript
-  let tsCompilationResult = compilej2ts(file);
+  let tsCompilationResult = compilej2ts(file, parseOnly);
 
   // in case there was an error during transpilation
-  if (tsCompilationResult.errors.length > 0) {
-    return {
-      ts: tsCompilationResult.files,
-      warnings: tsCompilationResult.warnings,
-      errors: tsCompilationResult.errors
-    };
+  let result = {
+    ts: tsCompilationResult.files,
+    warnings: tsCompilationResult.warnings,
+    errors: tsCompilationResult.errors
   }
 
+  if (parseOnly || result.errors.length) {
+    return result;
+  }
+
+  const sourceMap = tsCompilationResult.sourceMap;
+
   // compile from typescript to javascript
-  let changedFile = tsCompilationResult.files['changed'];
+  const changedFile = tsCompilationResult.files['changed'];
 
   // rename the extension
   changedFile.name = changedFile.name.replace('.java', '') + '.ts';
-  let jsCompilationResult = compilets2js(changedFile);
+  const jsCompilationResult = compilets2js(changedFile);
+
+  // remap lines to correct positions
+  for (let error of jsCompilationResult.errors) {
+    error.line = sourceMap.resolveLine(error.line, error.column);
+  }
 
   return {
     ts: tsCompilationResult.files,

@@ -27,6 +27,8 @@ let result: ICompilationResult;
 
 export function serviceCompile(file: ICompiledFile): ICompilationResult {
 
+  console.log(files)
+
   // change in version
   if (!files[file.name]) {
     files[file.name] = {
