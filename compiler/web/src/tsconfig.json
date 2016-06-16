@@ -1,0 +1,44 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "es5",
+    "module": "commonjs",
+    "declaration": false,
+    "noImplicitAny": true,
+    "removeComments": false,
+    "noLib": false,
+    "preserveConstEnums": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "sourceMap": false,
+    "outDir": "../imports"
+  },
+  "formatCodeOptions": {
+    "indentSize": 2,
+    "tabSize": 2,
+    "convertTabsToSpaces": true,
+    "insertSpaceAfterCommaDelimiter": true,
+    "insertSpaceAfterSemicolonInForStatements": true,
+    "insertSpaceBeforeAndAfterBinaryOperators": true,
+    "insertSpaceAfterKeywordsInControlFlowStatements": true,
+    "insertSpaceAfterFunctionKeywordForAnonymousFunctions": false,
+    "insertSpaceAfterOpeningAndBeforeClosingNonemptyParenthesis": false,
+    "placeOpenBraceOnNewLineForFunctions": false,
+    "placeOpenBraceOnNewLineForControlBlocks": false
+  },
+  "filesGlob": [
+    "./**/*.ts",
+    "./**/*.tsx"
+  ],
+  "files": [
+    "./server/main.ts",
+    "./typings/globals/meteor/index.d.ts",
+    "./typings/globals/react-dom/index.d.ts",
+    "./typings/globals/react/index.d.ts",
+    "./typings/index.d.ts",
+    "./client/main.tsx",
+    "./client/modules/core/components/app.tsx"
+  ],
+  "atom": {
+    "rewriteTsconfig": true
+  }
+}

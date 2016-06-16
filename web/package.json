@@ -1,0 +1,39 @@
+{
+  "name": "Eis",
+  "private": true,
+  "scripts": {
+    "start": "meteor run",
+    "testonly": "mocha .scripts/mocha_boot.js imports/client/**/tests/**/*.js* --compilers js:babel-core/register",
+    "test": "npm run lint && npm run testonly",
+    "test-watch": "npm run testonly -- --watch --watch-extensions js,jsx",
+    "storybook": "start-storybook -p 9001 -s ./public"
+  },
+  "dependencies": {
+    "apollo-client": "^0.3.13",
+    "apollo-server": "^0.1.5",
+    "express": "^4.14.0",
+    "graphql": "^0.6.0",
+    "http-proxy-middleware": "0.15.0",
+    "jquery": "^2.2.3",
+    "jss": "^3.11.1",
+    "jss-nested": "^1.0.3",
+    "mantra-core": "^1.6.1",
+    "meteor-node-stubs": "~0.2.0",
+    "react": "^15.0.2",
+    "react-apollo": "^0.3.8",
+    "react-dom": "^15.0.2",
+    "react-helmet": "^3.1.0",
+    "react-hot-loader": "^3.0.0-beta.2",
+    "react-redux": "^4.4.5",
+    "react-router": "^2.4.0",
+    "react-router-redux": "^4.0.4",
+    "redux": "^3.5.2",
+    "redux-form": "^5.2.3",
+    "redux-thunk": "^2.1.0",
+    "semanticui-react": "^0.1.7"
+  },
+  "devDependencies": {
+    "react-hot-loader": "^3.0.0-beta.2",
+    "redbox-react": "^1.2.5"
+  }
+}
