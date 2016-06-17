@@ -2,14 +2,19 @@ import React from 'react';
 import Alert from 'react-s-alert';
 import Helmet from 'react-helmet';
 import Modal from '../../core/components/modal_view';
-import Header from '../../core/containers/header_container';
 import Footer from '../../core/components/footer_view';
 import UnsupportedBrowser from '../../core/components/unsupported_browser_view';
+
+import HeaderView from '../../core/components/header_view';
+import AuthContainer from '../../core/containers/auth_container';
+
+const Header = AuthContainer(HeaderView);
 
 interface IProps {
   content: any;
   context: IContext;
   extraFooter?: any;
+  loggingIn: boolean;
 }
 
 export class Layout extends React.Component<IProps, {}> {

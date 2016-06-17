@@ -250,6 +250,7 @@ declare module 'meteor/tomi:accountsui-semanticui-redux' {
     info?: string;
     token?: string;
     user?: any;
+    loggingIn?: boolean;
   }
 }
 

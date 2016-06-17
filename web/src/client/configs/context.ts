@@ -12,12 +12,12 @@ const Utils = {
   Ui: UiUtils,
   Router: RouterUtils,
   Class: ClassUtils,
-//  Css: classnames,
-//  String: StringUtils,
-//  Beautify: beautify
+  //  Css: classnames,
+  //  String: StringUtils,
+  //  Beautify: beautify
 };
 
-export default function () {
+export default function() {
   return {
     Meteor,
     Store: store,
@@ -29,7 +29,11 @@ export default function () {
 // global type defintions
 
 declare global {
-  export var mf: typeof __;
+
+  export interface IUser {
+
+  }
+
   export interface IContext {
     Collections: typeof Collections;
     Meteor?: typeof Meteor | any;
