@@ -8,20 +8,12 @@ panes:
             template: actionIndex
       - directory: components
       - directory: containers
-      - file: routes.tsx
-        template: route
       - file: index.ts
         template: module
   - name: Server
     structure:
-      - directory: server/publications
-        structure:
-          - file: index.ts
-            template: publicationIndex
-      - directory: server/methods
-        structure:
-          - file: index.ts
-            template: methodIndex
+      - directory: server/configs
+      - directory: server/data
       - file: server/index.ts
         template: server
   - name: Configs
@@ -88,11 +80,11 @@ templates:
       interface IProps {
       }
 
-      const component = () => ({
+      const $1 = () => (
         <div></div>
-      })
+      )
 
-      export default component;
+      export default $1;
     placeholders:
       - Component Name
     actions:
@@ -201,11 +193,9 @@ templates:
     create: true
     text: |
       import actions from './actions';
-      import routes from './routes';
 
       export default {
-        actions,
-        routes
+        actions
       };
 
   # Server publication template

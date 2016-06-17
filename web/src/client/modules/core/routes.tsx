@@ -2,7 +2,7 @@ import React from 'react';
 import {Router, Route, IndexRoute} from 'react-router';
 
 // Components
-import MainLayout from './containers/layout_container';
+import MainLayout from '../layouts/containers/main_layout_container';
 import HomePage from './containers/home_container';
 
 const AppRoutes = ({ history, injectDeps }: any) => {
