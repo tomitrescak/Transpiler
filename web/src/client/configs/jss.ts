@@ -4,4 +4,6 @@ import nested from 'jss-nested';
 const jss = configjss;
 jss.use(nested());
 
-export default jss;
+export default (obj) => {
+    return jss.createStyleSheet(obj).attach().classes;
+};

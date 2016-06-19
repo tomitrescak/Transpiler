@@ -3,6 +3,13 @@ import React from 'react';
 import { CourseMenu, AdminMenu, CommunityMenu, LibraryMenu } from './menus_view';
 import { UserView } from 'meteor/tomi:accountsui-semanticui-redux';
 import { Menu, MenuItem } from 'semanticui-react';
+import jss from '../../../configs/jss';
+
+const css = jss({
+  header: {
+    'margin-top': '30px!important'
+  }
+});
 
 interface IHeader {
   isAdmin: boolean;
@@ -10,7 +17,7 @@ interface IHeader {
 }
 
 export const Header = ({ isAdmin, isLoggedIn }: IHeader) => (
-  <Menu inverted color="blue">
+  <Menu inverted color="blue" classes={css.header}>
     <MenuItem classes="header" link="/" icon="bug" text="site.name" />
     <Menu position="right">
       <If condition={isAdmin}>

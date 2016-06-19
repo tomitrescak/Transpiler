@@ -12,6 +12,9 @@ import i18n from './configs/i18n';
 import coreModule from './modules/core/index';
 import markingModule from './modules/marking/index';
 
+// init i18n
+i18n();
+
 // init context
 const context = initContext();
 
@@ -28,4 +31,3 @@ app.init()
 // init app
 initAccounts();
 initSemantic();
-i18n();

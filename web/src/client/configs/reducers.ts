@@ -1,7 +1,7 @@
 // here we import all reducers from modules
 // this is the root for all reducers so that we can hot reload them
 
-import { client } from './apollo';
+import apolloClient from './apollo';
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
@@ -16,7 +16,7 @@ const rootReducer = combineReducers({
   form: formReducer,
   marks: marksReducer,
   mark: markReducer,
-  apollo: client.reducer()
+  apollo: apolloClient.reducer()
 });
 
 export default rootReducer;

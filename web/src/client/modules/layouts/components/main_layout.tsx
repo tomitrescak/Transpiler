@@ -8,12 +8,32 @@ import UnsupportedBrowser from '../../core/components/unsupported_browser_view';
 import HeaderView from '../../core/components/header_view';
 import AuthContainer from '../../core/containers/auth_container';
 
+import { Segment, Grid, Column } from 'semanticui-react';
+import jss from '../../../configs/jss';
+
 const Header = AuthContainer(HeaderView);
+
+// styles
+
+const css = jss({
+  content: {
+    'padding-bottom': '140px',
+  },
+  masthead: {
+    'background-color': 'transparent!important',
+    margin: '0em',
+    padding: '5rem 0rem',
+    'border-radius': '0!important'
+  }
+});
+
+// component
 
 interface IProps {
   content: any;
   context: IContext;
   extraFooter?: any;
+  main?: any;
   loggingIn: boolean;
 }
 
@@ -34,29 +54,33 @@ export class Layout extends React.Component<IProps, {}> {
       );
     }
     return (
-      <main id="home">
-        <Helmet titleTemplate="Mantra - %s" />
-        <div className="content">
-          <div className="ui inverted masthead segment" style={{ borderRadius: 0 }}>
-            <div className="ui page grid">
-              <div className="column">
-                <Header />
-                <div id="main">{ this.props.children }</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <If condition={this.props.extraFooter}>
-          <div id="extraFooter">
-            { this.props.extraFooter }
-          </div>
-        </If>
-        <footer>
-          <Footer />
-        </footer>
+      <main id="home" >
+        <div id="content" className={css.padding}>
+          <Helmet titleTemplate="Clara's World / %s" />
 
+          <Segment inverted classes={'masthead ' + css.masthead}>
+            <Grid page>
+              <Column>
+                <Header />
+                <If condition={this.props.loggingIn}>
+                  ....
+                  <Else />
+                  <div id="main">
+                    { this.props.children }
+                    { this.props.main }
+                  </div>
+                </If>
+              </Column>
+            </Grid>
+          </Segment>
+          { this.props.extraFooter }
+        </div>
+        <div id="footer">
+
+          <Footer />
+        </div>
         <Modal />
-        {<Alert />}
+        <Alert />
         {/* this.data.currentUser ? <Notifier /> : '' */}
       </main>
     );
@@ -73,3 +97,30 @@ export class Layout extends React.Component<IProps, {}> {
 
 
 export default Layout;
+
+/*
+<div id="content">
+  <Segment inverted classes={'masthead ' + css.masthead}>
+    <Grid page>
+      <Column>
+        <Helmet titleTemplate="Clara's World / %s" />
+        <Header />
+
+        <If condition={this.props.loggingIn}>
+          ....
+          <Else />
+          <div id="main">{ this.props.children }</div>
+        </If>
+      </Column>
+    </Grid>
+  </Segment>
+</div>
+<If condition={this.props.extraFooter }>
+  { this.props.extraFooter }
+</If>
+<div id="footer">
+  <Footer />
+  <Modal />
+  <Alert />
+</div>
+*/

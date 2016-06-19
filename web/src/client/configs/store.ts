@@ -6,7 +6,7 @@ import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redu
 import rootReducer from './reducers';
 
 // apollo
-import { client } from './apollo';
+import client from './apollo';
 
 // create an object for the default data
 

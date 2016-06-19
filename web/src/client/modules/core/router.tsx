@@ -9,9 +9,19 @@ import { getRootNode } from '../../helpers/routing_helpers';
 // apollo
 
 import { ApolloProvider } from 'react-apollo';
-import { client } from '../../configs/apollo';
+import apolloClient from '../../configs/apollo';
+
+// init redbox
+
+import Redbox from 'redbox-react';
+
+const consoleErrorReporter = ({ error }: any) => {
+  console.error(error);
+  return <Redbox error={error} />;
+};
 
 // Hot reload
+
 import { AppContainer as HotLoaderAppContainer } from 'react-hot-loader';
 import AppRoutes from './routes';
 
@@ -20,8 +30,8 @@ export default function (inject: Function, {Store}: IContext) {
 
   const renderApp = (CurrentAppRoutes: any) => {
     ReactDOM.render(
-      <HotLoaderAppContainer>
-        <ApolloProvider store={Store} client={client}>
+      <HotLoaderAppContainer errorReporter={consoleErrorReporter}>
+        <ApolloProvider store={Store} client={apolloClient}>
           <CurrentAppRoutes history={ history } injectDeps={inject} />
         </ApolloProvider>
       </HotLoaderAppContainer>,
