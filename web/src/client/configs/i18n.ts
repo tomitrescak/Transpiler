@@ -1,6 +1,8 @@
 import { i18n }  from 'i18n-client';
 import { config } from 'semanticui-react';
 
+export const mf = i18n.translate;
+
 export default function() {
   // add custom translation function
   config.i18n = i18n.translate;
@@ -239,6 +241,7 @@ export default function() {
     'loading.site': 'Loading site ...',
     'loading.sites': 'Loading sites ...',
     'loading.textEditor': 'Loading text editor ...',
+    'loggingIn': 'Logging in ...',
     'LocAchievement': 'Yet another excellent and short solution! Total: {count}.',
     'localScope': 'Local Scope',
     'LocMasterAchievement': 'You have earned a new badge for short solutions! ',

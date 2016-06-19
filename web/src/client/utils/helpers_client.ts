@@ -4,6 +4,7 @@ import marked from 'marked';
 import config from '../configs/config';
 import sAlert from 'react-s-alert';
 import swal from 'sweetalert';
+import { mf } from '../configs/i18n';
 
 export const RouterUtils = {
   encodeUrlName(name: string): string {

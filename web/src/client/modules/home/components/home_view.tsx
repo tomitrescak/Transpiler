@@ -3,7 +3,8 @@ import Helmet from 'react-helmet';
 
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
-import { Grid, Column, Segment, Jumbo, Image, Text, Header1, Button } from 'semanticui-react';
+import { Grid, Column, Segment, Image, Text, Header1, Button } from 'semanticui-react';
+import Jumbo from './jumbo_view';
 
 import ExtraFooterView from './extra_footer_view';
 
@@ -42,8 +43,7 @@ const css = jss({
 
 // component
 
-interface IProps {
-  currentUser: User;
+interface IProps extends IAuthContainerProps {
 }
 
 export default class Home extends React.Component<IProps, {}> {
@@ -57,10 +57,10 @@ export default class Home extends React.Component<IProps, {}> {
     return (
       <div className={css.container}>
         <Helmet title="Home" />
-        <If condition={this.props.currentUser}>
+        <If condition={this.props.user}>
           <div>
             {/* LOGGED IN */}
-            <div className="cornerDecoration"><img src={ this.props.currentUser.avatar } /></div>
+            <div className="cornerDecoration"><img src={ this.props.user.avatar } /></div>
             <Grid stackable columns={2}>
               <Column width={9}>
                 {/*<Announcements />*/}
@@ -74,18 +74,13 @@ export default class Home extends React.Component<IProps, {}> {
               </Column>
             </Grid>
           </div>
-          <Else />
-
+        <Else />
           <Grid stackable columns={2}>
             <Column width={6} classes="computer only tablet only">
               <Image size="medium" classes="clara" src="/images/clara.png" />
             </Column>
             <Column width={10}>
-              <Jumbo inverted classes="hidden information">
-                <Header1 inverted text="home.topIntroduction" />
-                <p><Text text="home.bottomIntroduction" /></p>
-                <Button size="large" color="primary" onClick={this.enter} text="home.enterClara" />
-              </Jumbo>
+              <Jumbo loggingIn={this.props.loggingIn} enter={this.enter} />
               <div id="login" className="ui hidden transition login">
                 <AccountsView />
               </div>

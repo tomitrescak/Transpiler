@@ -3,8 +3,8 @@ import Layout from '../components/main_layout';
 import { connect } from 'react-redux';
 
 const mapStateToProps = (state: IState) => ({
-  user: state.accounts.user,
-  loggingIn: state.accounts.loggingIn
+  // user: state.accounts.user,
+  // loggingIn: state.accounts.loggingIn
 });
 
 const depsToPropsMapper = (context: IContext) => ({
