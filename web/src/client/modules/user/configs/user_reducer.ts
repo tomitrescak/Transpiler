@@ -1,7 +1,7 @@
 import { AccountsUiUser, reducer as accountsReducer } from 'meteor/tomi:accountsui-semanticui-redux';
 
 declare global {
-  interface User extends AccountsUiUser {
+  interface SystemUser extends AccountsUiUser {
     avatar: string;
   }
 }

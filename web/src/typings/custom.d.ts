@@ -46,8 +46,6 @@ declare module 'react-mounter' {
 // mantra                                                    //
 ///////////////////////////////////////////////////////////////
 
-import React = __React;
-
 declare module 'mantra-core' {
   interface IKomposer {
     (params: Object, onData: Function): Function;
@@ -124,7 +122,15 @@ declare module 'meteor/apollo' {
     printErrors?: Boolean;
     allowUndefinedInResolve?: Boolean;
   }
-  export function createApolloServer(options: ServerProperties): void;
+
+  interface ClientProperties {
+    path: string;
+    options: any;
+    useMeteorAccounts: boolean;
+  }
+
+  export function createApolloServer(options?: ServerProperties): void;
+  export function meteorClientConfig(options?: ClientProperties): void;
 }
 
 declare module 'apollo-client' {
@@ -331,3 +337,42 @@ declare module 'sweetalert' {
 declare function If (condition: any): any;
 declare function For(each: string, index: string, of: any): any;
 declare var Else: any;
+
+///////////////////////////////////////////////////////////////
+// eventobject                                               //
+///////////////////////////////////////////////////////////////
+
+declare module 'eventobject' {
+  export default class Event {
+    on(listener: Function, executeImmediatelly?: boolean): void;
+    off(listener: Function): void;
+    attachListener(listener: Function): void;
+    detachListener(listener: Function): void;
+    reset(): void;
+    emit(...args: any[]): void;
+  }
+}
+
+///////////////////////////////////////////////////////////////
+// roles                                                     //
+///////////////////////////////////////////////////////////////
+
+declare module 'meteor/alanning:roles' {
+  import { Mongo } from 'meteor/mongo';
+
+  interface RolesDAO {
+    _id?: string;
+    name?: string;
+  }
+
+  export module Roles {
+    export function createRole(roleName: string): string;
+    export function deleteRole(roleName: string): void;
+    export function addUsersToRoles(users: any, roles: any): void;
+    export function removeUsersFromRoles(users: any, roles: any): void;
+    export function userIsInRole(user: any, roles: any): boolean;  // user can be user ID or user object
+    export function getRolesForUser(userId: string): string[];
+    export function getAllRoles(): Mongo.Cursor<RolesDAO>;
+    export function getUsersInRole(roleName: string): Mongo.Cursor<RolesDAO>;
+  }
+}

@@ -1,17 +1,14 @@
 import React from "react";
+import { Grid, Column, Header1, Header3, Jumbo } from 'semanticui-react';
 
 export const Component = () => (
   <main id="home">
     <div className="content">
-      <div className="ui page grid">
-        <div className="column">
-          <div className="ui jumbo" style={{ background: "white", textAlign: "center", borderRadius: 10 }}>
-            <h1 className="ui header">
-              { mf("info.unsupportedBrowser") }
-            </h1>
-            <h3>
-              { mf("info.unsupportedBrowserMore") }
-            </h3>
+      <Grid page>
+        <Column>
+          <Jumbo style={{ background: "white", textAlign: "center", borderRadius: 10 }}>
+            <Header1 text="info.unsupportedBrowser" />
+            <Header3 text="info.unsupportedBrowserMore" />
             <p>
               <a href="http://chrome.google.com">
                 <img src="/images/chrome-logo.png" />
@@ -23,9 +20,9 @@ export const Component = () => (
                 <img src="/images/safari-logo.png" />
               </a>
             </p>
-          </div>
-        </div>
-      </div>
+          </Jumbo>
+        </Column>
+      </Grid>
     </div>
   </main>
 )

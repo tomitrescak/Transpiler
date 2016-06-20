@@ -4,7 +4,7 @@ function noRole() { return false; }
 
 declare global {
   interface IAuthContainerProps {
-    user: User;
+    user: SystemUser;
     isAdmin: boolean;
     isRole: (role: string|string[]) => boolean;
     loggingIn: boolean;

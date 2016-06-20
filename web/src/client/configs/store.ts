@@ -43,8 +43,8 @@ if (module.hot) {
 declare global {
   export interface IState {
     accounts: IAccountsState;
-    marks: IResult[];
-    mark: IResult;
+    // marks: IResult[];
+    // mark: IResult;
   }
 
   export interface IStore extends ReduxStore<IState> {

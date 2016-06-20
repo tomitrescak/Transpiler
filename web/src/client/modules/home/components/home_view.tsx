@@ -10,8 +10,8 @@ import ExtraFooterView from './extra_footer_view';
 
 import jss from '../../../configs/jss';
 
-//import SchedulesView from '../../schedules/containers/schedule_list_container';
-//import NotificationsView from '../../notifications/containers/notification_container';
+import SchedulesView from '../../schedules/containers/schedule_list_container';
+import NotificationsView from '../../notifications/containers/notification_container';
 //import Announcements from '../../announcements/containers/announcements_container';
 
 import { AccountsView } from 'meteor/tomi:accountsui-semanticui-redux';
@@ -65,11 +65,11 @@ export default class Home extends React.Component<IProps, {}> {
               <Column width={9}>
                 {/*<Announcements />*/}
 
-                {/*<SchedulesView icon="calendar" header="schedules.label" route="schedule" showBadges={true} />*/}
+                <SchedulesView icon="calendar" header="schedules.label" route="schedule" showBadges={true} />
               </Column>
               <Column width={7}>
                 <Segment>
-                  {/*<NotificationsView />*/}
+                  <NotificationsView />
                 </Segment>
               </Column>
             </Grid>

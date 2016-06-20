@@ -10,7 +10,6 @@ import i18n from './configs/i18n';
 
 // modules
 import coreModule from './modules/core/index';
-import markingModule from './modules/marking/index';
 
 // init i18n
 i18n();
@@ -23,7 +22,6 @@ const app = createApp(context);
 
 // load module
 app.loadModule(coreModule);
-app.loadModule(markingModule);
 app.loadModule(homeModule);
 app.init()
 

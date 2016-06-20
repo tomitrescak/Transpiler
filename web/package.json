@@ -12,6 +12,7 @@
     "apollo-client": "^0.3.13",
     "apollo-server": "^0.1.5",
     "express": "^4.14.0",
+    "eventobject": "^1.0.0",
     "graphql": "^0.6.0",
     "http-proxy-middleware": "0.15.0",
     "i18n-client": "^0.0.6",

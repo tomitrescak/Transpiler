@@ -1,6 +1,6 @@
 import {Meteor} from 'meteor/meteor';
 import store from './store';
-import * as Collections from '../../lib/collections';
+import * as Collections from '../../lib/collections/collections';
 import { __ } from 'i18n-client';
 
 import { UiUtils, RouterUtils, ClassUtils } from '../utils/helpers_client';
@@ -29,10 +29,6 @@ export default function() {
 // global type defintions
 
 declare global {
-
-  export interface IUser {
-
-  }
 
   export interface IContext {
     Collections: typeof Collections;
