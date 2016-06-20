@@ -51,7 +51,7 @@ export class Permission {
   private _groups: IPermissionGroupDAO[];
 
   static permissionQuery(user: Meteor.User): any {
-    console.log(JSON.stringify(user, null, 2));
+    // console.log(JSON.stringify(user, null, 2));
     // anonymous user can only access public content
     if (!user) {
       return {

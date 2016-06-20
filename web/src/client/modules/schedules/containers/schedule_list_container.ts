@@ -1,9 +1,6 @@
-import { Meteor } from 'meteor/meteor';
-import { useDeps, compose, composeAll } from 'mantra-core';
 import Component, { IComponentProps, IComponentActions } from '../components/schedule_list_view';
-import Loading from '../../core/components/loading_view';
-import { connect } from 'react-apollo';
-import apolloContainer from '../../core/containers/apollo_container';
+import connect from '../../../utils/connect';
+import * as actions from '../actions/schedule_actions';
 
 interface IProps {
   context?: () => IContext;
@@ -61,29 +58,21 @@ const mapQueriesToProps = (): IGraphqlQuery => {
   };
 };
 
-export const mapStateToProps = (state: IState, ownProps: IProps) => {
-  // const filter = state.schedules.filter;
-  let schedules = ownProps.data.schedules;
-
-  // if (filter) {
-  //   const reg = new RegExp('.*' + filter + '.*', 'i');
-  //   schedules = schedules.filter((s: IScheduleDAO) => s.name.match(reg));
-  // }
-
-  return {
-    schedules
-  }
-};
-
-export const depsMapper = (context: IContext, actions: { schedule: IComponentActions }): IComponentActions => ({
-  create: actions.schedule.create,
-  clearSearch: actions.schedule.clearSearch,
-  handleSearch: actions.schedule.handleSearch,
-  context: () => context
+export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps) => ({
+  context,
+  filter: state.schedule.filter
 });
 
-export default composeAll<IProps>(
-  compose(apolloContainer(), Loading),
-  connect({ mapQueriesToProps }),
-  useDeps()
-)(Component);
+export const mapDispatchToProps = (context: IContext, dispatch: any) => ({
+  create (name: string) {
+
+  },
+  clearSearch() {
+    dispatch(actions.clearSearch());
+  },
+  handleSearch (filter: string) {
+    dispatch(actions.handleSearch(filter));
+  },
+})
+
+export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(Component);

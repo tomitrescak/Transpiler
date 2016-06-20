@@ -2,7 +2,7 @@ import React from "react";
 import { Text } from 'semanticui-react';
 
 interface ILoadingParams {
-  what: string;
+  what?: string;
 }
 
 // class CenteredLoading extends React.Component<ILoadingParams, {}> {
@@ -43,9 +43,10 @@ export const CenteredLoading = () => (
   </div>
 );
 
-const MyLoading = () => (
+const MyLoading = ({error}: any) => (
   <span>
     <div className="ui active small inline loader"></div>&nbsp; &nbsp; &nbsp;<Text text="loading" />
+    { error && console.error(error) }
   </span>
 );
 

@@ -1,6 +1,5 @@
-import { createStore, compose, applyMiddleware, IStore as ReduxStore } from 'redux';
+import { createStore, compose, applyMiddleware } from 'redux';
 import reduxThunk from 'redux-thunk';
-import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 
 // import the root reducer
 import rootReducer from './reducers';
@@ -36,17 +35,4 @@ if (module.hot) {
     const nextRootReducer = require('./reducers').default;
     store.replaceReducer(nextRootReducer);
   });
-}
-
-// typescript typings
-
-declare global {
-  export interface IState {
-    accounts: IAccountsState;
-    // marks: IResult[];
-    // mark: IResult;
-  }
-
-  export interface IStore extends ReduxStore<IState> {
-  }
 }
