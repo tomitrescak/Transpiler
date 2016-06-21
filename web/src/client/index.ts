@@ -1,4 +1,4 @@
-import { createApp } from 'mantra-core';
+import { createApp } from 'apollo-mantra';
 import layoutsModule from './modules/layouts/index';
 
 import homeModule from './modules/home/index';

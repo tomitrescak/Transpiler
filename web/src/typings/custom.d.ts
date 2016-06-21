@@ -261,6 +261,7 @@ declare module 'meteor/tomi:accountsui-semanticui-redux' {
     info?: string;
     token?: string;
     user?: any;
+    userId?: string;
     loggingIn?: boolean;
   }
 }
@@ -375,4 +376,31 @@ declare module 'meteor/alanning:roles' {
     export function getAllRoles(): Mongo.Cursor<RolesDAO>;
     export function getUsersInRole(roleName: string): Mongo.Cursor<RolesDAO>;
   }
+}
+
+///////////////////////////////////////////////////////////////
+// apollo-mantra                                             //
+///////////////////////////////////////////////////////////////
+
+declare interface IApolloDefinition {
+  schema: string;
+  queries?: Object;
+  resolvers?: Object;
+  mutations?: Object;
+  queryText?: string;
+  mutationText?: string;
+}
+
+declare module 'apollo-mantra' {
+  interface IConnectFunctions {
+    mapStateToProps?: Function;
+    mapDispatchToProps?: Function;
+    mapQueriesToProps?: Function;
+    mapMutationsToProps?: Function;
+  }
+
+  export function schemas(): any;
+  export function resolvers(): any;
+  export function connect(funcs: IConnectFunctions): () => any;
+  export function processSchema(definition: IApolloDefinition[]): void;
 }

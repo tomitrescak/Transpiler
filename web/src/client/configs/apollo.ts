@@ -3,9 +3,9 @@ import ApolloClient from 'apollo-client';
 import { meteorClientConfig } from 'meteor/apollo';
 import { registerGqlTag } from 'apollo-client/gql';
 
-Meteor.startup(() => {
+//Meteor.startup(() => {
   registerGqlTag();
-});
+//});
 
 declare global {
   export interface IGraphqlQuery {
@@ -18,6 +18,5 @@ declare global {
 }
 
 export const client = new ApolloClient(meteorClientConfig());
-console.log('Init apollo: ' + client)
 
 export default client;

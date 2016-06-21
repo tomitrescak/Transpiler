@@ -1,5 +1,5 @@
 import Component, { IComponentProps, IComponentActions } from '../components/schedule_list_view';
-import connect from '../../../utils/connect';
+import { connect } from 'apollo-mantra';
 import * as actions from '../actions/schedule_actions';
 
 interface IProps {
@@ -41,36 +41,53 @@ interface IProps {
 //   return clearSearch;
 // };
 
-const mapQueriesToProps = (): IGraphqlQuery => {
+const mapQueriesToProps = (context: IContext, { state }: any): IGraphqlQuery => {
   return {
     data: {
       query: gql`
-      {
-        schedules {
+      query schedules($userId: String) {
+        schedules(userId: $userId) {
           _id
           name
           description
           startDate
           totalExercises
+          achievements {
+            _id
+            userId
+            scheduleId
+            practicalId
+            exerciseId
+            locRank
+            type
+            rank
+            count
+            solutions
+            descriptions
+          }
         }
       }`,
+      variables: {
+        userId: state.accounts.userId
+      },
     }
   };
 };
 
 export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps) => ({
   context,
-  filter: state.schedule.filter
+  filter: state.schedule.filter,
+  showBadges: ownProps.showBadges
 });
 
 export const mapDispatchToProps = (context: IContext, dispatch: any) => ({
-  create (name: string) {
+  create(name: string) {
 
   },
   clearSearch() {
     dispatch(actions.clearSearch());
   },
-  handleSearch (filter: string) {
+  handleSearch(filter: string) {
     dispatch(actions.handleSearch(filter));
   },
 })

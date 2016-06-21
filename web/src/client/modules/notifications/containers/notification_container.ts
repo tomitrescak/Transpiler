@@ -13,11 +13,11 @@ interface IData {
   notifications: any;
 }
 
-const mapQueriesToProps = (): IGraphqlQuery => {
+const mapQueriesToProps = ({ state }: any): IGraphqlQuery => {
   return {
     data: {
       query: gql`
-          {
+         {
             notifications {
               _id
               userId
@@ -33,7 +33,7 @@ const mapQueriesToProps = (): IGraphqlQuery => {
               }
             }
           }
-        `,
+        `
     }
   };
 };

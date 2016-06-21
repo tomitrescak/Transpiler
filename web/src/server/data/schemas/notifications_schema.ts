@@ -1,8 +1,6 @@
 import * as Collections from '../../../lib/collections/collections';
 
 const schema = `
-    scalar Date
-
     type NotificationParameter {
       scheduleName: String,
       practicalName: String,
@@ -16,7 +14,7 @@ const schema = `
       _id: String,
       userId: String,
       code: String,
-      date: Float,
+      date: Date,
       parameters: NotificationParameter
     }
   `;
@@ -33,9 +31,9 @@ const queries = {
 
 const resolvers = {
   Notification: {
-    date(notification: any) {
-      return notification.date.getTime();
-    },
+    // date(notification: any) {
+    //   return notification.date.getTime();
+    // },
     parameters(notification: any) {
       return notification.parameters;
     }

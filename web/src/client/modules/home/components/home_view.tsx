@@ -3,16 +3,14 @@ import Helmet from 'react-helmet';
 
 import { Meteor } from 'meteor/meteor';
 import { Accounts } from 'meteor/accounts-base';
-import { Grid, Column, Segment, Image, Text, Header1, Button } from 'semanticui-react';
+import { Grid, Column, Segment, Image } from 'semanticui-react';
 import Jumbo from './jumbo_view';
-
-import ExtraFooterView from './extra_footer_view';
 
 import jss from '../../../configs/jss';
 
 import SchedulesView from '../../schedules/containers/schedule_list_container';
 import NotificationsView from '../../notifications/containers/notification_container';
-//import Announcements from '../../announcements/containers/announcements_container';
+// import Announcements from '../../announcements/containers/announcements_container';
 
 import { AccountsView } from 'meteor/tomi:accountsui-semanticui-redux';
 

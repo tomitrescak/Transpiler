@@ -24,6 +24,7 @@ declare global {
     permissions: IPermissionsDAO;
     files: ITextFileDAO[];
     totalExercises?: number;
+    achievements: IAchievementsDAO[];
   }
 }
 

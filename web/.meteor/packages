@@ -13,14 +13,14 @@ es5-shim                # ECMAScript 5 compatibility for older browsers.
 
 accounts-base
 
-gadicc:ecmascript-hot@2.0.0-beta.5
+gadicc:ecmascript-hot@2.0.0-beta.6
 tomi:accountsui-semanticui-redux
 accounts-password
 tracker
 
 semantic:ui
 flemay:less-autoprefixer
+
 jquery
 apollo
-tmeasday:check-npm-versions
 alanning:roles

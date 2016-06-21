@@ -44,7 +44,8 @@ declare global {
 }
 
 export { default as Notifications } from './notification_collection';
-
+export { default as Schedules } from './schedules_collection';
+export { default as Achievements } from './achievements_collection';
 // declare global {
 //   export interface IMark {
 //     value: string;

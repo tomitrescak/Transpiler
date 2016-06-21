@@ -1,7 +1,7 @@
 import { createApolloServer } from 'meteor/apollo';
 import { Meteor } from 'meteor/meteor';
-
-import { schema, resolvers } from '../data/apollo';
+import { schemas, resolvers } from 'apollo-mantra';
+import createSchemas from '../data/schemas/index';
 
 declare global {
   export interface IApolloContext {
@@ -11,12 +11,14 @@ declare global {
 }
 
 export default function() {
+  createSchemas();
+
   // console.log('creating server ...: ' + JSON.stringify(schema));
 
   createApolloServer({
     graphiql: true,
     pretty: true,
-    schema,
-    resolvers,
+    schema: schemas(),
+    resolvers: resolvers(),
   });
 }

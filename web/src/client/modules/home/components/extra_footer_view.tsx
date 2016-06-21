@@ -9,7 +9,7 @@ const css = jss({
       'font-size': '3em!important',
       'margin-bottom': '1em!important'
     },
-    'margin': '0em!important',
+    'margin': '-1px!important',
     'padding': '3rem 0rem!important',
     '& p': {
       'min-height': '50px'

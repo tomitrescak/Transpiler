@@ -27,9 +27,7 @@ export const Header = ({ isAdmin, isLoggedIn }: IHeader) => (
       <CourseMenu />
       <CommunityMenu />
       <LibraryMenu />
-      <If condition={isLoggedIn}>
-        <UserView />
-      </If>
+      <UserView />
     </Menu>
   </Menu>
 );

@@ -9,6 +9,7 @@
     "storybook": "start-storybook -p 9001 -s ./public"
   },
   "dependencies": {
+    "apollo-mantra": "file:../../../packages/apollo-mantra",
     "apollo-client": "^0.3.13",
     "apollo-server": "^0.1.5",
     "express": "^4.14.0",

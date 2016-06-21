@@ -3,7 +3,7 @@ import { Segment, Header2, Text, Button } from 'semanticui-react';
 import Loading from '../../core/components/loading_view';
 
 import SearchBar from '../../core/components/search_bar_view';
-// import Badges from '../../badges/containers/badges_container';
+import Badges from '../../badges/components/badges_view';
 
 //////////////////////////////////////////////////////////////////////////////
 // ScheduleItem Component                                                      //
@@ -54,7 +54,7 @@ export interface IComponentActions {
 
 export interface IPropsAll extends IComponentProps, IComponentActions { }
 
-const SchedulesView = ({ data, context, icon, header, route, isAdmin, create, handleSearch, filter }: IPropsAll) => {
+const SchedulesView = ({ data, context, icon, header, route, isAdmin, create, handleSearch, filter, showBadges }: IPropsAll) => {
 
   // apollo handle
 
@@ -85,7 +85,7 @@ const SchedulesView = ({ data, context, icon, header, route, isAdmin, create, ha
           <For each="schedule" index="index" of={schedules}>
             <Segment key={schedule._id} attached="middle" style={{ borderTop: '0px' }}>
               <ScheduleItem key={schedule._id} {...schedule} route={route} context={context} />
-              {/*{ showBadges ? <Badges scheduleId={schedule._id} /> : '' }*/}
+              { showBadges && <Badges badges={schedule.achievements } /> }
             </Segment>
           </For>
         </div>
@@ -103,7 +103,7 @@ const SchedulesView = ({ data, context, icon, header, route, isAdmin, create, ha
       </If>
     </span>
   );
-}
+};
 
 
 export default SchedulesView;
