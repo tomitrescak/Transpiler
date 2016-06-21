@@ -401,6 +401,6 @@ declare module 'apollo-mantra' {
 
   export function schemas(): any;
   export function resolvers(): any;
-  export function connect(funcs: IConnectFunctions): () => any;
+  export function connect(funcs: IConnectFunctions): (component: any) => any;
   export function processSchema(definition: IApolloDefinition[]): void;
 }

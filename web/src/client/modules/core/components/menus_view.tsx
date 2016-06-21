@@ -8,19 +8,17 @@ import { Menu, MenuItem, MenuDropdown, Divider } from 'semanticui-react';
 
 export const AdminMenu = () => (
   <MenuDropdown icon="doctor" text="adminMenu" id="adminMenuDropdown">
-    <Menu>
-      <MenuItem link="schedules" text="schedules.label" />
-      <MenuItem link="practicals" text="practicals.label" />
-      <MenuItem link="exercises" text="exercises" />
-      <Divider />
-      <MenuItem link="groupMail" text="groupMail.label" icon="mail" />
-      <Divider />
-      <MenuItem link="siteSettings" icon="sitemap" text="siteSettings.label" />
-      <MenuItem link="worlds" icon="world" text="worlds.label" />
-      <MenuItem link="configuration" icon="settings" text="configuration.label" />
-      <Divider />
-      <MenuItem link="activity" icon="exchange" text="activity" />
-    </Menu>
+    <MenuItem link="schedules" text="schedules.label" />
+    <MenuItem link="practicals" text="practicals.label" />
+    <MenuItem link="exercises" text="exercises" />
+    <Divider />
+    <MenuItem link="groupMail" text="groupMail.label" icon="mail" />
+    <Divider />
+    <MenuItem link="siteSettings" icon="sitemap" text="siteSettings.label" />
+    <MenuItem link="worlds" icon="world" text="worlds.label" />
+    <MenuItem link="configuration" icon="settings" text="configuration.label" />
+    <Divider />
+    <MenuItem link="activity" icon="exchange" text="activity" />
   </MenuDropdown>
 );
 

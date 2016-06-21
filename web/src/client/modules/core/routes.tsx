@@ -14,7 +14,7 @@ const AppRoutes = ({ history, injectDeps }: any) => {
   <Router history={history}>
     <Route path="/" component={MainLayoutCtx}>
       <IndexRoute components={{ main: HomePage, extraFooter: ExtraFooterView }} />
-      <Route path="schedules" component={SchedulesList} route="schedule" icon="calendar" />
+      <Route path="schedules" component={() => <SchedulesList route="schedule" icon="calendar" header="schedules" showBadges />}  />
       <Route path="/edit/:id" component={HomePage} />
     </Route>
   </Router>

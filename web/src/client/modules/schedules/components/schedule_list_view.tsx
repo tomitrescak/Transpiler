@@ -19,7 +19,7 @@ const ScheduleItem = ({ name, _id, route, context, startDate, description }: ISc
   const { Utils } = context;
   return (
     <Header2 icon="calendar outline">
-      <a href={`${route}/${name}/${_id}`}>{name}</a>
+      <a href={`${route}/${context.Utils.Router.encodeUrlName(name)}/${_id}`}>{name}</a>
       <div className="sub header">
         <If condition={startDate}>
           <span><Text text="startDate" />: {Utils.Ui.niceDate(startDate) } {"\u00B7"}</span>
