@@ -4,11 +4,8 @@ import Component, { IComponentProps, IComponentActions, IComponent } from "../co
 import Loading from "../../core/components/loading_view";
 
 interface IProps {
-  context?: () => IContext;
   tutors: IScheduleTutorDAO[];
   scheduleId: string;
-  subscribe?: (scheduleId: string, tutorId: string) => void;
-  unsubscribe?: (scheduleId: string) => void;
 }
 
 export const composer: IKomposer = ({context, tutors, scheduleId, subscribe, unsubscribe}: IProps, onData: IKomposerData<IComponentProps>) => {

@@ -1,5 +1,5 @@
 import Component, { IComponentProps, IComponentActions } from '../components/schedule_list_view';
-import { connect } from 'apollo-mantra';
+import { connect, loadingContainer } from 'meteor/tomi:apollo-mantra';
 import * as actions from '../actions/schedule_actions';
 
 interface IProps {
@@ -74,13 +74,12 @@ const mapQueriesToProps = (context: IContext, { state }: any): IGraphqlQuery => 
   };
 };
 
-export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps) => ({
+export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps): IComponentProps => ({
   context,
-  filter: state.schedule.filter,
-  showBadges: ownProps.showBadges
+  filter: state.schedule.filter
 });
 
-export const mapDispatchToProps = (context: IContext, dispatch: any) => ({
+export const mapDispatchToProps = (context: IContext, dispatch: any): IComponentActions => ({
   create(name: string) {
 
   },
@@ -92,4 +91,4 @@ export const mapDispatchToProps = (context: IContext, dispatch: any) => ({
   },
 })
 
-export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(Component);
+export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component));

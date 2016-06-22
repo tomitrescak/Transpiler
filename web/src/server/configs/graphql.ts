@@ -1,6 +1,6 @@
 import { createApolloServer } from 'meteor/apollo';
 import { Meteor } from 'meteor/meteor';
-import { schemas, resolvers } from 'apollo-mantra';
+import { schemas, resolvers } from 'meteor/tomi:apollo-mantra';
 import createSchemas from '../data/schemas/index';
 
 declare global {

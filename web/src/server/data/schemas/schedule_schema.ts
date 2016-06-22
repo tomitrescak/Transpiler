@@ -1,4 +1,4 @@
-import { Schedules, Achievements } from '../../../lib/collections/collections';
+import { Schedules, Achievements, Practicals } from '../../../lib/collections/collections';
 import { isAdmin } from '../../../lib/helpers/data_helpers';
 import Permission from '../../../lib/models/permission_model';
 import Cache from '../cache';
@@ -28,24 +28,37 @@ const schema = `
     files: [TextFile]
     totalExercises: Int
     achievements: [Achievement]
+    practicals: [Practical]
   }
 `;
 
 const resolvers = {
   Schedule: {
-    items (schedule: IScheduleDAO) {
+    items(schedule: IScheduleDAO) {
       return schedule.items;
     },
-    tutors (schedule: IScheduleDAO) {
+    tutors(schedule: IScheduleDAO) {
       return schedule.tutors;
     },
-    permissions (schedule: IScheduleDAO) {
+    permissions(schedule: IScheduleDAO) {
       return schedule.permissions;
     },
-    files (schedule: IScheduleDAO) {
+    practicals(schedule: IScheduleDAO, params: any, { user }: IApolloContext) {
+      let ids = schedule.items.map((doc: IScheduleItemDAO) => { return doc.practicalId; });
+
+      // initialise a user access based query
+      let query = Permission.permissionQuery(user);
+
+      // limit ids
+      query._id = { $in: ids };
+
+      // perform search
+      return Practicals.find(query).fetch();
+    },
+    files(schedule: IScheduleDAO) {
       return schedule.files;
     },
-    achievements (schedule: IScheduleDAO, params: any, { userId }: IApolloContext) {
+    achievements(schedule: IScheduleDAO, params: any, { userId }: IApolloContext) {
       return Achievements.find({ userId, scheduleId: schedule._id }).fetch();
     },
   }
@@ -53,8 +66,8 @@ const resolvers = {
 
 const queryText = `
   schedules(userId: String): [Schedule]
-  schedule(id: String): Schedule
-  scheduleByName(name: String): Schedule
+  schedule(id: String, userId: String): Schedule
+  scheduleByName(name: String, userId: String): Schedule
 `;
 
 const queries = {

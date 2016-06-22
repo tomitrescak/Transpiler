@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Segment, Header2, Text, Button } from 'semanticui-react';
+import { Segment, Header2, Text, Button, Link } from 'semanticui-react';
 import Loading from '../../core/components/loading_view';
 
 import SearchBar from '../../core/components/search_bar_view';
@@ -19,7 +19,7 @@ const ScheduleItem = ({ name, _id, route, context, startDate, description }: ISc
   const { Utils } = context;
   return (
     <Header2 icon="calendar outline">
-      <a href={`${route}/${context.Utils.Router.encodeUrlName(name)}/${_id}`}>{name}</a>
+      <Link link={`${route}/${context.Utils.Router.encodeUrlName(name)}/${_id}`}>{name}</Link>
       <div className="sub header">
         <If condition={startDate}>
           <span><Text text="startDate" />: {Utils.Ui.niceDate(startDate) } {"\u00B7"}</span>
@@ -35,36 +35,30 @@ const ScheduleItem = ({ name, _id, route, context, startDate, description }: ISc
 ///////////////////////////////////////////////////////////////////////////
 
 export interface IComponentProps {
-  data: any;
+  filter: string;
+  context: IContext;
+}
+
+interface IProps extends IComponentProps {
+  data?: any;
   schedules: IScheduleDAO[];
   header: string;
   icon: string;
   route: string;
   showBadges: boolean;
   isAdmin: boolean;
-  filter: string;
+
 }
 
 export interface IComponentActions {
-  create: () => void;
+  create: (name: string) => void;
   handleSearch: (text: string) => void;
   clearSearch: () => void;
-  context: IContext;
 }
 
-export interface IPropsAll extends IComponentProps, IComponentActions { }
+export interface IPropsAll extends IProps, IComponentActions { }
 
 const SchedulesView = ({ data, context, icon, header, route, isAdmin, create, handleSearch, filter, showBadges }: IPropsAll) => {
-
-  // apollo handle
-
-  if (data.loading) {
-    return <Loading />;
-  }
-  if (data.errors) {
-    console.error(data.errors);
-  }
-
   // filter data
   let { schedules } = data;
   if (filter) {

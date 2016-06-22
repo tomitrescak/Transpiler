@@ -5,7 +5,7 @@ import apolloClient from './apollo';
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
-import { reducer as accountsReducer } from 'meteor/tomi:accountsui-semanticui-redux';
+import { reducer as accountsReducer } from '../modules/user/configs/user_reducer';
 import { reducer as scheduleReducer, IScheduleState } from '../modules/schedules/actions/schedule_reducer';
 
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
@@ -27,7 +27,7 @@ export default rootReducer;
 
 declare global {
   export interface IState {
-    accounts: IAccountsState;
+    accounts: IAccountsState<SystemUser>;
     schedule: IScheduleState
     // marks: IResult[];
     // mark: IResult;

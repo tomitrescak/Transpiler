@@ -16,7 +16,7 @@ declare var process: any;
 // }
 
 ///////////////////////////////////////////////////////////////
-// react-router-redux                                        //
+// react-dom                                                 //
 ///////////////////////////////////////////////////////////////
 
 declare module 'react-dom' {
@@ -251,16 +251,17 @@ declare module 'meteor/tomi:accountsui-semanticui-redux' {
   export interface AccountsUiUser {
     _id: string;
     profile: any;
+    roles: string[];
     isRole(role: string | string[]): boolean;
     isAdmin(): boolean;
   }
 
-  interface IState {
+  interface IState<T extends AccountsUiUser> {
     view?: string;
     error?: string;
     info?: string;
     token?: string;
-    user?: any;
+    user?: T;
     userId?: string;
     loggingIn?: boolean;
   }
@@ -379,7 +380,7 @@ declare module 'meteor/alanning:roles' {
 }
 
 ///////////////////////////////////////////////////////////////
-// apollo-mantra                                             //
+// tomi:apollo-mantra                                        //
 ///////////////////////////////////////////////////////////////
 
 declare interface IApolloDefinition {
@@ -391,16 +392,26 @@ declare interface IApolloDefinition {
   mutationText?: string;
 }
 
-declare module 'apollo-mantra' {
+declare module 'meteor/tomi:apollo-mantra' {
   interface IConnectFunctions {
     mapStateToProps?: Function;
     mapDispatchToProps?: Function;
     mapQueriesToProps?: Function;
     mapMutationsToProps?: Function;
   }
-
+  export function createApp(context: any, loadingComponent?: any): any;
   export function schemas(): any;
   export function resolvers(): any;
   export function connect(funcs: IConnectFunctions): (component: any) => any;
   export function processSchema(definition: IApolloDefinition[]): void;
+  export function loadingContainer(component: any, keys?: string[]): any;
+  export function loadingContainer(component: any, loading?: any, keys?: string[]): any;
+}
+
+///////////////////////////////////////////////////////////////
+// apollo-mantra                                             //
+///////////////////////////////////////////////////////////////
+
+declare interface IReduxAction {
+  type: string;
 }

@@ -1,6 +1,7 @@
 const schema = `
   schema {
-    query: RootQuery
+    query: RootQuery,
+    mutation: RootMutation
   }
 `;
 

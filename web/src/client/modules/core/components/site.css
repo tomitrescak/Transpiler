@@ -34,3 +34,13 @@ body {
 	bottom:0;
 	left:0;
 }
+
+/* Semantic UI cistomisations */
+
+.header .icon.button .icon {
+	margin: 0px!important;
+}
+
+.header .content {
+	width: 100%!important; 
+}

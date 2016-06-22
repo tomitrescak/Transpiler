@@ -15,6 +15,11 @@ declare global {
       variables?: Object
     };
   }
+
+  export interface IGraphQlProps<T> {
+    state: IState;
+    ownProps: T;
+  }
 }
 
 export const client = new ApolloClient(meteorClientConfig());

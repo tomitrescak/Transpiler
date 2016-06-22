@@ -38,14 +38,14 @@ export class Loading extends React.Component<ILoadingParams, {}> {
 export const CenteredLoading = () => (
   <div id="editorLoader">
     <div className="ui segment">
-      <div className="ui active small inline loader"></div>&nbsp; &nbsp; &nbsp;<Text text="loading" />)
+      <div className="ui active small inline loader"></div>&nbsp; &nbsp; &nbsp; <Text text="loading" />)
     </div>
   </div>
 );
 
 const MyLoading = ({error}: any) => (
   <span>
-    <div className="ui active small inline loader"></div>&nbsp; &nbsp; &nbsp;<Text text="loading" />
+    <div className="ui active small inline loader"></div>&nbsp; &nbsp; &nbsp; <Text text="loading" />
     { error && console.error(error) }
   </span>
 );

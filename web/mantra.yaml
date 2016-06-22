@@ -13,13 +13,13 @@ panes:
   - name: Server
     structure:
       - directory: server/configs
-      - directory: server/data
+      - directory: server/data/schemas
       - file: server/index.ts
         template: server
-  - name: Configs
+  - name: Client
     structure:
       - directory: client/configs
-      - directory: lib
+  #    - directory: lib
       - file: client/configs/context.ts
         template: context
       - file: client/index.ts
