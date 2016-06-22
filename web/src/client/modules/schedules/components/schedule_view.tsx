@@ -17,6 +17,7 @@ interface IProps extends IComponentProps  {
 
 export interface IComponentProps {
   context: IContext;
+  user: SystemUser;
   isAdmin: boolean;
 }
 
@@ -29,7 +30,7 @@ const renderPracticalItem = (item: IScheduleItemDAO, practical: IPracticalDAO, s
   }
 };
 
-const ScheduleView = ({ context, data, isAdmin }: IProps) => {
+const ScheduleView = ({ context, data, user, isAdmin }: IProps) => {
   const { schedule } = data;
   const { name, _id, description } = schedule;
   let item: IScheduleItemDAO;
@@ -77,7 +78,7 @@ const ScheduleView = ({ context, data, isAdmin }: IProps) => {
       <If condition={schedule.tutors.length > 0}>
         <Segment attached="bottom">
           <div style={{ textAlign: 'right' }}>
-            <If condition={Meteor.user() }>
+            <If condition={user}>
               <ScheduleSubscription scheduleId={_id} tutors={schedule.tutors} />
             </If>
           </div>

@@ -7,6 +7,7 @@ panes:
           - file: index.ts
             template: actionIndex
       - directory: components
+      - directory: configs
       - directory: containers
       - file: index.ts
         template: module
