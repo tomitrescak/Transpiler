@@ -29,6 +29,12 @@ const schema = `
     totalExercises: Int
     achievements: [Achievement]
     practicals: [Practical]
+    createdAt: Date
+    createdBy: String
+    createdById: String
+    updatedAt: Date
+    updatedBy: String
+    updatedById: String
   }
 `;
 

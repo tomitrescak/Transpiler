@@ -5,6 +5,12 @@ import Permission from '../../../lib/models/permission_model';
 const schema = `
   type Practical {
     _id: String
+    createdAt: Date
+    createdBy: String
+    createdById: String
+    updatedAt: Date
+    updatedBy: String
+    updatedById: String
     name: String
     image: String
     description: String
@@ -12,7 +18,7 @@ const schema = `
     files: [TextFile]
     exercises: [Exercise]
     ratedExercises: Int
-    permissions: [Permissions]
+    permissions: Permissions
   }
 `;
 

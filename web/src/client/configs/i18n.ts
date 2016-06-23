@@ -1,7 +1,14 @@
 import { i18n }  from 'i18n-client';
 import { config } from 'semanticui-react';
 
-export const mf = i18n.translate;
+export const mf = (key: string, params?: string[]): string => {
+  try {
+    return i18n.translate(key);
+  } catch (ex) {
+    console.error('Error during translation: ' + ex);
+    throw ex;
+  }
+}
 
 export default function() {
   // add custom translation function

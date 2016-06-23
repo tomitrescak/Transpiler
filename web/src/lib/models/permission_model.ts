@@ -83,7 +83,7 @@ export class Permission {
     };
   };
 
-  static canRead(permission: Permission, user: Meteor.User) {
+  static canRead(permission: IPermissionsDAO, user: Meteor.User) {
     if (user && isAdmin(user)) {
       return true;
     }

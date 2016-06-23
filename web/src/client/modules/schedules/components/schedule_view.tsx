@@ -3,14 +3,14 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 import { Breadcrumbs, Breadcrumb, Segment, Header2, Button, Items } from 'semanticui-react';
 
-// import PracticalItem from '../../practicals/containers/practical_item_container';
+import PracticalItem from '../../practicals/components/practical_item_view';
 import ScheduleSubscription from '../containers/schedule_subscription_container';
 
 //////////////////////////////////////////////////////////////////////////////
 // ScheduleView Component                                                      //
 //////////////////////////////////////////////////////////////////////////////
 
-interface IProps extends IComponentProps  {
+interface IProps extends IComponentProps {
   data: { schedule: IScheduleDAO };
   visibleItems: IScheduleItemDAO[];
 }
@@ -18,26 +18,34 @@ interface IProps extends IComponentProps  {
 export interface IComponentProps {
   context: IContext;
   user: SystemUser;
-  isAdmin: boolean;
 }
 
-const renderPracticalItem = (item: IScheduleItemDAO, practical: IPracticalDAO, scheduleId: string) => {
+const renderPracticalItem = (item: IScheduleItemDAO, schedule: IScheduleDAO, context: IContext, user: SystemUser) => {
+  const practical = schedule.practicals.find((p) => p._id === item.practicalId);
   if (practical) {
     const today = new Date();
     const isVisible = item.from <= today;
-    return <span></span>;
-    // return <PracticalItem key={practical._id} scheduleId={scheduleId} practical={practical} isVisible={isVisible} />;
+
+    return <PracticalItem key={practical._id}
+              scheduleId={schedule._id}
+              scheduleName={schedule.name}
+              practical={practical}
+              isVisible={isVisible}
+              canWrite={user ? user.canWrite(practical.permissions) : false}
+              context={context}
+              isAdmin={user ? user.isAdmin() : false}
+      />;
   }
 };
 
-const ScheduleView = ({ context, data, user, isAdmin }: IProps) => {
+const ScheduleView = ({ context, data, user }: IProps) => {
   const { schedule } = data;
   const { name, _id, description } = schedule;
   let item: IScheduleItemDAO;
 
   // filter visible items
   let visibleItems: any[] = null;
-  if (isAdmin) {
+  if (user && user.isAdmin()) {
     visibleItems = schedule.items;
   } else {
     const date = new Date();
@@ -53,7 +61,7 @@ const ScheduleView = ({ context, data, user, isAdmin }: IProps) => {
 
       <Segment attached="top">
         <Header2 icon="archive">
-          <If condition={isAdmin}>
+          <If condition={user && user.isAdmin()}>
             <Button url={`admin/schedule/${_id}/${context.Utils.Router.encodeUrlName(name)}`} icon="edit" labeled="left" color="orange" classes="right floated" text="modify" />
           </If>
           {/*<If condition={Security.isTutor()}>
@@ -71,7 +79,7 @@ const ScheduleView = ({ context, data, user, isAdmin }: IProps) => {
         </Header2>
         <Items>
           <For each="item" index="index" of={visibleItems}>
-            { renderPracticalItem(item, context.Collections.Practicals.findOne(item.practicalId, { reactive: false }), schedule._id) }
+            { renderPracticalItem(item, schedule, context, user) }
           </For>
         </Items>
       </Segment>

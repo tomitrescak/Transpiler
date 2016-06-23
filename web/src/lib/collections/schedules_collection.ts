@@ -25,6 +25,7 @@ declare global {
     files: ITextFileDAO[];
     totalExercises?: number;
     achievements: IAchievementsDAO[];
+    practicals: IPracticalDAO[];
   }
 }
 

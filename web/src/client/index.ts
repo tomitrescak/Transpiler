@@ -9,6 +9,7 @@ import initSemantic from './configs/semanticui';
 import i18n from './configs/i18n';
 
 import Loading from './modules/core/components/loading_view';
+import client from './configs/apollo';
 
 // modules
 import coreModule from './modules/core/index';
@@ -20,12 +21,12 @@ i18n();
 const context = initContext();
 
 // create app and prepare context that will be injected in all other components
-const app = createApp(context, Loading);
+const app = createApp(context, { loadingComponent: Loading, apolloClient: client });
 
 // load module
 app.loadModule(coreModule);
 app.loadModule(homeModule);
-app.init()
+app.init();
 
 
 // init app

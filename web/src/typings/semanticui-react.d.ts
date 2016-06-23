@@ -280,6 +280,7 @@ declare module "semanticui-react" {
         horizontal?: boolean;
         floating?: boolean;
         circular?: boolean;
+        text?: string;
     }
 
     export class Label extends React.Component<ILabel, {}> { }
@@ -644,12 +645,14 @@ declare module "semanticui-react" {
     interface IItem {
         image?: string;
         icon?: string;
-        header?: string;
+        header?: string | any;
         link?: string;
         children?: any;
         imageSize?: "tiny" | "small";
-        meta?: IMeta[];
+        meta?: any;
         alignment?: "middle aligned" | "top aligned" | "middle aligned";
+        description?: any;
+        extra?: any;
     }
 
     export class Item extends React.Component<IItem, {}> { }

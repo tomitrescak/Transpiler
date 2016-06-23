@@ -336,7 +336,7 @@ declare module 'sweetalert' {
 // jsx-control-statements                                    //
 ///////////////////////////////////////////////////////////////
 
-declare function If (condition: any): any;
+declare function If(condition: any): any;
 declare function For(each: string, index: string, of: any): any;
 declare var Else: any;
 
@@ -399,7 +399,24 @@ declare module 'meteor/tomi:apollo-mantra' {
     mapQueriesToProps?: Function;
     mapMutationsToProps?: Function;
   }
-  export function createApp(context: any, loadingComponent?: any): any;
+
+  interface IQuery {
+    query: string;
+    variables?: Object;
+    thenCallback?: (data: any, dispatch: Function, state: () => any) => void;
+    errorCallback?: (errors: any, dispatch: Function, state: () => any) => void;
+    catchCallback?: (error: any, dispatch: Function, state: () => any) => void;
+  }
+
+  interface IOptions {
+    loadingComponent?: any;
+    apolloClient?: any;
+  }
+
+  export function query(query: IQuery): void;
+  export function mutation(query: IQuery): void;
+
+  export function createApp(context: any, options: IOptions): any;
   export function schemas(): any;
   export function resolvers(): any;
   export function connect(funcs: IConnectFunctions): (component: any) => any;

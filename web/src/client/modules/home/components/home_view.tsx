@@ -58,7 +58,6 @@ export default class Home extends React.Component<IProps, {}> {
         <If condition={this.props.user}>
           <div>
             {/* LOGGED IN */}
-            <div className="cornerDecoration"><img src={ this.props.user.avatar } /></div>
             <Grid stackable columns={2}>
               <Column width={9}>
                 {/*<Announcements />*/}

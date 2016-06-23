@@ -43,6 +43,12 @@ const schema = `
     images: [String]
     permissions: Permissions
     protectLoops: Boolean
+    createdAt: Date
+    createdBy: String
+    createdById: String
+    updatedAt: Date
+    updatedBy: String
+    updatedById: String
   }
 `
 

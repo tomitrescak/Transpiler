@@ -154,7 +154,7 @@ function initBadges(code: number, name: string, reverse = true, count = 5) {
   for (let i = 1; i <= count; i++) {
     let rank = reverse ? (6 - i) : i;
     let langCode = 'Badge' + name + i + 'Stars';
-    group.push({ code: code, rank: rank, url: (name + i), description: mf(langCode, '') });
+    group.push({ code: code, rank: rank, url: (name + i), description: mf(langCode) });
   }
   badgeCollection.push(group);
 }
@@ -168,7 +168,7 @@ Meteor.startup(() => {
   initBadges(7, 'Steps', false);
 
   let group: ISystemBadge[] = [];
-  group.push({ code: 0, url: 'Loc', description: mf('BadgeLocMaxStars', ''), rank: null });
-  group.push({ code: 1, url: 'Steps', description: mf('BadgeStepsMaxStars', ''), rank: null });
+  group.push({ code: 0, url: 'Loc', description: mf('BadgeLocMaxStars'), rank: null });
+  group.push({ code: 1, url: 'Steps', description: mf('BadgeStepsMaxStars'), rank: null });
   badgeCollection.push(group);
 });

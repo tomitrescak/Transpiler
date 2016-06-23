@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { AccountsUiUser, reducer as accountsReducer } from 'meteor/tomi:accountsui-semanticui-redux';
 import { SUBSCRIBE, UNSUBSCRIBE, IActionSubscribe, IActionUnSubscribe } from '../../schedules/actions/schedule_subscription_actions';
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
+import Permissions from '../../../../lib/models/permission_model';
 
 declare global {
   interface IScheduleSubscription {
@@ -16,6 +17,8 @@ declare global {
     },
     subscribe(state: IAccountsState<SystemUser>, action: IActionSubscribe): void;
     unsubscribe(state: IAccountsState<SystemUser>, action: IActionUnSubscribe): void;
+    canRead(permissions: IPermissionsDAO): boolean;
+    canWrite(permissions: IPermissionsDAO): boolean;
   }
 }
 
@@ -46,6 +49,12 @@ const augmentation = function(user: Meteor.User) {
       // filter out subscriptions
       const subscriptions = action.subscriptions;
       return modifyProfile(user, state, { schedules: subscriptions  });
+    },
+    canRead(permissions: IPermission) {
+      return Permissions.canRead(permissions, user);
+    },
+    canWrite(permissions: IPermission) {
+      return Permissions.canWrite(permissions, user);
     }
   };
 };

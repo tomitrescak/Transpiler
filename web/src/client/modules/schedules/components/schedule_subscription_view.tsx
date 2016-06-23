@@ -2,6 +2,9 @@ import React from 'react';
 import { Button, Dropdown, DropdownItem, Modal } from 'semanticui-react';
 import { mf } from '../../../configs/i18n';
 
+let tutor: IScheduleTutorDAO;
+let index: number;
+
 export interface IComponentProps {
   subscription: IScheduleSubscription;
   context: IContext;
@@ -25,11 +28,9 @@ export const ScheduleSubscription = ({ user, subscription, subscribe, unsubscrib
         <Button icon="trash" onClick={unsubscribe} color="default">{ mf('schedule.unsubscribeWith') } { subscription.tutorName }</Button>
       <Else />
         <Dropdown id="subscription" activation="click" defaultText="schedule.selectTutor" onChange={(value: string, text: string) => subscribe(value, text) }>
-          {
-            tutors.map((tutor: IScheduleTutorDAO) => {
-              return <DropdownItem value={tutor.id}>{ tutor.name }</DropdownItem>;
-            })
-          }
+          <For each="tutor" of={tutors} index="index">
+            <DropdownItem key={index} value={tutor.id}>{ tutor.name }</DropdownItem>
+          </For>
         </Dropdown>
       </If>
     </div>
@@ -47,7 +48,7 @@ export class TutorModal extends React.Component<IComponent, {}> {
 
   render() {
     return (
-      <Modal small header="selectTutor.header"
+      <Modal id="ssubscriptionModal" small header="selectTutor.header"
         neutralAction={() => $('#tutorModal').modal('hide') }
         neutralText="close"
         icon="close">

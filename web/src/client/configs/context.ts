@@ -4,6 +4,8 @@ import * as Collections from '../../lib/collections/collections';
 import { __ } from 'i18n-client';
 
 import { UiUtils, RouterUtils, ClassUtils } from '../utils/helpers_client';
+import Config from './config';
+
 // import classnames from 'classnames';
 // import beautify from "js-beautify";
 // import StringUtils from "../../common/utils/string_utils";
@@ -22,7 +24,8 @@ export default function() {
     Meteor,
     Store: store,
     Collections,
-    Utils
+    Utils,
+    Config
   };
 }
 
@@ -34,7 +37,8 @@ declare global {
     Collections: typeof Collections;
     Meteor?: typeof Meteor | any;
     Store?: IStore;
-    Utils: typeof Utils
+    Utils: typeof Utils;
+    Config: typeof Config;
   }
 
   export interface IContainerContext {

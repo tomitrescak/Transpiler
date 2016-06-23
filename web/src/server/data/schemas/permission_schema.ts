@@ -10,7 +10,7 @@ const schema = `
     groups: [PermissionGroup]
     otherAccess: Int
   }
-`
+`;
 
 const resolvers = {
   Permissions: {

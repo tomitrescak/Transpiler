@@ -29,6 +29,19 @@ const mapQueriesToProps = (context: IContext, { state, ownProps }: IGraphQlProps
             name
             email
           }
+          practicals {
+            _id
+            name
+            image
+            description
+            createdBy
+            updatedAt
+            permissions {
+              owner
+              ownerAccess
+              otherAccess
+            }
+          }
         }
       }`,
       variables: {
@@ -41,7 +54,6 @@ const mapQueriesToProps = (context: IContext, { state, ownProps }: IGraphQlProps
 
 export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps): IComponentProps => ({
   context,
-  isAdmin: state.accounts.user ? state.accounts.user.isAdmin() : false,
   user: state.accounts.user
 });
 
