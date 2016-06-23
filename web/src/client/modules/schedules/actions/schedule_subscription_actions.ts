@@ -4,11 +4,14 @@ export const SUBSCRIBE = 'SCHEDULE: Subscribe';
 export const UNSUBSCRIBE = 'SCHEDULE: Unsubscribe';
 
 export interface IActionSubscribe extends IReduxAction {
-  subscriptions: IScheduleSubscription[];
+  scheduleId: string;
+  tutorId: string;
+  tutorName: string;
+  //subscriptions: IScheduleSubscription[];
 }
 
 export interface IActionUnSubscribe extends IReduxAction {
-  subscriptions: IScheduleSubscription[];
+  scheduleId: string;
 }
 
 export default {
@@ -37,7 +40,7 @@ export default {
         dispatch({
           type: SUBSCRIBE,
           subscriptions: data.subscribe
-        })
+        });
       }
     });
   },

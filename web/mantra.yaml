@@ -25,6 +25,7 @@ panes:
         template: context
       - file: client/index.ts
         template: client
+      #- file: client/modules/core/routes.tsx
 
 templates:
   # Module action template

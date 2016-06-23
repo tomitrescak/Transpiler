@@ -7,6 +7,7 @@ import { routerReducer } from 'react-router-redux';
 import { reducer as formReducer } from 'redux-form';
 import { reducer as accountsReducer } from '../modules/user/configs/user_reducer';
 import { reducer as scheduleReducer, IScheduleState } from '../modules/schedules/actions/schedule_reducer';
+import { reducer as practicalReducer, IPracticalState } from '../modules/practicals/actions/practical_reducer';
 
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 import { IStore as ReduxStore } from 'redux';
@@ -18,7 +19,8 @@ const rootReducer = combineReducers({
   routing: routerReducer,
   form: formReducer,
   apollo: apolloClient.reducer(),
-  schedule: scheduleReducer
+  schedule: scheduleReducer,
+  practical: practicalReducer
 });
 
 export default rootReducer;
@@ -28,7 +30,8 @@ export default rootReducer;
 declare global {
   export interface IState {
     accounts: IAccountsState<SystemUser>;
-    schedule: IScheduleState
+    schedule: IScheduleState;
+    practical: IPracticalState;
     // marks: IResult[];
     // mark: IResult;
   }
@@ -39,6 +42,6 @@ declare global {
   export interface IActions {
     core: {
       check: Function;
-    }
+    };
   }
 }

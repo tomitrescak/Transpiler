@@ -2,6 +2,7 @@ import {Meteor} from 'meteor/meteor';
 import store from './store';
 import * as Collections from '../../lib/collections/collections';
 import { __ } from 'i18n-client';
+import { query, mutation } from 'meteor/tomi:apollo-mantra';
 
 import { UiUtils, RouterUtils, ClassUtils } from '../utils/helpers_client';
 import Config from './config';
@@ -9,6 +10,11 @@ import Config from './config';
 // import classnames from 'classnames';
 // import beautify from "js-beautify";
 // import StringUtils from "../../common/utils/string_utils";
+
+const Apollo = {
+  query,
+  mutation
+}
 
 const Utils = {
   Ui: UiUtils,
@@ -25,7 +31,8 @@ export default function() {
     Store: store,
     Collections,
     Utils,
-    Config
+    Config,
+    Apollo
   };
 }
 
@@ -39,6 +46,7 @@ declare global {
     Store?: IStore;
     Utils: typeof Utils;
     Config: typeof Config;
+    Apollo: typeof Apollo;
   }
 
   export interface IContainerContext {

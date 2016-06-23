@@ -39,7 +39,8 @@ declare module "semanticui-react" {
     interface IBreadcrumbsProps {
         classes?: string;
         children?: any;
-        divider: string;
+        divider?: string;
+        dividerIcon?: string;
     }
 
     export class Breadcrumbs extends React.Component<IBreadcrumbsProps, {}> { }
@@ -126,6 +127,7 @@ declare module "semanticui-react" {
         inverted?: boolean;
         compact?: boolean;
         icon?: string;
+        floated?: "left" | "right";
         labeled?: "left" | "right";
         loading?: boolean;
         circular?: boolean;
@@ -136,6 +138,7 @@ declare module "semanticui-react" {
         active?: boolean;
         onClick?: Function;
         url?: string;
+        target?: string;
     }
 
     export class Button extends React.Component<IButton, {}> { }
@@ -341,6 +344,7 @@ declare module "semanticui-react" {
         circular?: boolean;
         alignment?: "left" | "center" | "right";
         float?: "left" | "right";
+        style?: any;
     }
 
     export class Segment extends React.Component<ISegment, {}> { }

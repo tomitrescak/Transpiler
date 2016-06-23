@@ -9,7 +9,7 @@ import { registerGqlTag } from 'apollo-client/gql';
 
 declare global {
   export interface IGraphqlQuery {
-    data: {
+    [name: string]: {
       query: any,
       forceFetch?: boolean,
       variables?: Object

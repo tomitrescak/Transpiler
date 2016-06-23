@@ -8,7 +8,7 @@ declare global {
     description: string;
     lecture: string;
     files: ITextFileDAO[];
-    exercises: string[];
+    exercises: IExerciseDAO[];
     ratedExercises: number;
     permissions: IPermissionsDAO;
   }

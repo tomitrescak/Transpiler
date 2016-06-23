@@ -22,7 +22,7 @@ const ScheduleItem = ({ name, _id, route, context, startDate, description }: ISc
       <Link link={`${route}/${context.Utils.Router.encodeUrlName(name)}/${_id}`}>{name}</Link>
       <div className="sub header">
         <If condition={startDate}>
-          <span><Text text="startDate" />: {Utils.Ui.niceDate(startDate) } {"\u00B7"}</span>
+          <span><Text text="startDate" />: {Utils.Ui.niceDate(startDate) } {'\u00B7'}</span>
         </If>
         { description }
       </div>
@@ -53,7 +53,6 @@ interface IProps extends IComponentProps {
 export interface IComponentActions {
   create: (name: string) => void;
   handleSearch: (text: string) => void;
-  clearSearch: () => void;
 }
 
 export interface IPropsAll extends IProps, IComponentActions { }

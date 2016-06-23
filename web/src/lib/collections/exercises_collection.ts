@@ -49,6 +49,7 @@ declare global {
     images: string[];
     permissions: IPermissionsDAO;
     protectLoops: boolean;
+    solution?: ISolutionDAO;
   }
 }
 

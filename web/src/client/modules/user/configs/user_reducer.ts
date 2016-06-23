@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { AccountsUiUser, reducer as accountsReducer } from 'meteor/tomi:accountsui-semanticui-redux';
 import { SUBSCRIBE, UNSUBSCRIBE, IActionSubscribe, IActionUnSubscribe } from '../../schedules/actions/schedule_subscription_actions';
+import { SECRET } from './user_actions';
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 import Permissions from '../../../../lib/models/permission_model';
 
@@ -12,6 +13,7 @@ declare global {
   }
   interface SystemUser extends AccountsUiUser {
     avatar: string;
+    secret: string;
     profile: {
       schedules: IScheduleSubscription[]
     },
@@ -66,6 +68,8 @@ export function reducer(state: IAccountsState<SystemUser>, action: IReduxAction)
   }
 
   switch (action.type) {
+    case SECRET:
+      return Object.assign({}, state, { secret: action['secret'] })
     case SUBSCRIBE:
       return state.user.subscribe(state, <IActionSubscribe> action);
     case UNSUBSCRIBE:

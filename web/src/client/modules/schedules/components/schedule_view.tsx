@@ -56,7 +56,7 @@ const ScheduleView = ({ context, data, user }: IProps) => {
     <div>
       <Breadcrumbs divider=">">
         <Breadcrumb link="/schedules" text="schedules.label" />
-        <Breadcrumb link="/schedules">{name}</Breadcrumb>
+        <Breadcrumb>{name}</Breadcrumb>
       </Breadcrumbs>
 
       <Segment attached="top">

@@ -24,8 +24,12 @@ export function handleSearch (text: string) {
   }
 }
 
+// automatically diapatched actions
+
+import store from '../../../configs/store';
+
 export function clearSearch () {
-  return {
+  store.dispatch({
     type: CLEAR_SEARCH
-  }
+  });
 }

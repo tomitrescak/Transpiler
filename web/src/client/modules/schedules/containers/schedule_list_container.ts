@@ -11,36 +11,6 @@ interface IProps {
   icon: string;
 }
 
-// export const composer: IKomposer = ({context, clearSearch, header, route, showBadges, icon}: IProps, onData: IKomposerData<IComponentProps>) => {
-//   const { Sub, Collections, Models, LocalState }: IContext = context();
-//   if (Sub.subscribe('schedules').ready()) {
-//     const options = {
-//       reactive: false,
-//       sort: {startDate: -1}
-//     };
-//
-//     const searchText = LocalState.get(LocalState.keys.Search);
-//
-//     let reg = searchText ? new RegExp('.*' + searchText + '.*', 'i') : /.*/;
-//     let data = Collections.Schedules.find({ name: { $regex: reg } }, options).fetch();
-//
-//     // build all schedules
-//
-//     const componentData = {
-//       header,
-//       route,
-//       showBadges,
-//       icon,
-//       isAdmin: Models.Security.isAdmin(Meteor.userId()),
-//       schedules: data
-//     };
-//     onData(null, componentData);
-//   } else {
-//     onData();
-//   }
-//   return clearSearch;
-// };
-
 const mapQueriesToProps = (context: IContext, { state }: any): IGraphqlQuery => {
   return {
     data: {
@@ -81,14 +51,11 @@ export const mapStateToProps = (context: IContext, state: IState, ownProps: IPro
 
 export const mapDispatchToProps = (context: IContext, dispatch: any): IComponentActions => ({
   create(name: string) {
-
-  },
-  clearSearch() {
-    dispatch(actions.clearSearch());
+    // TODO: create!
   },
   handleSearch(filter: string) {
     dispatch(actions.handleSearch(filter));
   },
-})
+});
 
 export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component));

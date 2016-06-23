@@ -49,6 +49,7 @@ const schema = `
     updatedAt: Date
     updatedBy: String
     updatedById: String
+    solution: [Solution]
   }
 `
 
@@ -78,6 +79,9 @@ const resolvers = {
     },
     permissions(exercise: IExerciseDAO) {
       return exercise.permissions;
+    },
+    solution(exercise: IExerciseDAO): ISolutionDAO {
+      return null;
     }
   }
 };

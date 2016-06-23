@@ -132,6 +132,7 @@ export default function() {
     'description': 'Description',
     'difficulty': 'Difficulty',
     'downloadZIP': 'Download ZIP',
+    'due': 'Due ',
     'DropBestExercise': 'Your solution for "{exerciseName}" just dropped in exercise ranking ;( Your current rank is #{rank}.',
     'DropBestPractical': 'Your rating in practical "{practicalName}" just dropped ;( Your current rank is #{rank}.',
     'DropBestSchedule': 'Your rating in schedule "{scheduleName}" just dropped ;( Your current rank is #{rank}.',

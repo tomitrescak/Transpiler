@@ -13,7 +13,7 @@ es5-shim                # ECMAScript 5 compatibility for older browsers.
 
 accounts-base
 
-ecmascript # gadicc:ecmascript-hot@2.0.0-beta.6
+gadicc:ecmascript-hot@2.0.0-beta.6
 tomi:accountsui-semanticui-redux
 accounts-password
 tracker

@@ -1,139 +1,93 @@
-import React from "react";
+import * as React from 'react';
+import SearchBar from '../../core/components/search_bar_view';
+import ExerciseItem from '../../exercises/components/exercise_item_view';
+import TutorModal from '../../schedules/containers/schedule_subscription_container';
 
-import { Meteor } from "meteor/meteor";
+import { Breadcrumb, Breadcrumbs, Segment, Header2, Button, Text, Label, Items } from 'semanticui-react';
 
-import SearchBar from "../../core/components/search_bar_view";
-import ExerciseItem from "../../exercises/components/exercise_item_view";
-import TutorModal from "../../schedules/containers/schedule_subscription_container";
-
-import { practicalLeaderboardsRoute } from "../../leaderboards/components/leaderboards_results_view";
+export interface IComponentQuery {
+  secretData: any;
+  practicalData: any;
+  scheduleData: any;
+}
 
 export interface IComponentProps {
-  schedule: IScheduleDAO;
-  practical: IPracticalDAO;
-  exercises: IExerciseDAO[];
-  solutions: ISolutionDAO[];
+  user: SystemUser;
+  context: IContext;
+  filter: string;
 }
 
 export interface IComponentActions {
-  createExercise: () => void;
-  zipPath: (scheduleId: string, practicalId: string) => string;
-  resultsPath: (scheduleId: string, practicalId: string) => string;
+  createPractical: () => void;
   handleSearch: (text: string) => void;
-  context: () => IContext;
 }
 
-export interface IComponent extends IComponentProps, IComponentActions { }
+export interface IComponent extends IComponentProps, IComponentActions, IComponentQuery { }
 
-export default class PracticalView extends React.Component<IComponent, {}> {
+let exercise: IExerciseDAO;
+let index: number;
 
-  context: IContext;
+export const PracticalView = ({ context, practicalData, scheduleData, secretData, user, createPractical, handleSearch }: IComponent) => {
+  const schedule: IScheduleDAO = scheduleData.schedule;
+  const practical: IPracticalDAO = practicalData.practical;
+  const userSecret: string = secretData.userSecret;
+  const dueDate: Date = schedule.items.find(w => w.practicalId === practical._id).due;
+  const { Utils } = context;
+  const e = Utils.Router.encodeUrlName;
 
-  //////////////////////////////////////////////////////////////////////////////
-  // EVENTS                                                                   //
-  //////////////////////////////////////////////////////////////////////////////
+  return (
+    <div>
+      <Breadcrumbs dividerIcon="right angle white">
+        <Breadcrumb link="/schedules" text="schedules.label" />
+        <Breadcrumb link={`/schedule/${e(schedule.name)}/${schedule._id}`}>{name}</Breadcrumb>
+        <Breadcrumb>{ practical.name }</Breadcrumb>
+      </Breadcrumbs>
 
-  previewPractical(e: React.SyntheticEvent) {
-    const { Utils } = this.context;
-    Utils.Ui.showMarkdownModal(this.props.practical.description);
-  }
+      <Segment attached="top" classes="form">
+        <Header2 icon="archive">
+          <a href="javascript:;" className="practicalTitle"  onClick={() => context.Utils.Ui.showMarkdownModal(practical.description) }>{ practical.name }</a>
+          <If condition={user && user.isRole(['tutor']) }>
+            <Button url={`/marking/${schedule._id}/${practical._id}`} labeled="left" floated="right" icon="legal" color="primary" text="tutor.marking" />
+            <Button url={`/resultscsv?scheduleId=${schedule._id}&practicalId=${practical._id}&token=${userSecret}`} floated="right" color="primary" target="_self" icon="cloud download" />
+          </If>
+          <If condition={user && user.canWrite(practical.permissions) }>
+            <Button url={`/admin/practical/${e(practical.name)}/${practical._id}`} floated="right" color="orange" icon="edit" />
+          </If>
+          <If condition={practical.exercises.find((p) => p.solution != null)}>
+            <Button url={`/zip?scheduleId=${schedule._id}&practicalId=${practical._id}&token=${userSecret}`} floated="right" labeled="left" icon="compress" target="_self" text="downloadZIP" />
+          </If>
+          <Button url={`leaderboard/${e(schedule.name)}/${e(practical.name)}/${schedule._id}/${practical.image}`}
+            floated="right" color="green" icon="trophy" />
+        </Header2>
+        <SearchBar placeHolder="practical.search" onUserInput={handleSearch} />
 
-  //////////////////////////////////////////////////////////////////////////////
-  // REACT                                                                    //
-  //////////////////////////////////////////////////////////////////////////////
-
-  renderExercise(exercise: IExerciseDAO) {
-    let solution = this.context.Collections.Solutions.findOne({ createdById: Meteor.userId(), scheduleId: this.props.schedule._id, practicalId: this.props.practical._id, exerciseId: exercise._id }, { reactive: false });
-    return (
-      <ExerciseItem
-        key={exercise._id}
-        exercise={exercise}
-        practical={this.props.practical}
-        schedule={this.props.schedule}
-        solution={solution}
-        context={this.props.context} />
-    );
-  }
-
-  render() {
-    this.context = this.props.context();
-    let dueDate: Date = this.props.schedule.items.find(w => w.practicalId == this.props.practical._id).due;
-    let exercise: IExerciseDAO;
-    const { Utils, Models: { Security, Permission } } = this.props.context();
-
-    return (
-      <div>
-        <div className="ui breadcrumb" style={{ marginBottom: 0 }}>
-          <a className="section" href={ Utils.Router.pathFor("schedules") }>{ mf("schedules.label") }</a>
-          <i className="right right angle white white icon divider" />
-          <a className="section" href={ Utils.Router.pathFor("schedule", { _id: this.props.schedule._id, name: Utils.Router.encodeUrlName(this.props.schedule.name) }) }>{ this.props.schedule.name }</a>
-          <i className="right right angle white white icon divider" />
-          <div className="active section">{ this.props.practical.name }</div>
-        </div>
-        <div className="ui form segment" id="adminForm">
-          <h2 className="ui header" style={{ marginBottom: 0 }}>
-            <i className="archive icon" />
-            <div className="content" style={{ width: "100%" }}>
-              <a href="#" className="practicalTitle"  onClick={this.previewPractical.bind(this) }>{ this.props.practical.name }</a>
-              <If condition={Security.isTutor() }>
-                <a href={ Utils.Router.pathFor("marking", { scheduleId: this.props.schedule._id, practicalId: this.props.practical._id }) }
-                  className="ui right floated labeled primary icon button">
-                  <i className="legal icon" /> { mf("tutor.marking") }
-                </a>
-                <a href={ this.props.resultsPath(this.props.schedule._id, this.props.practical._id) } className="ui right floated primary icon button" target="_self">
-                  <i className="cloud download icon" style={{ margin: 0 }} />
-                </a>
-              </If>
-              <If condition={Permission.canWrite(this.props.practical.permissions, Meteor.user()) }>
-                <a href={ Utils.Router.pathFor("adminPractical", { _id: this.props.practical._id, name: Utils.Router.encodeUrlName(this.props.practical.name) }) }
-                  className="ui right floated labeled orange icon button">
-                  <i className="edit icon" /> { mf("modify") }
-                </a>
-              </If>
-              <If condition={this.props.solutions.length}>
-                <a href={ this.props.zipPath(this.props.schedule._id, this.props.practical._id) } className="ui right floated labeled icon zip button" target="_self">
-                  <i className="compress icon" /> { mf("downloadZIP") }
-                </a>
-              </If>
-              {/*<a href="#" className="ui right floated icon button practicalTitle" onClick={this.previewPractical.bind(this) }>
-                <i className="info icon" style={{ margin: 0 }} />
-              </a>*/}
-              <a href={ practicalLeaderboardsRoute(this.props.context(), this.props.schedule, this.props.practical) }
-                className="ui right floated green icon button">
-                <i className="trophy icon" style={{ margin: 0 }} />
-              </a>
-            </div>
-          </h2>
-          <SearchBar placeHolder="practical.search" onUserInput={this.props.handleSearch.bind(this) } />
-
-          <div>
-            <If condition={this.props.exercises.length > 0}>
-              <div className="ui items">
-                <For each="exercise" index="index" of={this.props.exercises}>
-                  { this.renderExercise(exercise) }
-                </For>
-              </div>
-              <Else />
-                <If condition={Permission.canWrite(this.props.practical.permissions, Meteor.user())}>
-                  <span>
-                    <div className="ui primary labeled icon button" id="createRecord" onClick={this.props.createExercise.bind(this, this.props.practical) }>
-                      <i className="icon plus" /> { mf("exercise.add") }
-                    </div>
-                    { mf("confirm.createExercise") }
-                  </span>
-                <Else />
-                  { mf("search.empty") }
-                </If>
-            </If>
-          </div>
-          <If condition={dueDate}>
-            <div className="ui vertical segment" style={{ textAlign: "right" }}>
-              <span className={Utils.Css("ui label", { red: new Date() > dueDate }) }>Due { Utils.Ui.relativeDate(dueDate) }</span>
-            </div>
+        <div>
+          <If condition={practical.exercises.length > 0}>
+            <Items>
+              <For each="exercise" index="index" of={practical.exercises}>
+                 <span key={index}>item</span>
+              </For>
+            </Items>
+            <Choose>
+              <When condition={user && user.canWrite(practical.permissions)}>
+                <Button labeled="right" color="primary" icon="plus" text="exercise.add" onClick={createPractical} />
+                <Text text="confirm.createExercise" />
+              </When>
+              <Otherwise>
+                <Text text="search.empty" />
+              </Otherwise>
+            </Choose>
           </If>
         </div>
-        { this.props.schedule.tutors.length > 0 && Meteor.user() ? <TutorModal scheduleId={this.props.schedule._id} tutors={this.props.schedule.tutors} /> : "" }
-      </div>
-    );
-  }
-}
+      </Segment>
+      <If condition={dueDate}>
+        <Segment attached="bottom" style={{ textAlign: 'right' }}>
+          <Label color={ new Date() > dueDate ? 'red' : 'default'}><Text text="due" />{ Utils.Ui.relativeDate(dueDate) }</Label>
+        </Segment>
+      </If>
+      { user && schedule.tutors.length > 0 && <TutorModal scheduleId={schedule._id} tutors={schedule.tutors} /> }
+    </div>
+  );
+};
+
+export default PracticalView;
