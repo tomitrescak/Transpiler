@@ -18,7 +18,6 @@
   ```
   meteor remove ecmascript
   meteor add gadicc:ecmascript-hot
-  npm i --save-dev babel-preset-meteor
   npm i --save react-hot-loader@^3.0.0-beta.2
   npm i --save-dev redbox-react
   ```

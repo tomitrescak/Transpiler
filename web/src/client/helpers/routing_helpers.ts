@@ -11,3 +11,5 @@ export function getRootNode(rootId: string) {
 
   return document.getElementById(rootId);
 }
+
+export default getRootNode;

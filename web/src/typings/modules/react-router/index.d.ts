@@ -599,7 +599,7 @@ declare module '~react-router/react-router' {
            * }
        * @type {{ [name: string]: Component<any> }}
        */
-      components?: { [name: string]: typeof React.Component }
+      components?: any
 
       /**
        * Same as component but asynchronous, useful for code-splitting.

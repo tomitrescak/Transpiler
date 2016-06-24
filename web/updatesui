@@ -1,0 +1,2 @@
+pnpm remove semanticui-react
+pnpm i --save semanticui-react

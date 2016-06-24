@@ -1,14 +1,24 @@
 import { createApolloServer } from 'meteor/apollo';
+import { Meteor } from 'meteor/meteor';
+import { schemas, resolvers } from 'meteor/tomi:apollo-mantra';
+import createSchemas from '../data/schemas/index';
 
-import schema from '../data/schema';
-import resolvers from '../data/resolvers';
+declare global {
+  export interface IApolloContext {
+    user: Meteor.User;
+    userId: string;
+  }
+}
 
 export default function() {
-  console.log('creating server ...');
+  createSchemas();
+
+  // console.log('creating server ...: ' + JSON.stringify(schema));
+
   createApolloServer({
     graphiql: true,
     pretty: true,
-    schema,
-    resolvers,
+    schema: schemas(),
+    resolvers: resolvers(),
   });
 }

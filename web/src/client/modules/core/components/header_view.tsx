@@ -1,42 +1,35 @@
 import React from 'react';
-import { Menu, MenuItem } from 'semanticui-react';
+
+import { CourseMenu, AdminMenu, CommunityMenu, LibraryMenu } from './menus_view';
 import { UserView } from 'meteor/tomi:accountsui-semanticui-redux';
+import { Menu, MenuItem } from 'semanticui-react';
 import jss from '../../../configs/jss';
 
-const styles = {
+const css = jss({
   header: {
-    margin: '12px!important',
-    '& .item': {
-      cursor: 'pointer'
-    }
+    'margin-top': '30px!important'
   }
-};
-const {classes} = jss.createStyleSheet(styles).attach();
+});
 
-export interface IComponentActions {
-  create: () => void;
-  save: () => void;
+interface IHeader {
+  isAdmin: boolean;
+  isLoggedIn: boolean;
 }
 
-export interface IComponentProps {
-  user: any;
-}
-
-export interface IProps extends IComponentActions, IComponentProps {}
-
-const Header = ({ user, create, save }: IProps) => (
-    <Menu inverted={true} color="blue" classes={classes.header}>
-      <MenuItem link="/" icon="bug" text="Marking" />
-      <MenuItem icon="file" text="Create" link="/" />
-      <MenuItem icon="save" text="Save" onClick={save} />
-      <Menu position="right">
-        { user ? <UserView /> : null }
-      </Menu>
+export const Header = ({ isAdmin, isLoggedIn }: IHeader) => (
+  <Menu inverted color="blue" classes={css.header}>
+    <MenuItem classes="header" link="/" icon="bug" text="site.name" />
+    <Menu position="right">
+      <If condition={isAdmin}>
+        <MenuItem link="book" icon="book" text="route.book" />
+        <AdminMenu />
+      </If>
+      <CourseMenu />
+      <CommunityMenu />
+      <LibraryMenu />
+      <UserView />
     </Menu>
+  </Menu>
 );
-
-// component.contextTypes = {
-//   router: React.PropTypes.func.isRequired
-// };
 
 export default Header;
