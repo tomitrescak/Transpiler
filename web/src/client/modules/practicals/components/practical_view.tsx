@@ -27,14 +27,13 @@ export interface IComponent extends IComponentProps, IComponentActions, ICompone
 let exercise: IExerciseDAO;
 let index: number;
 
-export const PracticalView = ({ context, practicalData, scheduleData, secretData, user, createPractical, handleSearch }: IComponent) => {
+export const PracticalView = ({ context, practicalData, scheduleData, secretData, user, createPractical, handleSearch }: IComponent, ctx: any) => {
   const schedule: IScheduleDAO = scheduleData.schedule;
   const practical: IPracticalDAO = practicalData.practical;
   const userSecret: string = secretData.userSecret;
   const dueDate: Date = schedule.items.find(w => w.practicalId === practical._id).due;
   const { Utils } = context;
   const e = Utils.Router.encodeUrlName;
-
   return (
     <div>
       <Breadcrumbs dividerIcon="right angle white">

@@ -426,6 +426,7 @@ declare module 'meteor/tomi:apollo-mantra' {
   export function processSchema(definition: IApolloDefinition[]): void;
   export function loadingContainer(component: any, keys?: string[]): any;
   export function loadingContainer(component: any, loading?: any, keys?: string[]): any;
+  export function isQuery(action: any, queryName: string): boolean;
 }
 
 ///////////////////////////////////////////////////////////////

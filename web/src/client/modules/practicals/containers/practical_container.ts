@@ -83,7 +83,8 @@ export const mapDispatchToProps = (context: IContext, dispatch: any): IComponent
 export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps): IComponentProps => ({
   context,
   user: state.accounts.user,
-  filter: state.practical.filter
+  filter: state.practical.filter,
+  practical: state.practical.practicals[ownProps.params.practicalId]
 });
 
 export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component, ['scheduleData', 'practicalData', 'secretData']));
