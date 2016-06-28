@@ -8,6 +8,8 @@ import { reducer as formReducer } from 'redux-form';
 import { reducer as accountsReducer } from '../modules/user/configs/user_reducer';
 import { reducer as scheduleReducer, IScheduleState } from '../modules/schedules/actions/schedule_reducer';
 import { reducer as practicalReducer, IPracticalState } from '../modules/practicals/actions/practical_reducer';
+import { reducer as exerciseReducer, IExerciseState } from '../modules/exercises/actions/exercise_reducer';
+import { reducer as solutionReducer, ISolutionState } from '../modules/exercises/actions/solution_reducer';
 
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 import { IStore as ReduxStore } from 'redux';
@@ -20,7 +22,9 @@ const rootReducer = combineReducers({
   form: formReducer,
   apollo: apolloClient.reducer(),
   schedule: scheduleReducer,
-  practical: practicalReducer
+  practical: practicalReducer,
+  exercise: exerciseReducer,
+  solution: solutionReducer
 });
 
 export default rootReducer;
@@ -32,6 +36,8 @@ declare global {
     accounts: IAccountsState<SystemUser>;
     schedule: IScheduleState;
     practical: IPracticalState;
+    exercise: IExerciseState;
+    solution: ISolutionState;
     // marks: IResult[];
     // mark: IResult;
   }

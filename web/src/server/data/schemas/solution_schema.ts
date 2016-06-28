@@ -1,3 +1,5 @@
+import { Solutions } from '../../../lib/collections/solution_collection';
+
 const schema = `
   type Submission {
     date: Date
@@ -50,9 +52,46 @@ const resolvers = {
       return submission.files;
     }
   }
+};
+
+const mutationText = `
+  changeSolutionState(id: String, status: String): Boolean
+`;
+
+interface MutationSubscribe {
+  id: string;
+  status: string;
 }
+
+const statuses = ['', 'Open', 'Submitted', 'Marked'];
+
+const mutations = {
+  changeSolutionState(root: any, { id, status }: MutationSubscribe, { userId }: IApolloContext) {
+    if (statuses.indexOf(status) === -1) {
+      throw new Error('Status does not exist: ' + status);
+    }
+    const options = { status };
+
+    // submitted solutions are kept separately from main files
+    if (status === 'Submitted') {
+      const solution = Solutions.findOne(id);
+      options['submission'] = {
+        date: new Date(),
+        files: solution.files
+      };
+    } else if (status !== 'Marked') {
+      options['submission'] = null;
+    }
+
+    Solutions.update({ _id: id, updatedById: userId }, { $set: options });
+
+    return true;
+  }
+};
 
 export default {
   schema,
-  resolvers
-}
+  resolvers,
+  mutationText,
+  mutations
+};

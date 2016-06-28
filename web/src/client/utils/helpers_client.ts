@@ -6,6 +6,9 @@ import sAlert from 'react-s-alert';
 import swal from 'sweetalert';
 import { mf } from '../configs/i18n';
 
+import store from '../configs/store';
+import { push } from 'react-router-redux';
+
 export const RouterUtils = {
   encodeUrlName(name: string): string {
     let result = name.replace(/\:/g, '');
@@ -13,6 +16,9 @@ export const RouterUtils = {
     result = result.replace(/\W/g, '-');
     return result.replace(/--/g, '-');
   },
+  go(route: string) {
+    store.dispatch(push(route));
+  }
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -27,7 +33,7 @@ declare global {
   }
 
   interface IAsyncCallback {
-    (error: IError, result: any): void
+    (error: IError, result: any): void;
   }
 
   interface ISaveable {
@@ -260,5 +266,14 @@ export const ClassUtils = {
     }
 
     return arr;
+  },
+  find<T>(obj: Object, callback: (elem: T) => boolean): T {
+    let props = Object.getOwnPropertyNames(obj);
+    for (let prop of props) {
+      if (callback(obj[prop])) {
+        return obj[prop];
+      }
+    }
+    return null;
   }
 };

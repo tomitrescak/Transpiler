@@ -37,10 +37,18 @@ body {
 
 /* Semantic UI cistomisations */
 
+.item .header {
+	width: 100%!important;
+}
+
 .header .icon.button .icon {
 	margin: 0px!important;
 }
 
 .header .content {
-	width: 100%!important; 
+	width: 100%!important;
+}
+
+.white {
+	color: white!important;
 }

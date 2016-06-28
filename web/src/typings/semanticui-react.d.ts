@@ -284,6 +284,9 @@ declare module "semanticui-react" {
         floating?: boolean;
         circular?: boolean;
         text?: string;
+        link?: string;
+        onClick?: Function;
+        style?: any;
     }
 
     export class Label extends React.Component<ILabel, {}> { }
@@ -646,8 +649,20 @@ declare module "semanticui-react" {
         description?: string;
     }
 
+    interface IITemBase {
+      state?: any;
+      classes?: string;
+    }
+
+    interface IITemImage extends IITemBase {
+      state?: any;
+      classes?: string;
+      size?: ISizes;
+      src?: string;
+    }
+
     interface IItem {
-        image?: string;
+        image?: string | any;
         icon?: string;
         header?: string | any;
         link?: string;
@@ -659,7 +674,21 @@ declare module "semanticui-react" {
         extra?: any;
     }
 
-    export class Item extends React.Component<IItem, {}> { }
+    export module Item {
+      export class Main extends React.Component<IItem, {}> { }
+
+      export class Image extends React.Component<IITemImage, {}> { }
+
+      export class Content extends React.Component<IITemBase, {}> { }
+
+      export class Header extends React.Component<IITemBase, {}> { }
+
+      export class Extra extends React.Component<IITemBase, {}> { }
+
+      export class Meta extends React.Component<IITemBase, {}> { }
+
+      export class Description extends React.Component<IITemBase, {}> { }
+    }
 
     interface IJumbo {
         classes?: string;

@@ -29,7 +29,9 @@ declare module 'react-dom' {
 
 declare module 'react-router-redux' {
   export function syncHistoryWithStore(history: any, store: any): any;
+  export function push(route: string): void;
   export var routerReducer: any;
+  export var routerMiddleware: any;
 }
 
 
@@ -193,6 +195,10 @@ declare module 'jss' {
 }
 
 declare module 'jss-nested' {
+  export default function(): any;
+}
+
+declare module 'jss-vendor-prefixer' {
   export default function(): any;
 }
 
@@ -406,9 +412,26 @@ declare module 'meteor/tomi:apollo-mantra' {
   interface IQuery {
     query: string;
     variables?: Object;
+    optimisticCallback: (dispatch: Function, state: () => any) => void;
     thenCallback?: (data: any, dispatch: Function, state: () => any) => void;
     errorCallback?: (errors: any, dispatch: Function, state: () => any) => void;
     catchCallback?: (error: any, dispatch: Function, state: () => any) => void;
+  }
+
+  interface IResult<T> {
+    type: string;
+    result: {
+      data: T
+    }
+  }
+
+  interface IMutationResult<T> extends IResult<T> {
+    mutationId: string;
+  }
+
+  interface IQueryResult<T> extends IResult<T> {
+    queryId: string;
+    requestId: number;
   }
 
   interface IOptions {
@@ -422,11 +445,15 @@ declare module 'meteor/tomi:apollo-mantra' {
   export function createApp(context: any, options: IOptions): any;
   export function schemas(): any;
   export function resolvers(): any;
-  export function connect(funcs: IConnectFunctions): (component: any) => any;
+  export function connect<T>(funcs: IConnectFunctions): (component: any) => React.StatelessComponent<T>;
   export function processSchema(definition: IApolloDefinition[]): void;
   export function loadingContainer(component: any, keys?: string[]): any;
   export function loadingContainer(component: any, loading?: any, keys?: string[]): any;
+  export function copyQuery(state: Object, stateKey: string, queryResult: Object[], queryKey?: string): Object;
   export function isQuery(action: any, queryName: string): boolean;
+  export function getQuery<T>(action: any): string;
+  export function isMutation(action: any, queryName: string): boolean;
+  export function getMutation<T>(action: any): string;
 }
 
 ///////////////////////////////////////////////////////////////
@@ -435,4 +462,12 @@ declare module 'meteor/tomi:apollo-mantra' {
 
 declare interface IReduxAction {
   type: string;
+}
+
+///////////////////////////////////////////////////////////////
+// react-addons-update                                       //
+///////////////////////////////////////////////////////////////
+
+declare module 'react-addons-update' {
+  export default function update(obj: Object, query: Object): Object;
 }

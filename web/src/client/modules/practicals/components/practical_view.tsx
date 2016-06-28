@@ -1,6 +1,6 @@
 import * as React from 'react';
 import SearchBar from '../../core/components/search_bar_view';
-import ExerciseItem from '../../exercises/components/exercise_item_view';
+import ExerciseItem from '../../exercises/containers/exercise_item_container';
 import TutorModal from '../../schedules/containers/schedule_subscription_container';
 
 import { Breadcrumb, Breadcrumbs, Segment, Header2, Button, Text, Label, Items } from 'semanticui-react';
@@ -9,6 +9,7 @@ export interface IComponentQuery {
   secretData: any;
   practicalData: any;
   scheduleData: any;
+  solutionData: any;
 }
 
 export interface IComponentProps {
@@ -27,18 +28,26 @@ export interface IComponent extends IComponentProps, IComponentActions, ICompone
 let exercise: IExerciseDAO;
 let index: number;
 
-export const PracticalView = ({ context, practicalData, scheduleData, secretData, user, createPractical, handleSearch }: IComponent, ctx: any) => {
+export const PracticalView = ({ context, practicalData, scheduleData, secretData, user, createPractical, handleSearch, filter }: IComponent, ctx: any) => {
   const schedule: IScheduleDAO = scheduleData.schedule;
   const practical: IPracticalDAO = practicalData.practical;
   const userSecret: string = secretData.userSecret;
   const dueDate: Date = schedule.items.find(w => w.practicalId === practical._id).due;
   const { Utils } = context;
   const e = Utils.Router.encodeUrlName;
+
+  // filter exercises based by search string
+  let { exercises } = practical;
+  if (filter) {
+    const reg = new RegExp('.*' + filter + '.*', 'i');
+    exercises = exercises.filter((s: IExerciseDAO) => s.name.match(reg));
+  }
+
   return (
     <div>
       <Breadcrumbs dividerIcon="right angle white">
         <Breadcrumb link="/schedules" text="schedules.label" />
-        <Breadcrumb link={`/schedule/${e(schedule.name)}/${schedule._id}`}>{name}</Breadcrumb>
+        <Breadcrumb link={`/schedule/${e(schedule.name)}/${schedule._id}`}>{schedule.name}</Breadcrumb>
         <Breadcrumb>{ practical.name }</Breadcrumb>
       </Breadcrumbs>
 
@@ -52,7 +61,7 @@ export const PracticalView = ({ context, practicalData, scheduleData, secretData
           <If condition={user && user.canWrite(practical.permissions) }>
             <Button url={`/admin/practical/${e(practical.name)}/${practical._id}`} floated="right" color="orange" icon="edit" />
           </If>
-          <If condition={practical.exercises.find((p) => p.solution != null)}>
+          <If condition={practical.exercises.find((p) => p.solution != null) }>
             <Button url={`/zip?scheduleId=${schedule._id}&practicalId=${practical._id}&token=${userSecret}`} floated="right" labeled="left" icon="compress" target="_self" text="downloadZIP" />
           </If>
           <Button url={`leaderboard/${e(schedule.name)}/${e(practical.name)}/${schedule._id}/${practical.image}`}
@@ -61,22 +70,23 @@ export const PracticalView = ({ context, practicalData, scheduleData, secretData
         <SearchBar placeHolder="practical.search" onUserInput={handleSearch} />
 
         <div>
-          <If condition={practical.exercises.length > 0}>
-            <Items>
-              <For each="exercise" index="index" of={practical.exercises}>
-                 <span key={index}>item</span>
-              </For>
-            </Items>
-            <Choose>
-              <When condition={user && user.canWrite(practical.permissions)}>
-                <Button labeled="right" color="primary" icon="plus" text="exercise.add" onClick={createPractical} />
-                <Text text="confirm.createExercise" />
-              </When>
-              <Otherwise>
-                <Text text="search.empty" />
-              </Otherwise>
-            </Choose>
-          </If>
+          <Choose>
+            <When condition={exercises.length > 0}>
+              <Items key="exerciseView">
+                <For each="exercise" index="index" of={exercises}>
+                  <ExerciseItem key={index} exerciseId={exercise._id} practical={practical} schedule={schedule}  />
+                </For>
+              </Items>
+            </When>
+            <When condition={user && user.canWrite(practical.permissions) }>
+              <Button labeled="right" color="primary" icon="plus" text="exercise.add" onClick={createPractical} />
+              <Text text="confirm.createExercise" />
+            </When>
+            <Otherwise>
+              <Text text="search.empty" />
+            </Otherwise>
+
+          </Choose>
         </div>
       </Segment>
       <If condition={dueDate}>

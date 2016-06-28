@@ -1,6 +1,16 @@
-//////////////////////////////////////////////////////////////////////////////
-// StarRating Component                                                      //
-//////////////////////////////////////////////////////////////////////////////
+import * as React from 'react';
+import jss from '../../../configs/jss';
+
+const classes = jss({
+  container: {
+    '& .ratingOk': {
+      color: 'gold'
+    },
+    '& .ratingOkLoc': {
+      color: 'darkred'
+    }
+  }
+})
 
 interface IStarRatingProps {
   codeStars?: number;
@@ -8,7 +18,7 @@ interface IStarRatingProps {
 }
 
 const CommentList = ({codeStars, stepsStars}: IStarRatingProps) => (
-  <span>
+  <span className={classes.container}>
     { codeStars >= 1 ? <span className="ratingOk">★</span> : <span className="ratingNone">☆</span> }
     { codeStars >= 2 ? <span className="ratingOk">★</span> : <span className="ratingNone">☆</span> }
     { codeStars >= 3 ? <span className="ratingOk">★</span> : <span className="ratingNone">☆</span> }

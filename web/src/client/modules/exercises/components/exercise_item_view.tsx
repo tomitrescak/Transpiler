@@ -1,239 +1,99 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import * as React from 'react';
 
-import { UiUtils, RouterUtils } from "../../../utils/helpers_client";
-import StarRating from "../../core/components/star_rating_view";
+import StarRating from '../../core/components/star_rating_view';
+import { Item, Button, Image, Label, Text } from 'semanticui-react';
 
-//////////////////////////////////////////////////////////////////////////////
-// ExerciseItemView Component                                                      //
-//////////////////////////////////////////////////////////////////////////////
 
-interface IExerciseItemViewProps {
-  key: string;
+export interface IComponentProps {
   exercise: IExerciseDAO;
+  solution: ISolutionDAO;
+  context: IContext;
+  user: SystemUser;
+}
+
+export interface IComponentActions {
+  removeSubmission: Function;
+  submitSolution: Function;
+}
+
+interface IProps extends IComponentProps, IComponentActions {
   practical?: IPracticalDAO;
   schedule?: IScheduleDAO;
-  solution?: ISolutionDAO;
-  context: () => IContext;
 }
 
-interface IExerciseItemViewState {
-  status: string;
+
+
+function checkTutor(event: React.SyntheticEvent, context: IContext, user: SystemUser, exercise: IExerciseDAO, practical: IPracticalDAO, schedule: IScheduleDAO) {
+  if (!schedule) {
+    return;
+  }
+
+  if (user) {
+    if (schedule.tutors.length > 0) {
+      if (!user.getSubscription(schedule._id)) {
+        context.Utils.Ui.alertDialog('error.notSubscribed', 'error.subscriptionError');
+        event.preventDefault();
+        return false;
+      }
+    }
+  }
+
+  const e = context.Utils.Router.encodeUrlName;
+  context.Utils.Router.go(`/exercise/${e(exercise.name)}/${e(practical.name)}/${e(schedule.name)}/${exercise._id}/${practical._id}/${schedule._id}`);
 }
 
-export default class ExerciseItemView extends React.Component<IExerciseItemViewProps, IExerciseItemViewState> {
-  constructor(props: IExerciseItemViewProps) {
-    super();
-    this.state = {
-      status: props.solution ? props.solution.status : null
-    };
-  }
+const ExerciseItemView = ({ context, user, solution, schedule, practical, exercise, removeSubmission, submitSolution }: IProps) => {
 
-  //////////////////////////////////////////////////////////////////////////////
-  // HELPERS                                                                  //
-  //////////////////////////////////////////////////////////////////////////////
+  const e = context.Utils.Router.encodeUrlName;
 
-  scheduledExercises(): Object[] {
-    let result: Object[] = [];
-      // find all practicals where this exercises is
-      let pracs = Practicals.find({exercises: this.props.exercise._id}, { reactive: false }).fetch();
+  return (
+    <Item.Main>
+      <Item.Image classes="image" src={exercise.image ? (context.Config.S3Bucket + exercise.image) : '/images/wireframe.png'}>
+        <Label style={{cursor: 'pointer'}} onClick={() => context.Utils.Ui.showMarkdownModal(exercise.description) } icon="search" corner="left" />
+      </Item.Image>
 
-      if (pracs.length) {
-        // find all schedules where this practical is
-        for (let prac of pracs) {
-          let schedules = Schedules.find({ "items.practicalId": prac._id}, { reactive: false }).fetch();
+      <Item.Content>
+        <Item.Header>
+          <If condition={user && user.canWrite(exercise.permissions) }>
+            <Button compact color="orange" url={`/admin/exercise/${e(exercise.name)}/${exercise._id}`} icon="edit" />
+          </If>
+          <If condition={practical}>
+            <a href="javascript:;" onClick={(event: React.SyntheticEvent) => checkTutor(event, context, user, exercise, practical, schedule) }>{ exercise.name }</a>
+          </If>
+          <If condition={practical == null}>
+            { exercise.name }
+          </If>
 
-          // now create all paths and names
-          for (let schedule of schedules) {
-            result.push({
-              name: prac.name + " > " + schedule.name,
-              scheduleId: schedule._id,
-              scheduleName: RouterUtils.encodeUrlName(schedule.name),
-              practicalId: prac._id,
-              practicalName: RouterUtils.encodeUrlName(prac.name),
-              exerciseId: this.props.exercise._id,
-              exerciseName: RouterUtils.encodeUrlName(this.props.exercise.name)
-            });
-          }
-        }
-      }
-      return result;
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
-  // EVENTS                                                                   //
-  //////////////////////////////////////////////////////////////////////////////
-
-  checkTutor(e: React.SyntheticEvent) {
-    if (!this.props.schedule) {
-      return;
-    }
-
-    if (Meteor.user()) {
-      if (this.props.schedule.tutors.length > 0) {
-        if (!UserOptions.info().getScheduleSubscription(this.props.schedule._id)) {
-          const { Utils } = this.props.context();
-          Utils.Ui.alertDialog("error.notSubscribed", "error.subscriptionError");
-          e.preventDefault();
-          return;
-        }
-      }
-    }
-
-    RouterUtils.go("exercise", {
-      exerciseName: RouterUtils.encodeUrlName(this.props.exercise.name),
-      practicalName: RouterUtils.encodeUrlName(this.props.practical.name),
-      scheduleName: RouterUtils.encodeUrlName(this.props.schedule.name),
-      exerciseId: this.props.exercise._id,
-      practicalId: this.props.practical._id,
-      scheduleId: this.props.schedule._id
-    });
-  }
-
-  // "click .exerciseDetail":
-  previewExercise(e: React.SyntheticEvent) {
-    e.preventDefault();
-
-    // create html using showdown converter
-    UiUtils.showMarkdownModal(this.props.exercise.description);
-  }
-
-  submitSolution() {
-    let self = this;
-    changeStatus.call({ solutionId: this.props.solution._id, status: "Submitted" }, UiUtils.announceSaved((err: Meteor.Error) => {
-      if (!err) {
-        self.setState({
-          status: "Submitted"
-        });
-      }
-    }));
-  }
-
-  // "click .removeSubmission":
-  removeSubmission() {
-    let self = this;
-    changeStatus.call({ solutionId: this.props.solution._id, status: "Open" }, UiUtils.announceSaved((err: Meteor.Error) => {
-      if (!err) {
-        self.setState({
-          status: "Open"
-        });
-      }
-    }));
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
-  // REACT                                                                    //
-  //////////////////////////////////////////////////////////////////////////////
-
-  render() {
-    let scheduledExercises: Object[] = null;
-    if (!this.props.practical) {
-      scheduledExercises = this.scheduledExercises();
-    }
-    let index: number;
-    let routeParams: Object;
-
-    return (
-      <div className="item">
-          <div className="image previewImage">
-              <a className="ui left corner label exerciseDetail" onClick={this.previewExercise.bind(this)}>
-                  <i className="search icon" />
-              </a>
-              <img src={ this.props.exercise.image ? (GlobalConfig.S3Bucket + this.props.exercise.image) : "/images/wireframe.png" } />
-          </div>
-          <div className="content">
-              <span className="header exerciseLink" style={{marginBottom: 6}}>
-                <If condition={Permission.canWrite(this.props.exercise.permissions, Meteor.user())}>
-                  <a href={ RouterUtils.pathFor("adminExercise", {
-                              _id: this.props.exercise._id,
-                              name: RouterUtils.encodeUrlName(this.props.exercise.name)
-                             }) }
-                     className="ui compact icon orange button">
-                      <i className="edit icon" />
-                  </a>
-                </If>
-                <If condition={this.props.practical}>
-                  <a className="header exerciseLink" onClick={this.checkTutor.bind(this)}>{ this.props.exercise.name }</a>
-                </If>
-                <If condition={this.props.practical == null && scheduledExercises.length > 1}>
-                  <div className="ui dropdown" ref="dropdown">
-                      <div className="header text">
-                          <h3>{ this.props.exercise.name }</h3>
-                      </div>
-                      <i className="dropdown icon" />
-                      <div className="menu">
-                        <For each="routeParams" index="index" of={scheduledExercises}>
-                          <a key={index} className="item" href={RouterUtils.pathFor("exercise", routeParams)}>{ routeParams["name"] }</a>
-                        </For>
-                      </div>
-                  </div>
-                </If>
-                <If condition={this.props.practical == null && scheduledExercises.length === 1}>
-                  <a className="header exerciseLink"
-                    href={RouterUtils.pathFor("exercise", scheduledExercises[0])}>{ this.props.exercise.name }</a>
-                </If>
-                <If condition={this.props.practical == null && scheduledExercises.length === 0}>
-                  { this.props.exercise.name }
-                </If>
-                <If condition={this.props.solution && this.props.solution.validated}>
-                  <span>
-                    &nbsp;· <StarRating codeStars={this.props.solution.codeStars} stepsStars={this.props.solution.stepsStars} /> ·
-                      <span className="ui green label">{ mf("solution.completed") }</span>
-                      <If condition={this.props.solution.status === "Marked"}>
-                        <span className="ui blue label">{ mf("solution.mark") }: { this.props.solution.mark }</span>
+          <If condition={solution && solution.validated}>
+            &nbsp;· <StarRating codeStars={solution.codeStars} stepsStars={solution.stepsStars} /> ·
+                      {/*<Label color="green"  text="solution.completed" />*/}
+                      <If condition={solution.status === 'Marked'}>
+                        <Label color="blue" text="solution.mark">{ solution.mark }</Label>
                       </If>
-                  </span>
-                </If>
+          </If>
+          <Choose>
+            <When condition={solution && solution.status === 'Submitted'}>
+              <Button icon="erase" floated="right" labeled="left" color="orange" onClick={() => removeSubmission(solution._id) } text="solution.removeSubmission" />
+            </When>
+            <When condition={solution && ( solution.status === 'Open' || !solution.status )}>
+              <Button icon="edit" floated="right" labeled="left" color="green" onClick={() => submitSolution(solution._id) } text="solution.submit" />
+            </When>
+          </Choose>
+        </Item.Header>
+        <Item.Meta>
+            <span className="cinema">
+              <If condition={solution}>
+                <span><Text text="modified" /> { context.Utils.Ui.relativeDate(solution.updatedAt)} · </span>
+              </If>
+              <If condition={exercise.points}>
+                <span>{ exercise.points } <Text text="exercise.points" /></span>
+              </If>
+            </span>
+        </Item.Meta>
+        <Item.Description>{ context.Utils.Ui.previewMarkdown(exercise.description, 300) }</Item.Description>
+      </Item.Content>
+    </Item.Main>
+  );
+};
 
-              </span>
-              <div className="meta" style={{marginTop: 3}}>
-                <span className="cinema">
-                  {/*<If condition={this.props.solution && this.props.solution.validated}>
-                    <span>
-                      <a href={ RouterUtils.pathFor("exerciseLeaderboards", {
-                                    exerciseName: RouterUtils.encodeUrlName(this.props.exercise.name),
-                                    practicalName: RouterUtils.encodeUrlName(this.props.practical.name),
-                                    scheduleName: RouterUtils.encodeUrlName(this.props.schedule.name),
-                                    exerciseId: this.props.exercise._id,
-                                    practicalId: this.props.practical._id,
-                                    scheduleId: this.props.schedule._id
-                                  }) }>
-                          { mf("solution.rank") }{ this.props.solution.rank }</a> ·
-                    </span>
-                  </If>*/}
-                  <If condition={this.props.solution}>
-                    <span>{mf("modified")}{UiUtils.relativeDate(this.props.solution.updatedAt)} · </span>
-                  </If>
-                  <If condition={this.props.exercise.points}>
-                    <span>{ this.props.exercise.points }{ mf("exercise.points") }</span>
-                  </If>
-                </span>
-              </div>
-              <div className="description">
-                { UiUtils.previewMarkdown(this.props.exercise.description, 300) }
-              </div>
-              <div className="extra">
-                <If condition={this.props.solution && this.state.status === "Submitted"}>
-                  <div className="ui right floated labeled icon orange removeSubmission button" onClick={this.removeSubmission.bind(this)}>
-                    <i className="erase icon" /> { mf("solution.removeSubmission") }
-                  </div>
-                </If>
-                <If condition={this.props.solution && this.state.status === "Open"}>
-                  <div className="ui right floated labeled icon green submitSolution button" onClick={this.submitSolution.bind(this)}>
-                      <i className="edit icon" /> { mf("solution.submit") }
-                  </div>
-                </If>
-              </div>
-          </div>
-      </div>
-    );
-  }
-
-  componentDidMount() {
-    let dropdown = ReactDOM.findDOMNode(this.refs["dropdown"]);
-    if (dropdown) {
-      console.log("Enabling DR");
-      $(dropdown).dropdown({ on: "hover" });
-    }
-  }
-}
+export default ExerciseItemView;

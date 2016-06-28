@@ -1,6 +1,9 @@
 import { createStore, compose, applyMiddleware } from 'redux';
 import reduxThunk from 'redux-thunk';
 
+import { browserHistory } from 'react-router';
+import { routerMiddleware } from 'react-router-redux';
+
 // import the root reducer
 import rootReducer from './reducers';
 
@@ -9,11 +12,15 @@ import client from './apollo';
 
 // create an object for the default data
 
-const defaultState = {};
+const defaultState: any = {};
 
 // middlewares
 
-const middleware = [reduxThunk, client.middleware()]; // will add apolloClient.middleware()
+const middleware = [
+  reduxThunk,
+  client.middleware(),
+  routerMiddleware(browserHistory)
+];
 
 // redux tool
 
@@ -24,7 +31,7 @@ const enhancers = compose(
 
 // initialise store
 
-const store = createStore(rootReducer, defaultState, enhancers);
+const store = createStore<IState>(rootReducer, defaultState, enhancers);
 
 export default store;
 

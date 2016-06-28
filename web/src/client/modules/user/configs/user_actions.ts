@@ -16,12 +16,6 @@ export function getUserSecret(context: IContext) {
     `,
     thenCallback(data: any, dispatch: any) {
       dispatch(assignSecret(data.userSecret));
-    },
-    errorCallback() {
-      debugger;
-    },
-    catchCallback() {
-      debugger;
     }
   });
 }

@@ -4,6 +4,7 @@ import { SUBSCRIBE, UNSUBSCRIBE, IActionSubscribe, IActionUnSubscribe } from '..
 import { SECRET } from './user_actions';
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 import Permissions from '../../../../lib/models/permission_model';
+import store from '../../../configs/store';
 
 declare global {
   interface IScheduleSubscription {
@@ -15,8 +16,10 @@ declare global {
     avatar: string;
     secret: string;
     profile: {
-      schedules: IScheduleSubscription[]
-    },
+      schedules: IScheduleSubscription[],
+      avatar: string
+    };
+    getSubscription(scheduleId: string): IScheduleSubscription;
     subscribe(state: IAccountsState<SystemUser>, action: IActionSubscribe): void;
     unsubscribe(state: IAccountsState<SystemUser>, action: IActionUnSubscribe): void;
     canRead(permissions: IPermissionsDAO): boolean;
@@ -24,7 +27,7 @@ declare global {
   }
 }
 
-function modifyProfile(user: Meteor.User, state: IState, modification: Object) {
+function modifyProfile(user: Meteor.User, state: IAccountsState<SystemUser>, modification: Object) {
   // change profile
   const profile = Object.assign({}, user.profile, modification);
   // change user
@@ -33,13 +36,23 @@ function modifyProfile(user: Meteor.User, state: IState, modification: Object) {
   return Object.assign({}, state, { user });
 }
 
-const augmentation = function(user: Meteor.User) {
+const augmentation = function(defaultUser: Meteor.User) {
   return {
     get avatar() {
-      return user.profile && user.profile.avatar ? user.profile.avatar : 'clara.png';
+      const user = store.getState().accounts.user;
+      return user && user.profile && user.profile.avatar ? user.profile.avatar : 'clara.png';
     },
-    subscribe(state: IState, action: IActionSubscribe) {
-      let subscriptions = user.profile.subscriptions;
+    getSubscription(scheduleId: string) {
+      const user = store.getState().accounts.user;
+      let subscriptions: IScheduleSubscription[] = user.profile.schedules;
+      if (!subscriptions) {
+        return null;
+      }
+      return subscriptions.find((s) => s.scheduleId === scheduleId);
+    },
+    subscribe(state: IState, action: any) {
+      const user = store.getState().accounts.user;
+      let subscriptions = user.profile.schedules;
       if (!subscriptions) {
         subscriptions = [];
       }
@@ -47,16 +60,17 @@ const augmentation = function(user: Meteor.User) {
       subscriptions = action.subscriptions;
       return modifyProfile(user, state, { schedules: subscriptions });
     },
-    unsubscribe(state: IState, action: IActionSubscribe) {
+    unsubscribe(state: IState, action: any) {
+      const user = store.getState().accounts.user;
       // filter out subscriptions
       const subscriptions = action.subscriptions;
       return modifyProfile(user, state, { schedules: subscriptions  });
     },
     canRead(permissions: IPermission) {
-      return Permissions.canRead(permissions, user);
+      return Permissions.canRead(permissions, defaultUser);
     },
     canWrite(permissions: IPermission) {
-      return Permissions.canWrite(permissions, user);
+      return Permissions.canWrite(permissions, defaultUser);
     }
   };
 };
@@ -69,7 +83,7 @@ export function reducer(state: IAccountsState<SystemUser>, action: IReduxAction)
 
   switch (action.type) {
     case SECRET:
-      return Object.assign({}, state, { secret: action['secret'] })
+      return Object.assign({}, state, { secret: action['secret'] });
     case SUBSCRIBE:
       return state.user.subscribe(state, <IActionSubscribe> action);
     case UNSUBSCRIBE:

@@ -4,7 +4,7 @@ import * as practicalActions from '../actions/practical_actions';
 import * as userActions from '../../user/configs/user_actions';
 
 interface IProps {
-  params: {
+  params?: {
     scheduleId: string;
     practicalId: string;
   }
@@ -30,6 +30,11 @@ const mapQueriesToProps = (context: IContext, { state, ownProps }: IGraphQlProps
             name
             description
             points
+            permissions {
+              owner
+              ownerAccess
+              otherAccess
+            }
           }
           permissions {
             owner
@@ -67,7 +72,43 @@ const mapQueriesToProps = (context: IContext, { state, ownProps }: IGraphQlProps
         id: ownProps.params.scheduleId,
         userId: state.accounts.userId
       },
-    }
+    },
+    solutionData: {
+      query: gql`
+      query practicalSolutions($practicalId: String, $scheduleId: String, $userId: String) {
+        practicalSolutions(practicalId: $practicalId, scheduleId: $scheduleId, userId: $userId)
+        {
+          _id
+          scheduleId
+          practicalId
+          exerciseId
+          tutorId
+          tutorName
+          status
+          validated
+          codeStars
+          linesOfCode
+          steps
+          stepsStars
+          mark
+          rank
+          locRank
+          stepsRank
+          updatedAt
+          files {
+            id
+            type
+            name
+            source
+          }
+        }
+      }`,
+      variables: {
+        practicalId: ownProps.params.practicalId,
+        scheduleId: ownProps.params.scheduleId,
+        userId: state.accounts.userId
+      },
+    },
   };
 };
 
@@ -83,11 +124,10 @@ export const mapDispatchToProps = (context: IContext, dispatch: any): IComponent
 export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps): IComponentProps => ({
   context,
   user: state.accounts.user,
-  filter: state.practical.filter,
-  practical: state.practical.practicals[ownProps.params.practicalId]
+  filter: state.practical.filter
 });
 
-export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component, ['scheduleData', 'practicalData', 'secretData']));
+export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component, ['scheduleData', 'practicalData', 'solutionData', 'secretData']));
 
 
 // export const composer: IKomposer = ({context, scheduleId, practicalId}: IProps, onData: IKomposerData<IComponentProps>) => {

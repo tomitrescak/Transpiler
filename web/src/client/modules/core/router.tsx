@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import {Provider} from 'react-redux';
-import {Router, Route, IndexRoute, browserHistory} from 'react-router';
+import {browserHistory} from 'react-router';
 import {syncHistoryWithStore} from 'react-router-redux';
 import { getRootNode } from '../../helpers/routing_helpers';
 

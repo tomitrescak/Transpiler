@@ -38,7 +38,7 @@ const queries = {
     Secrets.remove({ user: userId });
     return Secrets.insert({ user: userId, date: new Date() });
   }
-}
+};
 
 const mutations = {
   subscribe(root: any, params: IActionSubscribe, { user, userId }: IApolloContext) {
