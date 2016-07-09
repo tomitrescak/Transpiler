@@ -1,4 +1,5 @@
 import { Solutions } from '../../../lib/collections/solution_collection';
+import { playsRoles } from '../../../lib/helpers/data_helpers';
 
 const schema = `
   type Submission {
@@ -54,6 +55,29 @@ const resolvers = {
   }
 };
 
+const queryText = `
+  solution(scheduleId: String, practicalId: String, exerciseId: String, userId: String): Solution
+`;
+
+const queries = {
+  solution(root: any, { scheduleId, practicalId, exerciseId, userId }: any, { user }: IApolloContext): ISolutionDAO {
+    if (playsRoles, ['admin', 'tutor']) {
+      // admin or tutor possibly view their own solutions
+      userId = userId ? userId : user._id;
+    } else {
+      // non admins and tutors are bound to see their own solutions
+      userId = user._id;
+    }
+
+    return Solutions.findOne({
+      scheduleId: scheduleId,
+      practicalId: practicalId,
+      exerciseId: exerciseId,
+      createdById: userId
+    });
+  }
+};
+
 const mutationText = `
   changeSolutionState(id: String, status: String): Boolean
 `;
@@ -93,5 +117,7 @@ export default {
   schema,
   resolvers,
   mutationText,
-  mutations
+  mutations,
+  queryText,
+  queries
 };

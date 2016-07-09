@@ -10,6 +10,8 @@ import { reducer as scheduleReducer, IScheduleState } from '../modules/schedules
 import { reducer as practicalReducer, IPracticalState } from '../modules/practicals/actions/practical_reducer';
 import { reducer as exerciseReducer, IExerciseState } from '../modules/exercises/actions/exercise_reducer';
 import { reducer as solutionReducer, ISolutionState } from '../modules/exercises/actions/solution_reducer';
+import { reducer as compilerReducer, ICompilerState } from '../modules/exercises/actions/compiler_reducer';
+
 
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 import { IStore as ReduxStore } from 'redux';
@@ -24,7 +26,8 @@ const rootReducer = combineReducers({
   schedule: scheduleReducer,
   practical: practicalReducer,
   exercise: exerciseReducer,
-  solution: solutionReducer
+  solution: solutionReducer,
+  compiler: compilerReducer
 });
 
 export default rootReducer;
@@ -38,6 +41,7 @@ declare global {
     practical: IPracticalState;
     exercise: IExerciseState;
     solution: ISolutionState;
+    compiler: ICompilerState;
     // marks: IResult[];
     // mark: IResult;
   }

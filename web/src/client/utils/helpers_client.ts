@@ -5,7 +5,7 @@ import config from '../configs/config';
 import sAlert from 'react-s-alert';
 import swal from 'sweetalert';
 import { mf } from '../configs/i18n';
-
+import EventObject from 'eventobject';
 import store from '../configs/store';
 import { push } from 'react-router-redux';
 
@@ -116,7 +116,7 @@ export const UiUtils = {
 
     return html;
   },
-  hResize(lDiv: JQuery, rDiv: JQuery, marker: JQuery) {
+  hResize(lDiv: JQuery, rDiv: JQuery, marker: JQuery, evt: EventObject) {
     return function(e: MouseEvent) {
       let minLeft = lDiv.position().left + 50;
       let maxRight = rDiv.position().left + rDiv.width() - 50;
@@ -124,8 +124,39 @@ export const UiUtils = {
         lDiv.css('right', (((window.innerWidth - e.clientX) / window.innerWidth) * 100) + '%');
         rDiv.css('left', ((e.clientX / window.innerWidth) * 100) + '%');
         marker.css('left', ((e.clientX / window.innerWidth) * 100) + '%');
+
+        // notify clients on resizing event
+        evt.emit();
       }
     };
+  },
+  relativeResize(lDiv: JQuery, rDiv: JQuery, marker: JQuery, evt: EventObject) {
+    return function(e: MouseEvent) {
+
+      let left = lDiv.offset().left;
+      let relativeWindow = window.innerWidth - left;
+      let relativePosition = e.clientX - left;
+      let minLeft = left + 150;
+      let maxRight = window.innerWidth - 300;
+
+      if (e.clientX > minLeft && e.clientX < maxRight) {
+        lDiv.css('width', ((relativePosition / relativeWindow) * 100) + '%');
+        rDiv.css('width', (((relativeWindow - relativePosition) / relativeWindow) * 100) + '%');
+        marker.css('left', ((relativePosition / relativeWindow) * 100) + '%');
+
+        // notify clients on resizing event
+        evt.emit();
+      }
+    };
+  },
+  resizer(left: any, right: any, resizer: any, evt: EventObject) {
+    const hresize = UiUtils.relativeResize($(left), $(right), $(resizer), evt);
+
+    window.addEventListener('mousemove', hresize, true);
+    window.addEventListener('mouseup', function() {
+      window.removeEventListener('mousemove', hresize, true);
+    }, true);
+    return false;
   },
   pageTransition() {
     $('html, body').animate({ scrollTop: 0 }, 400);
@@ -142,7 +173,7 @@ export const UiUtils = {
     UiUtils.removeSaveListener();
     document.addEventListener('keydown', saveListener, false);
 
-    throw new Error("not implemented")
+    throw new Error('not implemented')
   },
   alert(text: string, params?: Object) {
     sAlert.success(text, params);
@@ -216,26 +247,6 @@ export const UiUtils = {
   },
   deletedDialog() {
     swal(mf('deleted'), mf('recordDeleted'), 'success');
-  },
-  relativeResize(lDiv: JQuery, rDiv: JQuery, marker: JQuery, boardViewModel: any) {
-    return function(e: MouseEvent) {
-
-      let left = lDiv.offset().left;
-      let relativeWindow = window.innerWidth - left;
-      let relativePosition = e.clientX - left;
-      let minLeft = left + 150;
-      let maxRight = window.innerWidth - 300;
-
-      if (e.clientX > minLeft && e.clientX < maxRight) {
-        lDiv.css('width', ((relativePosition / relativeWindow) * 100) + '%');
-        rDiv.css('width', (((relativeWindow - relativePosition) / relativeWindow) * 100) + '%');
-        marker.css('left', ((relativePosition / relativeWindow) * 100) + '%');
-        if (boardViewModel) {
-          boardViewModel.checkDrawBoard();
-        }
-      }
-      throw new Error('has to change!');
-    };
   },
   parseText(text: string) {
     return text.replace(/img src='/g, 'img src=\'' + config.S3Bucket);

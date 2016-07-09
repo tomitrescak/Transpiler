@@ -10,6 +10,7 @@ interface ICompilationFile {
 
 let bundle: CompilationBundleVisitor = null;
 
+
 export function serviceCompile(file: ICompilationFile, parseOnly = false): ICompilationResult {
   return bundle.compile(file, parseOnly);
 }

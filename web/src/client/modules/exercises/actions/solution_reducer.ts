@@ -22,6 +22,8 @@ export function reducer (state = { solutions: {} }, action: any) {
   switch (getQuery(action)) {
     case 'practicalSolutions':
       return copyQuery(state, 'solutions', action.result.data.practicalSolutions);
+    case 'solution':
+      return copyQuery(state, 'solutions', action.result.data.solution);
   }
 
   // action listener

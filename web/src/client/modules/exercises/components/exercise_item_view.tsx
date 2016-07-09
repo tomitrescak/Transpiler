@@ -39,7 +39,7 @@ function checkTutor(event: React.SyntheticEvent, context: IContext, user: System
   }
 
   const e = context.Utils.Router.encodeUrlName;
-  context.Utils.Router.go(`/exercise/${e(exercise.name)}/${e(practical.name)}/${e(schedule.name)}/${exercise._id}/${practical._id}/${schedule._id}`);
+  context.Utils.Router.go(`/editor/exercise/${e(exercise.name)}/${e(practical.name)}/${e(schedule.name)}/${exercise._id}/${practical._id}/${schedule._id}`);
 }
 
 const ExerciseItemView = ({ context, user, solution, schedule, practical, exercise, removeSubmission, submitSolution }: IProps) => {

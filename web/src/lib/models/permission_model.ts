@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import Event from 'eventobject';
+import EventObject from 'eventobject';
 import { isAdmin, playsRole } from '../helpers/data_helpers';
 
 declare global {
@@ -46,7 +46,7 @@ export class Permission {
    */
   otherAccess: number;
 
-  groupsChanged = new Event();
+  groupsChanged = new EventObject();
 
   private _groups: IPermissionGroupDAO[];
 

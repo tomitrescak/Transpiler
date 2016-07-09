@@ -14,6 +14,7 @@ import schedule from './schedule_schema';
 import root from './root_schema';
 import solution from './solution_schema';
 import user from './user_schema';
+import world from './world_schema';
 
 export default function() {
   processSchema([
@@ -28,6 +29,7 @@ export default function() {
     schedule,
     solution,
     root,
-    user
+    user,
+    world
   ]);
 }

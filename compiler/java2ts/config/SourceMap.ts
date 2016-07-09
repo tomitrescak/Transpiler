@@ -18,7 +18,7 @@ export default class SourceMap {
   }
 
   setLine(builtLine: number, builtColumn: number, originalLine: number, originalColumn: number) {
-    console.log(`Setting mapping from [${builtLine},${builtColumn}] --> [${originalLine - 1},${originalColumn - 1}]`);
+    // console.log(`Setting mapping from [${builtLine},${builtColumn}] --> [${originalLine - 1},${originalColumn - 1}]`);
 
     if (!this.map[builtLine]) {
       this.map[builtLine] = [];
@@ -35,9 +35,15 @@ export default class SourceMap {
     for (let mapp of mappedLine) {
       if (mapp.column >= column) {
         mapping = mapp;
-        break
+        break;
       }
     }
+
+    // in case we did not find a mapping we assume the last known position
+    if (mapping == null) {
+      mapping = mappedLine[mappedLine.length - 1];
+    }
+
     return mapping.mapping.row;
   }
 }

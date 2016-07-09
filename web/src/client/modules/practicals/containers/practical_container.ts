@@ -2,6 +2,7 @@ import Component, { IComponentProps, IComponentQuery, IComponentActions } from '
 import { connect, loadingContainer } from 'meteor/tomi:apollo-mantra';
 import * as practicalActions from '../actions/practical_actions';
 import * as userActions from '../../user/configs/user_actions';
+import { queries } from '../../../helpers/queries_helper';
 
 interface IProps {
   params?: {
@@ -19,33 +20,9 @@ const mapQueriesToProps = (context: IContext, { state, ownProps }: IGraphQlProps
         }`
     },
     practicalData: {
-      query: gql`
-      query practical($practicalId: String, $scheduleId: String, $userId: String) {
-        practical(practicalId: $practicalId, scheduleId: $scheduleId, userId: $userId) {
-          _id,
-          name,
-          description,
-          exercises {
-            _id
-            name
-            description
-            points
-            permissions {
-              owner
-              ownerAccess
-              otherAccess
-            }
-          }
-          permissions {
-            owner
-            ownerAccess
-            otherAccess
-          }
-        }
-      }`,
+      query: queries.practical,
       variables: {
-        practicalId: ownProps.params.practicalId,
-        scheduleId: ownProps.params.scheduleId,
+        id: ownProps.params.practicalId,
         userId: state.accounts.userId
       },
     },

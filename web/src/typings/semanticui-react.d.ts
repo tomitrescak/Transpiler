@@ -559,13 +559,16 @@ declare module "semanticui-react" {
     // tabs
 
     interface ITab {
-        title: string;
+        title?: string; // non-internationalised
+        text?: string;
         children?: any;
         url?: string;
         name?: string;
+        style?: any;
     }
 
     interface ITabs {
+        classes?: string;
         id: string;
         children?: any;
         activeTab?: string;

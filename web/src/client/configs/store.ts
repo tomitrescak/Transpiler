@@ -36,7 +36,6 @@ const store = createStore<IState>(rootReducer, defaultState, enhancers);
 export default store;
 
 // hot reload
-
 if (module.hot) {
   module.hot.accept('./reducers', () => {
     const nextRootReducer = require('./reducers').default;

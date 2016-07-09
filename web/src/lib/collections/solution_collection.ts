@@ -35,6 +35,9 @@ declare global {
     locRank?: number;
     stepsRank?: number;
     submission?: ISubmissionDAO;
+    compilationRunning?: boolean;
+    compilationError?: boolean;
+    compilationResult?: string;
   }
 }
 

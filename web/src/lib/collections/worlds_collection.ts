@@ -77,7 +77,6 @@ declare global {
     themes?: IThemeDAO[];
     permissions: IPermissionsDAO;
   }
-
 }
 
 // import { PermissionSchema } from './schemas/permission_schema';

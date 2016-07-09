@@ -54,6 +54,7 @@ declare global {
 //   }
 // });
 
+
 export let Practicals: Mongo.Collection<IPracticalDAO> = new Mongo.Collection<IPracticalDAO>('practicals');
 //Practicals.attachSchema(schema);
 //

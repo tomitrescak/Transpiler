@@ -11,14 +11,15 @@
                 "--remote-debugging-port=9222" //Open in port 9222 (standard chrome debug port)
             ],
             "url": "http://localhost:3000/",
-            "sourceMaps": true
+            "sourceMaps": false
         },
         {
             "name": "Attach to url with files served from ./out",
             "type": "chrome",
             "request": "attach",
             "port": 9222,
-            "webRoot": "${workspaceRoot}/out"
+            "sourceMaps": true,
+            "webRoot": "/Users/tomi/Github/packages/java2ts/web"
         }
     ]
 }

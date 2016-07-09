@@ -23,13 +23,13 @@ const schema = `
 `;
 
 const queryText = `
-  practical(practicalId: String, scheduleId: String, userId: String): Practical
+  practical(id: String, userId: String): Practical
   practicalSolutions(practicalId: String, scheduleId: String, userId: String): [Solution]
 `;
 
 const queries = {
-  practical(root: any, { practicalId, scheduleId }: any, { userId }: IApolloContext): IPracticalDAO {
-    return Practicals.findOne(practicalId);
+  practical(root: any, { id }: any, { userId }: IApolloContext): IPracticalDAO {
+    return Practicals.findOne(id);
 
     // if (practical && scheduleId && userId) {
     //   // find all user solutions

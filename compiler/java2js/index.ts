@@ -7,8 +7,15 @@ interface IFile {
 }
 
 export function initService(files: IFile[] = []) {
-  initj2ts(files);
-  initts2js(files);
+  let result = initj2ts(files);
+
+  // copy to array
+  let compiledFiles: IFile[] = [];
+  for (let f in result.files) {
+    let rf = result.files[f];
+    compiledFiles.push({ name: rf.name.replace('.java', '.ts'), source: rf.result } );
+  }
+  initts2js(compiledFiles);
 }
 
 interface IDoubleCompilationResult {
@@ -16,6 +23,57 @@ interface IDoubleCompilationResult {
   js?: Map<ICompiledFile>;
   errors: IMessage[];
   warnings: IMessage[];
+}
+
+interface IAsyncCompilationResult {
+  files: Map<ICompiledFile>;
+  ts: Map<ICompiledFile>;
+  warnings: Map<IMessage[]>;
+  errors: Map<IMessage[]>;
+}
+
+function compileWithCallback(files: IFile[], cb: Function) {
+  let result: IAsyncCompilationResult = {
+    files: {},
+    ts: {},
+    errors: null,
+    warnings: null
+  };
+
+  for (let file of files) {
+    let compilation = compile(file);
+    result.files = compilation.js;
+    result.ts = compilation.ts;
+
+    // copy errors
+    if (compilation.errors && compilation.errors.length) {
+      if (!result.errors) {
+        result.errors = {};
+      }
+      result.errors[file.name] = compilation.errors;
+    }
+
+    // copy warnings
+    if (compilation.warnings && compilation.warnings.length) {
+      if (!result.warnings) {
+        result.warnings = {};
+      }
+      result.warnings[file.name] = compilation.warnings;
+    }
+  }
+
+  // call back result
+  cb(result);
+}
+
+let tout: number = null;
+export function compileAsync(files: IFile[], cb: Function, timeout = 500) {
+  // stop previous request
+  if (tout !== null) {
+    clearTimeout(tout);
+  }
+
+  tout = setTimeout(() => compileWithCallback(files, cb), timeout);
 }
 
 export function compile(file: IFile, parseOnly = false): IDoubleCompilationResult {
@@ -27,7 +85,7 @@ export function compile(file: IFile, parseOnly = false): IDoubleCompilationResul
     ts: tsCompilationResult.files,
     warnings: tsCompilationResult.warnings,
     errors: tsCompilationResult.errors
-  }
+  };
 
   if (parseOnly || result.errors.length) {
     return result;

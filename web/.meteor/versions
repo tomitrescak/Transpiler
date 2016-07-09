@@ -52,7 +52,7 @@ modules@0.6.4
 modules-runtime@0.6.4_1
 mongo@1.1.9_1
 mongo-id@1.0.5
-npm-bcrypt@0.8.6_1
+npm-bcrypt@0.8.7
 npm-mongo@1.4.44_1
 observe-sequence@1.0.12
 ordered-dict@1.0.8
@@ -66,8 +66,8 @@ retry@1.0.8
 routepolicy@1.0.11
 sanjo:meteor-files-helpers@1.2.0_1
 sanjo:meteor-version@1.0.0
-semantic:ui@2.1.8
-semantic:ui-data@2.1.8
+semantic:ui@2.2.1
+semantic:ui-data@2.2.1
 service-configuration@1.0.10
 sha@1.0.8
 spacebars@1.0.12

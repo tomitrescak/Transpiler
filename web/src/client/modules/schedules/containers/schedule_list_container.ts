@@ -58,4 +58,4 @@ export const mapDispatchToProps = (context: IContext, dispatch: any): IComponent
   },
 });
 
-export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component));
+export default connect<IProps>({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })(loadingContainer(Component));

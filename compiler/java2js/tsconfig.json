@@ -10,7 +10,7 @@
     "preserveConstEnums": true,
     "suppressImplicitAnyIndexErrors": true,
     "sourceMap": false,
-    "outDir": "../build-java2js"
+    "outDir": "../build"
   },
   "formatCodeOptions": {
     "indentSize": 2,

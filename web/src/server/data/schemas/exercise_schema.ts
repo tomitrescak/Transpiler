@@ -1,3 +1,6 @@
+import { Exercises } from '../../../lib/collections/collections';
+import Permission from '../../../lib/models/permission_model';
+
 const schema = `
   type LinesOfCode {
     cheatDetection: Int
@@ -49,9 +52,20 @@ const schema = `
     updatedAt: Date
     updatedBy: String
     updatedById: String
-    solution: [Solution]
   }
-`
+`;
+
+const queryText = `
+  exercise(id: String, userId: String): Exercise
+`;
+
+const queries = {
+  exercise(root: any, { id }: any, { user }: IApolloContext): IExerciseDAO {
+    const permissionQuery = Permission.permissionQuery(user);
+    permissionQuery._id = id;
+    return Exercises.findOne(permissionQuery);
+  }
+}
 
 const resolvers = {
   BoardValidation: {
@@ -79,14 +93,13 @@ const resolvers = {
     },
     permissions(exercise: IExerciseDAO) {
       return exercise.permissions;
-    },
-    solution(exercise: IExerciseDAO): ISolutionDAO {
-      return null;
     }
   }
 };
 
 export default {
   schema,
-  resolvers
+  resolvers,
+  queryText,
+  queries
 };

@@ -1,5 +1,5 @@
 import { SEARCH, CLEAR_SEARCH } from './exercise_actions';
-import { getQuery, IQueryResult } from 'meteor/tomi:apollo-mantra';
+import { getQuery, copyQuery, IQueryResult } from 'meteor/tomi:apollo-mantra';
 
 export interface IExerciseState {
   exercises: {
@@ -10,16 +10,13 @@ export interface IExerciseState {
 
 export function reducer (state = { exercises: {}}, action: any) {
   switch (getQuery(action)) {
+    case 'exercise':
+      return copyQuery(state, 'exercises', action.result.data.exercise);
     case 'practical':
-      if (action.result.data.practical.exercises) {
-        // query maps
-        const newExercises = Object.assign({}, state.exercises);
-        const practicalExercises: IExerciseDAO[] = action.result.data.practical.exercises;
-        // copy all exercises to the new state
-        practicalExercises.forEach((e) => newExercises[e._id] = e);
-        return Object.assign({}, state, { exercises: newExercises });
+      if (action.result.data.practical) {
+        return copyQuery(state, 'exercises', action.result.data.practical.exercises);
       }
-      return state;
+      break;
   }
 
 
