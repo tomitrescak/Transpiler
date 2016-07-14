@@ -1,5 +1,5 @@
 import { getQuery, copyQuery, IQueryResult } from 'meteor/tomi:apollo-mantra';
-import { CHANGE_STATE } from './solution_actions';
+import { CHANGE_STATE, CREATE_SOLUTION, CHANGE_FILE } from './solution_actions';
 import update from 'react-addons-update';
 
 export interface ISolutionState {
@@ -15,7 +15,14 @@ export interface ISolutionState {
 //   return Object.assign({}, state, { solutions: newSolutions });
 // }
 
-export function reducer (state = { solutions: {} }, action: any) {
+function arrayObjectIndexOf(arr: Array<any>, property: string, value: any) {
+  for (let i = 0, len = this.length; i < len; i++) {
+    if (arr[i][property] === value) { return i };
+  }
+  return -1;
+}
+
+export function reducer(state: ISolutionState = { solutions: {} }, action: any) {
 
   // query listener moves query data into store
 
@@ -31,6 +38,14 @@ export function reducer (state = { solutions: {} }, action: any) {
   switch (action.type) {
     case CHANGE_STATE:
       return update(state, { solutions: { [action.solutionId]: { status: { $set: action.status } } } });
+    case CHANGE_FILE:
+      let solution = state.solutions[action.solutionId];
+      let file = solution.files.find((f) => f.name === action.fileName);
+      let idx = solution.files.indexOf(file);
+
+      return update(state, { solutions: { [action.solutionId]: { files: { [idx]: { source: { $set: action.source } } } } } });
+    case CREATE_SOLUTION:
+      return update(state, { solutions: { $set: { [action.solution._id]: action.solution } } });
   }
   return state;
 };

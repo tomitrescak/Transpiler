@@ -17,6 +17,7 @@ import Redbox from 'redbox-react';
 
 const consoleErrorReporter = ({ error }: any) => {
   console.error(error);
+  console.error(error.stack);
   return <Redbox error={error} />;
 };
 

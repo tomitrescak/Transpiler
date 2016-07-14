@@ -1,9 +1,10 @@
 import { i18n }  from 'i18n-client';
 import { config } from 'semanticui-react';
 
-export const mf = (key: string, params?: string[]): string => {
+export const mf = (key: string, params?: Object): string => {
   try {
-    return i18n.translate(key);
+    let t = i18n.translate(key, params);
+    return t[0] === '<' ? t.replace('>', '&gt;').replace('<', '&lt') : t;
   } catch (ex) {
     console.error('Error during translation: ' + ex);
     throw ex;

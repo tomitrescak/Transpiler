@@ -51,6 +51,7 @@
     "client/configs/reducers.ts",
     "client/configs/store.ts",
     "client/configs/stories.ts",
+    "client/helpers/apollo_helpers.ts",
     "client/helpers/number_helpers.ts",
     "client/helpers/queries_helper.ts",
     "client/helpers/routing_helpers.ts",
@@ -114,8 +115,13 @@
     "client/modules/schedules/containers/schedule_list_container.ts",
     "client/modules/schedules/containers/schedule_subscription_container.ts",
     "client/modules/schedules/index.ts",
+    "client/modules/text_editor/actions/text_editor_actions.ts",
     "client/modules/user/configs/user_actions.ts",
     "client/modules/user/configs/user_reducer.ts",
+    "client/modules/worlds/actions/world_actions.ts",
+    "client/modules/worlds/actions/worlds_reducer.ts",
+    "client/modules/worlds/containers/world_admin_container.ts",
+    "client/modules/worlds/containers/worlds_admin_container.ts",
     "client/utils/connect.ts",
     "client/utils/helpers_client.d.ts",
     "client/utils/helpers_client.ts",
@@ -218,6 +224,8 @@
     "client/modules/schedules/components/schedule_list_view.tsx",
     "client/modules/schedules/components/schedule_subscription_view.tsx",
     "client/modules/schedules/components/schedule_view.tsx",
-    "client/modules/schedules/routes.tsx"
+    "client/modules/schedules/routes.tsx",
+    "client/modules/worlds/components/world_admin_view.tsx",
+    "client/modules/worlds/components/worlds_view.tsx"
   ]
 }

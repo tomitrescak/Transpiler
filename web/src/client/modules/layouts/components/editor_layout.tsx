@@ -3,6 +3,7 @@ import Alert from 'react-s-alert';
 import Helmet from 'react-helmet';
 import Modal from '../../core/components/modal_view';
 import { CenteredLoading } from '../../core/components/loading_view';
+import { UserView } from 'meteor/tomi:accountsui-semanticui-redux';
 
 export interface IComponentProps {
   user: SystemUser;
@@ -22,6 +23,7 @@ const ClearLayout = ({ user, loggingIn, children }: IComponentProps) => (
     </When>
     <Otherwise>
       <main>
+        <span style={{display: 'none'}}><UserView /></span>
         <Helmet
           titleTemplate="Clara's World / %s"
           script={[{'src': '/compiler/java2js.js', 'type': 'text/javascript'}]}

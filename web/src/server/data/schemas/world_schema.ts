@@ -1,52 +1,56 @@
+import { ioSchema, modificationSchema } from 'meteor/tomi:apollo-mantra';
 import { Worlds } from '../../../lib/collections/collections';
 
+console.log(modificationSchema);
+
 const schema = `
-  type ThemedTileAnimation {
+  ${ioSchema(`ThemedTileAnimation$Input {
     name: String
     frames: [String]
-  }
+  }`)}
 
-  type ThemedTile {
+  ${ioSchema(`ThemedTile$Input {
     tileId: Int
     name: String
     url: String
     scale: Float
-    animations: [ThemedTileAnimation]
-  }
+    animations: [ThemedTileAnimation$Input]
+  }`)}
 
-  type WorldOptions {
+  ${ioSchema(`WorldOptions$Input {
     editorColor: String
     lineColor: String
     lineWidth: Int
     lineHighlightColor: String
     spacing: Int
-  }
+  }`)}
 
-  type Theme {
+  ${ioSchema(`Theme$Input {
     _id: String
     name: String
-    worldOptions: WorldOptions
-    tiles: [ThemedTile]
-  }
+    worldOptions: WorldOptions$Input
+    tiles: [ThemedTile$Input]
+  }`)}
 
-  type Tile {
+  ${ioSchema(`Tile$Input {
     id: Int
     name: String
     tags: [String]
     zIndex: Int
     className: String
     stamp: String
-  }
+  }`)}
 
-  type World {
+  ${ioSchema(`World$Input {
     _id: String
     name: String
     globals: [String]
-    tiles: [Tile]
-    files: [TextFile]
-    themes: [Theme]
-    permissions: Permissions
-  }
+    tiles: [Tile$Input]
+    files: [TextFile$Input]
+    themes: [Theme$Input]
+    permissions: Permissions$Input
+    ${modificationSchema()}
+  }`)}
 `;
 
 const resolvers = {
@@ -89,9 +93,29 @@ const queries = {
   }
 };
 
+const mutationText = `
+  saveWorld(world: WorldInput): Boolean
+`;
+
+interface ISaveWorld {
+  world: IWorldDAO;
+}
+
+const mutations = {
+  saveWorld(root: any, { world }: ISaveWorld) {
+    const id = world._id;
+    delete(world._id);
+    Worlds.upsert({_id: id + '_backup'}, { $set: world });
+    Worlds.update({_id: id}, { $set: world });
+    return true;
+  }
+};
+
 export default {
   schema,
   resolvers,
   queryText,
-  queries
+  queries,
+  mutationText,
+  mutations
 };

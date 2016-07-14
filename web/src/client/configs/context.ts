@@ -5,6 +5,8 @@ import { __ } from 'i18n-client';
 import { query, mutation } from 'meteor/tomi:apollo-mantra';
 
 import { UiUtils, RouterUtils, ClassUtils } from '../utils/helpers_client';
+import { mutationWithFeedback, addInsertData, addModificationData } from '../helpers/apollo_helpers';
+
 import Config from './config';
 
 // import classnames from 'classnames';
@@ -13,8 +15,11 @@ import Config from './config';
 
 const Apollo = {
   query,
-  mutation
-}
+  mutation,
+  mutationWithFeedback,
+  addModificationData,
+  addInsertData
+};
 
 const Utils = {
   Ui: UiUtils,

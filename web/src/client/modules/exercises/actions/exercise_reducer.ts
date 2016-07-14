@@ -14,7 +14,7 @@ export function reducer (state = { exercises: {}}, action: any) {
       return copyQuery(state, 'exercises', action.result.data.exercise);
     case 'practical':
       if (action.result.data.practical) {
-        return copyQuery(state, 'exercises', action.result.data.practical.exercises);
+        return copyQuery(state, 'exercises', action.result.data.practical.exercises, '_id', false);
       }
       break;
   }

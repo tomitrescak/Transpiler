@@ -12,13 +12,13 @@ export const AdminMenu = () => (
     <MenuItem link="practicals" text="practicals.label" />
     <MenuItem link="exercises" text="exercises" />
     <Divider />
-    <MenuItem link="groupMail" text="groupMail.label" icon="mail" />
+    <MenuItem link="/admin/groupMail" text="groupMail.label" icon="mail" />
     <Divider />
-    <MenuItem link="siteSettings" icon="sitemap" text="siteSettings.label" />
-    <MenuItem link="worlds" icon="world" text="worlds.label" />
-    <MenuItem link="configuration" icon="settings" text="configuration.label" />
+    <MenuItem link="/admin/siteSettings" icon="sitemap" text="siteSettings.label" />
+    <MenuItem link="/admin/worlds" icon="world" text="worlds.label" />
+    <MenuItem link="/admin/configuration" icon="settings" text="configuration.label" />
     <Divider />
-    <MenuItem link="activity" icon="exchange" text="activity" />
+    <MenuItem link="/admin/activity" icon="exchange" text="activity" />
   </MenuDropdown>
 );
 

@@ -56,7 +56,9 @@ export class Layout extends React.Component<IProps, {}> {
     return (
       <main id="home" >
         <div id="content" className={css.padding}>
-          <Helmet titleTemplate="Clara's World / %s" />
+          <Helmet
+            titleTemplate="Clara's World / %s"
+            script={[{ 'src': '/compiler/java2js.js', 'type': 'text/javascript' }]} />
 
           <Segment inverted classes={'masthead ' + css.masthead}>
             <Grid page>

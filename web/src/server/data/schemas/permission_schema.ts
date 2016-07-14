@@ -10,6 +10,19 @@ const schema = `
     groups: [PermissionGroup]
     otherAccess: Int
   }
+
+
+  input PermissionGroupInput {
+    name: String
+    access: Int
+  }
+
+  input PermissionsInput {
+    owner: String
+    ownerAccess: Int
+    groups: [PermissionGroupInput]
+    otherAccess: Int
+  }
 `;
 
 const resolvers = {

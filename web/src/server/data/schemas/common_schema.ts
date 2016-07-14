@@ -13,6 +13,23 @@ const schema = `
     row: Int
     column: Int
   }
+
+
+
+  input TextFileInput {
+    id: String
+    type: String
+    name: String
+    source: String
+    position: PositionInput
+    top: Int
+    index: Int
+  }
+
+  input PositionInput {
+    row: Int
+    column: Int
+  }
 `
 
 const resolvers = {

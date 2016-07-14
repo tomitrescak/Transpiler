@@ -73,7 +73,7 @@ declare global {
     name: string;
     globals: string[];
     tiles?: ITileDAO[];
-    files?: IPluginDAO[];
+    files: ITextFileDAO[];
     themes?: IThemeDAO[];
     permissions: IPermissionsDAO;
   }

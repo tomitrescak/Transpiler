@@ -4,14 +4,14 @@
 import apolloClient from './apollo';
 import { combineReducers } from 'redux';
 import { routerReducer } from 'react-router-redux';
-import { reducer as formReducer } from 'redux-form';
+//import { reducer as formReducer } from 'redux-form';
 import { reducer as accountsReducer } from '../modules/user/configs/user_reducer';
 import { reducer as scheduleReducer, IScheduleState } from '../modules/schedules/actions/schedule_reducer';
 import { reducer as practicalReducer, IPracticalState } from '../modules/practicals/actions/practical_reducer';
 import { reducer as exerciseReducer, IExerciseState } from '../modules/exercises/actions/exercise_reducer';
 import { reducer as solutionReducer, ISolutionState } from '../modules/exercises/actions/solution_reducer';
 import { reducer as compilerReducer, ICompilerState } from '../modules/exercises/actions/compiler_reducer';
-
+import { reducer as worldReducer, IWorldState } from '../modules/worlds/actions/worlds_reducer';
 
 import { IState as IAccountsState } from 'meteor/tomi:accountsui-semanticui-redux';
 import { IStore as ReduxStore } from 'redux';
@@ -20,14 +20,15 @@ import { IStore as ReduxStore } from 'redux';
 
 const rootReducer = combineReducers({
   accounts: accountsReducer,
-  routing: routerReducer,
-  form: formReducer,
   apollo: apolloClient.reducer(),
-  schedule: scheduleReducer,
-  practical: practicalReducer,
+  compiler: compilerReducer,
   exercise: exerciseReducer,
+  //form: formReducer,
+  practical: practicalReducer,
+  routing: routerReducer,
+  schedule: scheduleReducer,
   solution: solutionReducer,
-  compiler: compilerReducer
+  world: worldReducer
 });
 
 export default rootReducer;
@@ -36,12 +37,14 @@ export default rootReducer;
 
 declare global {
   export interface IState {
+    apollo: IApolloState;
     accounts: IAccountsState<SystemUser>;
     schedule: IScheduleState;
     practical: IPracticalState;
     exercise: IExerciseState;
     solution: ISolutionState;
     compiler: ICompilerState;
+    world: IWorldState;
     // marks: IResult[];
     // mark: IResult;
   }

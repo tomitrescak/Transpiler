@@ -1,4 +1,4 @@
-import { INIT_SESSION, START_COMPILATION, COMPILATION_SUCCESS, COMPILATION_ERROR, ICompilerSession } from './compiler_actions';
+import { INIT_SESSION, START_COMPILATION, COMPILATION_SUCCESS, COMPILATION_ERROR, TOGGLE_FILES } from './compiler_actions';
 import update from 'react-addons-update';
 
 export interface ICompilerState {
@@ -7,10 +7,25 @@ export interface ICompilerState {
   };
 }
 
-export function reducer (state: ICompilerState = { sessions: {}}, action: any) {
+export function reducer(state: ICompilerState = { sessions: {} }, action: any) {
   switch (action.type) {
+    case TOGGLE_FILES:
+      return update(state, { sessions: { [action.sessionId]: { showAllFiles: { $set: !state.sessions[action.sessionId].showAllFiles } } } });
     case INIT_SESSION:
-      return update(state, { sessions: { [action.sessionId]: { $set: action.session } } });
+      if (!state.sessions[action.sessionId]) {
+        state.sessions[action.sessionId] = {} as any;
+      }
+      return update(state, {
+        sessions: {
+          [action.sessionId]: {
+            id: { $set: action.session.id },
+            state: { $set: action.session.state },
+            libraries: { $set: action.session.libraries },
+            files: { $set: action.session.files },
+            errors: { $set: action.session.errors }
+          }
+        }
+      });
     case START_COMPILATION:
       return update(state, { sessions: { [action.sessionId]: { state: { $set: 'Compiling' } } } });
     case COMPILATION_ERROR:

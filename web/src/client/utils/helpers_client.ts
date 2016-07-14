@@ -3,7 +3,7 @@ import moment from 'moment';
 import marked from 'marked';
 import config from '../configs/config';
 import sAlert from 'react-s-alert';
-import swal from 'sweetalert';
+import swal from 'sweetalert2';
 import { mf } from '../configs/i18n';
 import EventObject from 'eventobject';
 import store from '../configs/store';
@@ -37,22 +37,20 @@ declare global {
   }
 
   interface ISaveable {
-    save(callback?: IAsyncCallback): void;
+    (callback?: IAsyncCallback): void;
   }
 }
 
-let saveableObject: ISaveable;
+let saveFunction: ISaveable;
 let saveCallback: Function;
 
 const saveListener = function(e: KeyboardEvent) {
   if (e.keyCode === 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {
     e.preventDefault();
+    saveFunction(); // UiUtils.announceSaved() 
     if (saveCallback) {
       saveCallback();
     }
-    /* tslint:disable */
-    saveableObject.save(UiUtils.announceSaved());
-    /* tslint:enable */
   }
 };
 
@@ -165,18 +163,19 @@ export const UiUtils = {
   removeSaveListener() {
     document.removeEventListener('keydown', saveListener);
   },
-  registerSaveListener(obj: ISaveable, saveFunction?: Function) {
-    saveableObject = obj;
-    saveCallback = saveFunction;
+  registerSaveListener(saveFunc: ISaveable, callback?: Function) {
+    saveFunction = saveFunc;
+    saveCallback = callback;
 
     // TODO: ApplicationState.editor = obj;
     UiUtils.removeSaveListener();
     document.addEventListener('keydown', saveListener, false);
-
-    throw new Error('not implemented')
   },
-  alert(text: string, params?: Object) {
-    sAlert.success(text, params);
+  alert(text: string, params?: Object, options?: Object) {
+    sAlert.success(mf(text, params), options);
+  },
+  alertError(text: string, params?: Object, options?: Object) {
+    sAlert.error(mf(text, params), options);
   },
   announce(infoText: string, errorText: string, callback?: Meteor.AsyncCallback): Meteor.AsyncCallback {
     return (error: Meteor.Error, value: any) => {
@@ -227,8 +226,8 @@ export const UiUtils = {
   alertDialog(title: string, text: string, type = 'error') {
     swal(mf(title), mf(text), type);
   },
-  confirmDialog(text: string,
-    callback: Function,
+  confirmDialog(callback: Function,
+    text = 'deletingRecord',
     title = 'areYouSure',
     confirmButtonText = 'deleteIt',
     type = 'warning',
@@ -238,11 +237,62 @@ export const UiUtils = {
       text: mf(text),
       type: type,
       showCancelButton: true,
-      confirmButtonText: mf(confirmButtonText),
-      closeOnConfirm: closeOnConfirm,
-      html: false
-    }, function() {
-      callback();
+      confirmButtonText: mf(confirmButtonText)
+    }).then(callback);
+  },
+  promptText(callback: Function, prompt: string, placeholder = '', validate = (val: string) => val) {
+    let title = mf(prompt)
+    swal({
+      title: mf(prompt),
+      input: 'text',
+      inputPlaceholder: placeholder[0] === '!' ? mf(placeholder.substring(1)) : placeholder,
+      showCancelButton: true,
+      inputValidator: function(value: string) {
+        return new Promise(function(resolve, reject) {
+          if (validate(value)) {
+            resolve();
+          } else {
+            reject(mf('validationError'));
+          }
+        });
+      }
+    }).then(function(result: string) {
+      callback(result);
+    });
+
+
+  },
+  promptOptions(callback: Function, prompt: string, placeholder: string, options: { [idx: string]: string }, validate = (val: string) => val) {
+    swal({
+      title: mf(prompt),
+      input: 'select',
+      inputOptions: options,
+      inputPlaceholder: mf(placeholder),
+      showCancelButton: true,
+      // onOpen: () => {
+      //   $('.swal2-select').dropdown();
+      //
+      //   let sel = $('.swal2-select')[0];
+      //   Object.defineProperty(sel, 'value', {
+      //     get: function() {
+      //       return $('.swal2-modal select').val();
+      //     },
+      //     set: function(val: string) {
+      //      // nothing
+      //     }
+      //   });
+      // },
+      inputValidator: function(value: string) {
+        return new Promise(function(resolve, reject) {
+          if (validate(value)) {
+            resolve();
+          } else {
+            reject(mf('validationError'));
+          }
+        });
+      }
+    }).then(function(result: string) {
+      callback(result);
     });
   },
   deletedDialog() {

@@ -338,6 +338,11 @@ declare module 'sweetalert' {
   export default function swal(...any: any[]): void;
 }
 
+declare module 'sweetalert2' {
+  export default function swal(...any: any[]): any;
+  export default function sweetalert(...any: any[]): any;
+}
+
 ///////////////////////////////////////////////////////////////
 // jsx-control-statements                                    //
 ///////////////////////////////////////////////////////////////
@@ -392,6 +397,11 @@ declare module 'meteor/alanning:roles' {
 // tomi:apollo-mantra                                        //
 ///////////////////////////////////////////////////////////////
 
+declare interface IApolloState {
+  queries: Object;
+  mutations: Object;
+}
+
 declare interface IApolloDefinition {
   schema: string;
   queries?: Object;
@@ -403,6 +413,7 @@ declare interface IApolloDefinition {
 
 declare module 'meteor/tomi:apollo-mantra' {
   interface IConnectFunctions {
+    initContainer?: Function;
     mapStateToProps?: Function;
     mapDispatchToProps?: Function;
     mapQueriesToProps?: Function;
@@ -412,7 +423,7 @@ declare module 'meteor/tomi:apollo-mantra' {
   interface IQuery {
     query: string;
     variables?: Object;
-    optimisticCallback: (dispatch: Function, state: () => any) => void;
+    optimisticCallback?: (dispatch: Function, state: () => any) => void;
     thenCallback?: (data: any, dispatch: Function, state: () => any) => void;
     errorCallback?: (errors: any, dispatch: Function, state: () => any) => void;
     catchCallback?: (error: any, dispatch: Function, state: () => any) => void;
@@ -441,19 +452,24 @@ declare module 'meteor/tomi:apollo-mantra' {
 
   export function query(query: IQuery): void;
   export function mutation(query: IQuery): void;
-
+  export function ioSchema(type: string): void;
+  export function modificationSchema(): string;
   export function createApp(context: any, options: IOptions): any;
   export function schemas(): any;
   export function resolvers(): any;
+  export function composeAll<V>(...composeFunctions: Function[]):
+    (component: any, loadingComponent?: any) => () => React.Component<V, {}>;
+  export function compose<T>(funcs: IConnectFunctions): (component: any) => React.StatelessComponent<T>;
   export function connect<T>(funcs: IConnectFunctions): (component: any) => React.StatelessComponent<T>;
   export function processSchema(definition: IApolloDefinition[]): void;
   export function loadingContainer(component: any, keys?: string[]): any;
   export function loadingContainer(component: any, loading?: any, keys?: string[]): any;
-  export function copyQuery(state: Object, stateKey: string, queryResult: Object[], queryKey?: string): Object;
+  export function copyQuery(state: Object, stateKey: string, queryResult: Object[], queryKey?: string, overwrite?: boolean): Object;
   export function isQuery(action: any, queryName: string): boolean;
   export function getQuery<T>(action: any): string;
   export function isMutation(action: any, queryName: string): boolean;
   export function getMutation<T>(action: any): string;
+  export function queriesFinished(state: IApolloState): boolean;
 }
 
 ///////////////////////////////////////////////////////////////

@@ -12,14 +12,7 @@ const css = jss({
     display: 'table-cell',
     width: '50%',
     height: '100%',
-    'margin-right': '3px',
-    '& .item': {
-      color: 'white!important',
-      cursor: 'pointer',
-      '&.active': {
-        color: 'black!important',
-      }
-    }
+    'margin-right': '3px'
   },
   info: {
     position: 'absolute',
@@ -55,33 +48,54 @@ const css = jss({
 
 
 export interface IComponentProps {
-  solution: ISolutionDAO;
-  markingMode: boolean;
-  background: string;
+  solution?: ISolutionDAO;
+  exercise: IExerciseDAO;
+  practical: IPracticalDAO;
+  schedule: IScheduleDAO;
+  world: IWorldDAO;
+
+  files: ITextFileDAO[];
+  user: SystemUser;
+
+  markingMode?: boolean;
+  background?: string;
   context: IContext;
 }
 
 export interface IComponentActions {
+  updateFile: (solution: ISolutionDAO, file: string, source: string) => void;
 }
 
-export const ExerciseView = ({ context, solution }: IComponentProps) => {
+export interface IComponent extends IComponentProps, IComponentActions { }
+
+// let tfiles = [
+//   { name: 'File1.java', source: 'class B extends A {}', type: 'User' },
+//   { name: 'File2.java', source: 'class C extends B {}', type: 'User' },
+//   { name: 'File3.java', source: 'class A {}', type: 'library', readonly: true },
+//
+// ];
+//
+// function uf(file: string, source: string) {
+//   let f = tfiles.find((g) => g.name === file);
+//   f.source = source;
+// }
+
+export const ExerciseView = ({ context, solution, exercise, practical, schedule, world, files, updateFile }: IComponent) => {
   let left: HTMLElement;
   let right: HTMLElement;
   let resizeHandle: HTMLElement;
   let evt = new EventObject();
+
   return (
     <span>
-      <div ref={(node) => resizeHandle = node} className={css.resizer + ' h50'} onMouseDown={() => context.Utils.Ui.resizer(left, right, resizeHandle, evt) } />
+      <div ref={(node) => resizeHandle = node}
+        className={css.resizer + ' h50'}
+        onMouseDown={() => context.Utils.Ui.resizer(left, right, resizeHandle, evt) } />
       <div ref={(node) => left = node} className={css.editor}>
         <TabbedEditor id={solution._id}
-          files={
-            [
-              { name: 'File1.java', source: 'class B extends A {}', type: 'User' }
-            ]}
-          libraries={
-            [
-              { name: 'File2.java', source: 'class A {}', type: 'User' }
-            ]} />
+          updateFile={updateFile.bind(null, solution)}
+          files={files}
+          />
         {/*<TabbedTextEditor
             context={context}
             canModify={false}

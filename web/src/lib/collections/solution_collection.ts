@@ -1,4 +1,4 @@
-import { Mongo } from "meteor/mongo";
+import { Mongo } from 'meteor/mongo';
 
 declare global {
   export interface ICommentDAO {
@@ -23,13 +23,13 @@ declare global {
     tutorId: string;
     tutorName: string;
     files: ITextFileDAO[];
-    status: string;
-    validated: boolean;
-    comments: ICommentDAO[];
-    codeStars: number;
-    linesOfCode: number;
-    steps: number;
-    stepsStars: number;
+    comments?: ICommentDAO[];
+    status?: string;
+    validated?: boolean;
+    codeStars?: number;
+    linesOfCode?: number;
+    steps?: number;
+    stepsStars?: number;
     mark?: number;
     rank?: number;
     locRank?: number;
@@ -176,7 +176,7 @@ declare global {
 // //   submission?: ISubmissionDAO;
 // // }
 
-export let Solutions = new Mongo.Collection<ISolutionDAO>("solutions");
+export let Solutions = new Mongo.Collection<ISolutionDAO>('solutions');
 // Solutions.attachSchema(SolutionSchema);
 
 export default Solutions;

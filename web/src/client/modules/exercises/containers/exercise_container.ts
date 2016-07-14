@@ -1,7 +1,9 @@
 import Component, { IComponentProps, IComponentActions } from '../components/exercise_view';
 import { CenteredLoading } from '../../core/components/loading_view';
 import queries from '../../../helpers/queries_helper';
-import { connect, loadingContainer } from 'meteor/tomi:apollo-mantra';
+import { connect, compose, composeAll, loadingContainer, queriesFinished } from 'meteor/tomi:apollo-mantra';
+import * as actions from '../actions/solution_actions';
+import { Random } from 'meteor/random';
 
 interface IProps {
   params: {
@@ -51,27 +53,158 @@ const mapQueriesToProps = (context: IContext, { state, ownProps }: IGraphQlProps
   };
 };
 
-export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps): IComponentProps => ({
-  context,
-  user: state.accounts.user,
-  solution: context.Utils.Class.find<ISolutionDAO>(
+function getFiles(owners: IFileOwner[]) {
+  // merge files in priority order, from solution up
+  let files: ITextFileDAO[] = [];
+  for (let owner of owners) {
+    if (!owner || !owner.files) {
+      continue;
+    }
+
+    for (let file of owner.files) {
+      if (!files.find((f) => f.name === file.name)) {
+        // make sure they are properly marked
+        if (file.type === 'library') {
+          file.readonly = true;
+        }
+        files.push(file);
+      }
+    }
+  }
+  return files;
+}
+
+function findSolution(context: IContext, ownProps: IProps, onData: Function): any {
+  const state = context.Store.getState();
+
+  // wait till everything is loaded
+  if (!queriesFinished(state.apollo)) {
+    onData();
+    return;
+  }
+
+  let solution = context.Utils.Class.find<ISolutionDAO>(
     state.solution.solutions, (s) =>
       s.scheduleId === ownProps.params.scheduleId &&
       s.practicalId === ownProps.params.practicalId &&
-      s.exerciseId === ownProps.params.exerciseId)
-});
+      s.exerciseId === ownProps.params.exerciseId);
 
-export const mapDispatchToProps = (context: IContext, dispatch: any): IComponentActions => ({
-  // createPractical() {
-  //   // TODO: create!
-  // },
-  // handleSearch(filter: string) {
-  //   dispatch(practicalActions.handleSearch(filter));
-  // },
-});
+  const exercise = state.exercise.exercises[ownProps.params.exerciseId];
+  const practical = state.practical.practicals[ownProps.params.practicalId];
+  const schedule = state.schedule.schedules[ownProps.params.scheduleId];
+  const world = state.world.worlds[exercise.worldId];
 
-export default connect({ mapQueriesToProps, mapStateToProps, mapDispatchToProps })
-  (loadingContainer(Component, CenteredLoading, ['scheduleData', 'practicalData', 'exerciseData', 'solutionData', 'worldData']));
+  // in case there is no solution, we create a new solution
+
+  if (!solution) {
+    const subscription = state.accounts.user.getSubscription(schedule._id);
+    let filteredFiles = getFiles([exercise, practical, schedule, world]).filter((w) => w.type !== 'library');
+
+    solution = {
+      _id: Random.id(),
+      scheduleId: schedule._id,
+      practicalId: practical._id,
+      exerciseId: exercise._id,
+      files: filteredFiles,
+      tutorId: subscription ? subscription.tutorId : null,
+      tutorName: subscription ? subscription.tutorName : null
+    };
+
+    // Schifezza: I need to modify the store directly as dispatch wreaks havoc
+    context.Store.dispatch(actions.createSolution(solution));
+    // state.solution.solutions[solution._id] = solution;
+  }
+
+  let files = getFiles([solution, exercise, practical, schedule, world]);
+
+  onData(null, {
+    context,
+    user: state.accounts.user,
+    solution,
+    files,
+    schedule,
+    practical,
+    exercise,
+    world: state.world.worlds[exercise.worldId]
+  });
+}
+
+// export const mapStateToProps = (context: IContext, state: IState, ownProps: IProps): IComponentProps => {
+  // // wait till everything is loaded
+  // if (!queriesFinished(state.apollo)) {
+  //   return {} as any;
+  // }
+  //
+  // let solution = context.Utils.Class.find<ISolutionDAO>(
+  //   state.solution.solutions, (s) =>
+  //     s.scheduleId === ownProps.params.scheduleId &&
+  //     s.practicalId === ownProps.params.practicalId &&
+  //     s.exerciseId === ownProps.params.exerciseId);
+  //
+  // const exercise = state.exercise.exercises[ownProps.params.exerciseId];
+  // const practical = state.practical.practicals[ownProps.params.practicalId];
+  // const schedule = state.schedule.schedules[ownProps.params.scheduleId];
+  // const world = state.world.worlds[exercise.worldId];
+  //
+  // // in case there is no solution, we create a new solution
+  //
+  // if (!solution) {
+  //   const subscription = state.accounts.user.getSubscription(schedule._id);
+  //   let filteredFiles = getFiles([exercise, practical, schedule, world]).filter((w) => w.type !== 'library');
+  //
+  //   solution = {
+  //     _id: Random.id(),
+  //     scheduleId: schedule._id,
+  //     practicalId: practical._id,
+  //     exerciseId: exercise._id,
+  //     files: filteredFiles,
+  //     tutorId: subscription ? subscription.tutorId : null,
+  //     tutorName: subscription ? subscription.tutorName : null
+  //   };
+  //
+  //   // Schifezza: I need to modify the store directly as dispatch wreaks havoc
+  //   // context.Store.dispatch(actions.createSolution(solution));
+  //   state.solution.solutions[solution._id] = solution;
+  // }
+  //
+  // let files = getFiles([solution, exercise, practical, schedule, world]);
+  //
+  // return {
+  //   context,
+  //   user: state.accounts.user,
+  //   solution,
+  //   files,
+  //   schedule,
+  //   practical,
+  //   exercise,
+  //   world: state.world.worlds[exercise.worldId]
+  // };
+// };
+
+export const mapDispatchToProps = (context: IContext, dispatch: Function, ownProps: IProps): IComponentActions => {
+  let ti: number;
+  return {
+    updateFile: (solution: ISolutionDAO, file: string, source: string) => {
+      if (ti !== undefined) {
+        clearTimeout(ti);
+      }
+      ti = setTimeout(() => {
+        // we are either creating a new file or updating existing one
+        dispatch(actions.changeFile(context, solution._id, file, source));
+      }, 500);
+    }
+  };
+};
+
+function checkPractical() {
+  console.log('doing');
+}
+
+export default composeAll(
+  //connect({ mapQueriesToProps, mapStateToProps }),
+  compose(findSolution),
+  connect({ mapQueriesToProps, mapDispatchToProps })
+)(loadingContainer(Component, CenteredLoading, ['scheduleData', 'practicalData', 'exerciseData', 'solutionData', 'worldData']));
 
 // export default composeAll<IProps>(
 //   composeWithTracker(composer, CenteredLoading),

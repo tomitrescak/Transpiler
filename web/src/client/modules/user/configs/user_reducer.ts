@@ -17,7 +17,8 @@ declare global {
     secret: string;
     profile: {
       schedules: IScheduleSubscription[],
-      avatar: string
+      avatar: string,
+      name: string
     };
     getSubscription(scheduleId: string): IScheduleSubscription;
     subscribe(state: IAccountsState<SystemUser>, action: IActionSubscribe): void;

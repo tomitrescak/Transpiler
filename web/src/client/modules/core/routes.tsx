@@ -13,6 +13,10 @@ import ScheduleView from '../schedules/containers/schedule_container';
 import PracticalView from '../practicals/containers/practical_container';
 import ExerciseView from '../exercises/containers/exercise_container';
 
+// admin
+import WorldsView from '../worlds/containers/worlds_admin_container';
+import WorldView from '../worlds/containers/world_admin_container';
+
 import * as scheduleActions from '../schedules/actions/schedule_actions';
 import * as practicalActions from '../practicals/actions/practical_actions';
 // import * as exerciseActions from '../exercises/actions/exercise_actions';
@@ -27,14 +31,18 @@ const AppRoutes = ({ history, injectDeps }: any) => {
       <Route path="/" component={MainLayoutCtx}>
         <IndexRoute components={{ main: HomePage, extraFooter: ExtraFooterView }} />
         <Route path="schedules"
-          component={() => <SchedulesList route="schedule" icon="calendar" header="schedules" showBadges />}
-          onEnter={scheduleActions.clearSearch} />
+                                component={() => <SchedulesList route="schedule" icon="calendar" header="schedules" showBadges />}
+                                onEnter={scheduleActions.clearSearch} />
         <Route path="schedule/:name/:id"
-          component={ScheduleView}
-          onEnter={scheduleActions.clearSearch} />
+                                component={ScheduleView}
+                                onEnter={scheduleActions.clearSearch} />
         <Route path="practical/:practicalName/:scheduleName/:practicalId/:scheduleId"
-          component={PracticalView}
-          onEnter={practicalActions.clearSearch} />
+                                component={PracticalView}
+                                onEnter={practicalActions.clearSearch} />
+        <Route path="admin">
+          <Route path="worlds" component={WorldsView} />
+          <Route path="world/:name/:id" component={WorldView} />
+        </Route>
       </Route>
       <Route path="/editor" component={EditorLayoutCtx}>
         <Route path="exercise/:exerciseName/:practicalName/:scheduleName/:exerciseId/:practicalId/:scheduleId"

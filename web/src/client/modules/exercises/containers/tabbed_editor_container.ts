@@ -1,21 +1,30 @@
 import { connect } from 'meteor/tomi:apollo-mantra';
-import Component, { IComponentActions } from '../components/tabbed_editor';
+import Component, { IComponentActions, IProps } from '../components/tabbed_editor';
 
 import * as actions from '../actions/compiler_actions';
 
-interface IProps {
-  libraries: ITextFileDAO[];
-  files: ITextFileDAO[];
-  id: string;
-}
+// interface IProps {
+//   files: ITextFileDAO[];
+//   id: string;
+//   updateFile: (file: string, source: string) => void;
+//   classes: string;
+// }
 
 const mapDispatchToProps = ({ Store }: IContext, dispatch: Function, ownProps: IProps): IComponentActions  => ({
   initCompiler: () => {
-    dispatch(actions.initCompiler(ownProps.id, ownProps.libraries));
+    dispatch(actions.initCompiler(ownProps.id, ownProps.files.filter((f) => f.readonly)));
   },
   compile: () => {
-    dispatch(actions.compile(Store, ownProps.id, ownProps.files));
+    dispatch(actions.compile(Store, ownProps.id, ownProps.files.filter((f) => !f.readonly)));
+  },
+  toggleShowAllFiles: (show: boolean) => {
+    dispatch(actions.toggleShowAllFiles(ownProps.id, show));
   }
 });
 
-export default connect<IProps>({ mapDispatchToProps })(Component);
+const mapStateToProps = (context: IContext, state: IState, ownProps: IProps) => ({
+  context,
+  showAllFiles: state.compiler.sessions[ownProps.id] ? state.compiler.sessions[ownProps.id].showAllFiles : false
+});
+
+export default connect<IProps>({ mapDispatchToProps, mapStateToProps })(Component);
