@@ -18,7 +18,7 @@ const css = jss({
     '& .ace_editor': {
       position: 'absolute!important',
       top: 0,
-      bottom: 0,
+      bottom: '19px',
       left: 0,
       right: 0
     },
@@ -52,7 +52,6 @@ const css = jss({
 export interface IProps {
   id: string;
   files: ITextFileDAO[];
-  updateFile: (file: string, source: string) => void;
   fileActions: IFileEditorActions;
   classes: string;
 }
@@ -73,6 +72,11 @@ interface IComponent extends IComponentProps, IComponentActions, IProps { };
 
 let file: ITextFileDAO;
 let index: number;
+const icons = {
+  library: 'book',
+  userCode: 'code',
+  interface: 'cube'
+}
 
 export default class TabbedEditor extends React.Component<IComponent, {}> {
   text: HTMLTextAreaElement;
@@ -80,11 +84,8 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
   compilerIntialised: boolean;
 
   onChange(editorFile: ITextFileDAO, newValue: string) {
-    // change the file source: Maybe Dispatch this change ?
-    //const modifiedFile = this.props.files.find((f) => f.name === editorFile.name);
-    //modifiedFile.source = newValue;
-    this.props.updateFile(editorFile.name, newValue);
-    this.props.compile();
+    // change the file source and immediatelly compile
+    this.props.fileActions.changeSource(editorFile.name, newValue, this.props.compile);
   }
 
   loadEditor(editorFile: ITextFileDAO, editor: any) {
@@ -120,6 +121,8 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
                 onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'library'), 'promptAddLibrary') } />
               <MenuItem text="addCode" icon="plus"
                 onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'userCode'), 'promptAddCode') } />
+              <MenuItem text="addInterface" icon="plus"
+                onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'interface'), 'promptAddDefinition') } />
               <MenuItem text="renameFile" icon="bubble"
                 onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.changeName(selectedFile, fileName), 'promptRenameCode', selectedFile) } />
               <MenuItem text="changeType" icon="bubble"
@@ -132,7 +135,7 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
         <span className={css.container}>
           <Tabs id={'tabs_' + this.props.id} selected={(tabFile) => selectedFile = tabFile }>
             <For each="file" index="index" of={files}>
-              <Tab key={index} name={file.name} title={file.name} icon={file.type === 'library' ? 'book' : 'code'}>
+              <Tab key={index} name={file.name} title={file.name} icon={icons[file.type]}>
                 <AceEditor
                   width="inherit"
                   height="inherit"

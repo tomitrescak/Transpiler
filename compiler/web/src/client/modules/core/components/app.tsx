@@ -1,13 +1,12 @@
 import * as React from 'react';
-import brace from 'brace';
-import AceEditor from 'react-ace';
-
 import { Button, Tabs, Tab } from 'semanticui-react';
 
-import 'brace/mode/java';
-import 'brace/theme/ambiance';
-import 'brace/ext/searchbox';
-import 'brace/ext/language_tools';
+// import brace from 'brace';
+// import AceEditor from 'react-ace';
+// import 'brace/mode/java';
+// import 'brace/theme/ambiance';
+// import 'brace/ext/searchbox';
+// import 'brace/ext/language_tools';
 
 interface IState {
   ts?: string;
@@ -25,18 +24,18 @@ export default class App extends React.Component<{}, {}> {
     let result = java2js.compile({ name: 'File.java', source: value });
     console.log(result)
 
-    if (result.errors.length) {
-      let annotations = result.errors.map((e: any) => ({
-        row: e.line,
-        column: 0,
-        text: e.message,
-        type: 'error'
-      }));
-      console.log(annotations);
-      setTimeout(() => { this.editor.session.setAnnotations(annotations) }, 100);
-    } else {
-      this.editor.session.clearAnnotations();
-    }
+    // if (result.errors.length) {
+    //   let annotations = result.errors.map((e: any) => ({
+    //     row: e.line,
+    //     column: 0,
+    //     text: e.message,
+    //     type: 'error'
+    //   }));
+    //   console.log(annotations);
+    //   setTimeout(() => { this.editor.session.setAnnotations(annotations) }, 100);
+    // } else {
+    //   this.editor.session.clearAnnotations();
+    // }
   }
 
   loadEditor(editor: any) {
@@ -51,7 +50,11 @@ export default class App extends React.Component<{}, {}> {
         <table style={{ width: '100%' }} cellPadding={10}>
           <tbody><tr>
             <td style={{ width: '40%', verticalAlign: 'top' }}>
-              <Tabs id="main">
+              <textarea ref={(elem) => this.text = elem} onChange={() => this.onChange(this.text.value)}
+                style={{margin: '20px', width: '300px', height: '400px'}}
+
+              ></textarea>
+              {/*<Tabs id="main">
                 <Tab name="first" title="First">
                   <AceEditor
                     mode="java"
@@ -92,7 +95,7 @@ export default class App extends React.Component<{}, {}> {
                     />
                 </Tab>
               </Tabs>
-
+              */}
             </td>
             <td style={{ width: '30%', verticalAlign: 'top' }}>
               <pre id="ts"></pre>

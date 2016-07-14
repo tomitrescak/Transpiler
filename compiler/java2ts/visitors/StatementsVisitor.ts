@@ -57,6 +57,10 @@ declare global {
     finally: Block;
     resources: Expression[];
   }
+
+  interface EmptyStatement extends AstElement {
+    node: 'EmptyStatement';
+  }
 }
 
 export class IfStatementVisitor extends Visitor<IfStatement> {
@@ -64,7 +68,7 @@ export class IfStatementVisitor extends Visitor<IfStatement> {
     super(parent, node, 'IfStatement');
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     const expression = ExpressionFactory.create(this, this.node.expression);
 
     // condition
@@ -96,7 +100,7 @@ export class WhileStatementVisitor extends Visitor<WhileStatement> {
     super(parent, node, 'WhileStatement');
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     const expression = ExpressionFactory.create(this, this.node.expression);
     // condition
     builder.add('while (');
@@ -119,7 +123,7 @@ export class SwitchStatementVisitor extends Visitor<SwitchStatement> {
     super(parent, node, 'SwitchStatement');
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     const expression = ExpressionFactory.create(this, this.node.expression);
     // condition
     builder.add('switch (');
@@ -145,7 +149,7 @@ export class SwitchCaseVisitor extends Visitor<SwitchCase> {
     super(parent, node, 'SwitchCase');
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     // condition
     // it's either a case node or default node
     if (this.node.expression) {
@@ -169,7 +173,7 @@ export class BreakStatementVisitor extends Visitor<BreakStatement> {
     }
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     // condition
     builder.add('break;');
   }
@@ -184,7 +188,7 @@ export class ContinueStatementVisitor extends Visitor<ContinueStatement> {
     }
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     // condition
     builder.add('continue;');
   }
@@ -195,7 +199,7 @@ export class ReturnStatementVisitor extends Visitor<ReturnStatement> {
     super(parent, node, 'ReturnStatement');
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     // condition
     builder.add('return ');
 
@@ -220,7 +224,7 @@ export class TryStatementVisitor extends Visitor<TryStatement> {
     }
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     // condition
     builder.add('try ');
 
@@ -256,7 +260,7 @@ export class CatchClauseVisitor extends Visitor<CatchClause> {
     super(parent, node, 'CatchClause');
   }
 
-  visit (builder: IBuilder) {
+  visit(builder: IBuilder) {
     const exception = new SingleVariableDeclarationVisitor(this, this.node.exception);
     const body = BlockFactory.create(this, this.node.body);
 
@@ -268,5 +272,15 @@ export class CatchClauseVisitor extends Visitor<CatchClause> {
     body.visit(builder);
 
 
+  }
+}
+
+export class EmptyStatementVisitor extends Visitor<EmptyStatement> {
+  constructor(parent: IVisitor, node: EmptyStatement) {
+    super(parent, node, 'EmptyStatement');
+  }
+
+  visit(builder: IBuilder) {
+    // empty
   }
 }

@@ -137,6 +137,6 @@ export function compile(store: IStore, sessionId: string, files: java2jscompiler
     if (store.getState().compiler.sessions[sessionId].state !== 'Compiling') {
       dispatch(startCompilation(sessionId));
     }
-    java2js.compileAsync(files, compileCallback.bind(null, dispatch, sessionId, files));
+    java2js.compileAsync(files, compileCallback.bind(null, dispatch, sessionId, files), 10);
   };
 }

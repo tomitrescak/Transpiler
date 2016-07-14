@@ -18,6 +18,7 @@ declare global {
     name: NameVisitor;
     interface: boolean;
     superClassType: string;
+    isAbstract: boolean;
     findField(name: string): IVariableVisitor;
     findMethod(name: string): IMethodVisitor;
     findMethodInSuperClass(name: string): IMethodVisitor;
@@ -51,7 +52,7 @@ export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaratio
   bodyDeclarations: IVisitor[];
   fields: FieldDeclarationVisitor[];
   interface: boolean;
-
+  isAbstract: boolean;
   methods: MethodDeclarationVisitor[];
   variables: VariableDeclarationFragmentVisitor[];
 
@@ -67,6 +68,7 @@ export class TypeDeclarationVisitor extends VariableHolderVisitor<TypeDeclaratio
     this.name = NameFactory.create(this, node.name);
     this.typeParameters = new TypeParametersVisitor(this, node.typeParameters);
     this.interface = node.interface;
+    this.isAbstract = this.modifiers.isAbstract;
 
     if (node.superclassType) {
       this.superClassType = TypeFactory.create(this, node.superclassType).name;

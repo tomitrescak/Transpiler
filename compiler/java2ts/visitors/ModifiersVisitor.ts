@@ -41,6 +41,7 @@ export default class ModifiersVisitor {
   isPublic: boolean;
   isProtected: boolean;
   isPrivate: boolean;
+  isAbstract: boolean;
 
   constructor(parent: IVisitor, nodes: Modifiers[], allowedModifiers: string[], modifierLevel: ModifierLevel, allowAnnotations = false) {
     if (!nodes) { return };
@@ -72,6 +73,8 @@ export default class ModifiersVisitor {
             } else if (keyword === 'private') {
               this.isPrivate = true;
             }
+          } else if (keyword === 'abstract') {
+            this.isAbstract = true;
           }
 
           // we only return modifier if it is allowed, otherwise we throw warning

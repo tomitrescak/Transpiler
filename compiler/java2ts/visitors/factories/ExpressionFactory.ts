@@ -39,6 +39,8 @@ export default class ExpressionFactory {
         return new Expressions.ClassInstanceCreationVisitor(parent, node as ClassInstanceCreation);
       case 'Assignment':
         return new Expressions.AssignmentVisitor(parent, node as Assignment);
+      case 'ConditionalExpression':
+        return new Expressions.ConditionalExpressionVisitor(parent, node as ConditionalExpression);
       default:
         throw new Error(node.node + ' is not implemented');
     }

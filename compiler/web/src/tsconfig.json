@@ -29,16 +29,7 @@
     "./**/*.ts",
     "./**/*.tsx"
   ],
-  "files": [
-    "./server/main.ts",
-    "./typings/globals/meteor/index.d.ts",
-    "./typings/globals/react-dom/index.d.ts",
-    "./typings/globals/react/index.d.ts",
-    "./typings/index.d.ts",
-    "./client/main.tsx",
-    "./client/modules/core/components/app.tsx"
-  ],
   "atom": {
-    "rewriteTsconfig": true
+    "rewriteTsconfig": false
   }
 }

@@ -97,7 +97,7 @@ export class VariableDeclarationFragmentVisitor extends Visitor<VariableDeclarat
         builder.add(' = ');
 
         this.initialiser.visit(builder);
-      } else if (!this.owner.interface) {
+      } else if (!this.owner.interface && !this.owner.isAbstract) {
         // add iniitliser
         builder.add(' = ');
 

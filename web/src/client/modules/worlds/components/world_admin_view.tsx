@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-import TextEditor from "../../exercises/containers/tabbed_editor_container";
+import TextEditor from '../../exercises/containers/tabbed_editor_container';
 import { Segment, Header2, Header4, Dropdown, Button, Fields, Field, Input, DropdownItem, Tabs, Tab, Link } from 'semanticui-react';
 import jss from '../../../configs/jss';
 
@@ -21,10 +21,9 @@ export interface IComponentProps {
 interface IProps extends IComponentProps, IComponentActions { }
 
 
-function updateFile() { }
-
-
 let themedTile: IThemedTileDAO;
+let index: number;
+
 const css = jss({
   tilesContainer: {
     '& img': {
@@ -32,7 +31,7 @@ const css = jss({
       height: '50px'
     }
   }
-})
+});
 
 const WorldAdminView = ({ world, context, save, fileActions }: IProps) => {
 
@@ -53,12 +52,11 @@ const WorldAdminView = ({ world, context, save, fileActions }: IProps) => {
           defaultValue={ world.name } />
       </Field>
       {/* FILES */}
-      <div style={{ height: 400, position: "relative" }}>
+      <div style={{ height: 400, position: 'relative' }}>
         <TextEditor id={world._id}
           files={ world.files }
           fileActions={fileActions}
           classes="darkTabs"
-          updateFile={updateFile.bind(null, world) }
            />
       </div>
       {/* TILES */}
@@ -252,7 +250,6 @@ interface IAnimationsViewProps {
   foo?: string;
 }
 
-let index: number;
 let anim: IThemedTileAnimationDAO;
 
 const AnimationsView = ({ tile }: IAnimationsViewProps) => (

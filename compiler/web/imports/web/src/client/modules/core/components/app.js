@@ -6,6 +6,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var React = require('react');
 var semanticui_react_1 = require('semanticui-react');
+require('brace/mode/java');
+require('brace/theme/ambiance');
+require('brace/ext/searchbox');
+require('brace/ext/language_tools');
 var value;
 var App = (function (_super) {
     __extends(App, _super);
@@ -35,18 +39,18 @@ var App = (function (_super) {
     };
     App.prototype.render = function () {
         var _this = this;
-        return (React.createElement("div", null, 
-            React.createElement(semanticui_react_1.Button, {text: "tomi"}), 
-            React.createElement("table", {style: { width: '100%' }, cellPadding: 10}, 
-                React.createElement("tbody", null, 
-                    React.createElement("tr", null, 
-                        React.createElement("td", {style: { width: '40%', verticalAlign: 'top' }}, 
-                            React.createElement("textarea", {ref: function (elem) { return _this.text = elem; }, onChange: function () { return _this.onChange(_this.text.value); }, style: { margin: '20px', width: '300px', height: '400px' }})
-                        ), 
-                        React.createElement("td", {style: { width: '30%', verticalAlign: 'top' }}, 
+        return (React.createElement("div", null,
+            React.createElement(semanticui_react_1.Button, {text: "tomi"}),
+            React.createElement("table", {style: { width: '100%' }, cellPadding: 10},
+                React.createElement("tbody", null,
+                    React.createElement("tr", null,
+                        React.createElement("td", {style: { width: '40%', verticalAlign: 'top' }},
+                            React.createElement("textarea", {ref: function (elem) { return _this.text = elem; }, onChange: function () { return _this.onChange(_this.text.value); }})
+                        ),
+                        React.createElement("td", {style: { width: '30%', verticalAlign: 'top' }},
                             React.createElement("pre", {id: "ts"})
-                        ), 
-                        React.createElement("td", {style: { width: '30%', verticalAlign: 'top' }}, 
+                        ),
+                        React.createElement("td", {style: { width: '30%', verticalAlign: 'top' }},
                             React.createElement("pre", {id: "js"})
                         ))
                 )

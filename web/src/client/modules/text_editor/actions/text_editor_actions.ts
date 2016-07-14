@@ -21,6 +21,11 @@ function changeNameReduce(state: any, key: string, id: string, fileName: string,
   return update(state, { [key]: { [id]: { files: { [i]: { name: { $set: newName } } } } } });
 }
 
+function changeSourceReducer(state: any, key: string, id: string, fileName: string, source: string) {
+  const i = indexOf(state[key][id].files, fileName);
+  return update(state, { [key]: { [id]: { files: { [i]: { source: { $set: source } } } } } });
+}
+
 function addFileReduce(state: any, key: string, id: string, fileName: string, type: string) {
   return update(state, { [key]: { [id]: { files: { $push: [{ name: fileName, type: type, source: '// new file' }] } } } });
 }
@@ -84,19 +89,26 @@ declare global {
     removeFile(fileName: string): void;
     changeName(oldFileName: string, newFileName: string): void;
     changeType(fileName: string, fileType: string): void;
+    changeSource(fileName: string, source: string, compile?: Function): void;
     moveLeft(fileName: string): void;
     moveRight(fileName: string): void;
+    getFiles(store: IState): ITextFileDAO[];
+    getLibraries(store: IState): ITextFileDAO[];
   }
 }
 
-export function initActions(addAction: string,
+export function initActions(getRecord: (state: IState, id: string) => IFileOwner,
+  addAction: string,
   removeAction: string,
   changeNameAction: string,
   changeTypeAction: string,
+  changeSourceAction: string,
   moveLeftAction: string,
   moveRightAction: string) {
 
   return (id: string, dispatch: Function) => {
+    let timeoutId: number;
+
     return {
       addFile(fileName: string, fileType: string) {
         dispatch({ type: addAction, id, fileName, fileType });
@@ -110,11 +122,26 @@ export function initActions(addAction: string,
       changeType(fileName: string, fileType: string) {
         dispatch({ type: changeTypeAction, id, fileName, fileType });
       },
+      changeSource(fileName: string, source: string, compile?: Function) {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => {
+          dispatch({ type: changeSourceAction, id, fileName, source });
+          if (compile) { compile(); };
+        }, 500);
+      },
       moveLeft(fileName: string) {
         dispatch({ type: moveLeftAction, id, fileName });
       },
       moveRight(fileName: string) {
         dispatch({ type: moveRightAction, id, fileName });
+      },
+      getFiles(state: IState) {
+        return getRecord(state, id).files.filter((f: ITextFileDAO) => !f.readonly);
+      },
+      getLibraries(state: IState) {
+        return getRecord(state, id).files.filter((f: ITextFileDAO) => f.readonly);
       }
     };
   };
@@ -127,6 +154,7 @@ export function initReducer(
   removeAction: string,
   changeNameAction: string,
   changeTypeAction: string,
+  changeSourceAction: string,
   moveLeftAction: string,
   moveRightAction: string) {
 
@@ -139,6 +167,8 @@ export function initReducer(
       return changeNameReduce(state, key, action.id, action.oldFileName, action.newFileName);
     } else if (action.type === changeTypeAction) {
       return changeTypeReduce(state, key, action.id, action.fileName, action.fileType);
+    } else if (action.type === changeSourceAction) {
+      return changeSourceReducer(state, key, action.id, action.fileName, action.source);
     } else if (action.type === moveLeftAction) {
       return moveLeftReduce(state, key, action.id, action.fileName);
     } else if (action.type === moveRightAction) {

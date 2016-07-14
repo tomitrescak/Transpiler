@@ -80,11 +80,22 @@ export default class CompilationBundleVisitor extends Visitor<any> implements IC
       file.tree = parser.parse(file.source);
       file.unit = new CompilationUnitVisitor(this, file.tree, builder.handler);
     } catch (ex) {
+      if (!ex.location) {
+        compilationResult.errors.push({
+          file: file.name,
+          line: 0,
+          column: 0,
+          message: ex.message
+        });
+        console.error(ex.message);
+        console.error(ex.stack);
+        return;
+      }
       compilationResult.errors.push({
         file: file.name,
         line: ex.location.start.line - 1,
         column: ex.location.start.column - 1,
-        message: ex.found ? ('Unexpected: ' + ex.found) : ex.message
+        message: ex.found ? (`Unexpected '${ex.found}': ${ex.message.substring(0, 40)}...`) : ex.message
       });
     }
 

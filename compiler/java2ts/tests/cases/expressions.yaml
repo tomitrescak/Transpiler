@@ -67,3 +67,19 @@
     class tomi {
       a: number = (((4 + 5) * 2) / (4 * 5)|0);
     }
+
+- name: Expressions > Ternary
+  input: |
+    class tomi {
+      int d() {
+        return 1;
+      }
+      int a = true ? d() : 3;
+    }
+  output: |
+    class tomi {
+      d(): number {
+        return 1;
+      }
+      a: number = true ? this.d() : 3;
+    }

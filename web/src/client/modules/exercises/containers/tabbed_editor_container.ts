@@ -12,10 +12,10 @@ import * as actions from '../actions/compiler_actions';
 
 const mapDispatchToProps = ({ Store }: IContext, dispatch: Function, ownProps: IProps): IComponentActions  => ({
   initCompiler: () => {
-    dispatch(actions.initCompiler(ownProps.id, ownProps.files.filter((f) => f.readonly)));
+    dispatch(actions.initCompiler(ownProps.id, ownProps.fileActions.getLibraries(Store.getState())));
   },
   compile: () => {
-    dispatch(actions.compile(Store, ownProps.id, ownProps.files.filter((f) => !f.readonly)));
+    dispatch(actions.compile(Store, ownProps.id, ownProps.fileActions.getFiles(Store.getState())));
   },
   toggleShowAllFiles: (show: boolean) => {
     dispatch(actions.toggleShowAllFiles(ownProps.id, show));

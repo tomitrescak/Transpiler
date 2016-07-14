@@ -8,3 +8,15 @@
 - input: class tomi {}
   output: |
     class tomi {}
+
+- name: abstract class
+  input: |
+    abstract class tomi {
+      int bar;
+      int foo(String a);
+    }
+  output: |
+    abstract class tomi {
+      bar: number;
+      foo(a: string): number;
+    }
