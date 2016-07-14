@@ -44,6 +44,39 @@
   errors:
     - AssignTypeMismatch|3|double|int
 
+- name: Types > Multiple Classes
+  input: |
+    class A {
+      double foo() {}
+    }
+    class B {
+      A a;
+    }
+    class C {
+      B b;
+      void a() {
+        int m = this.b.a.foo();
+      }
+    }
+
+  output: |
+    class A {
+      foo(): number {}
+    }
+
+    class B {
+      a: A = null;
+    }
+
+    class C {
+      b: B = null;
+      a(): void {
+        let m: number = this.b.a.foo();
+      }
+    }
+  errors:
+    - AssignTypeMismatch|9|double|int
+
 # - name: Types > Automated rounding of functions
 #   ignored: true
 #   input: |

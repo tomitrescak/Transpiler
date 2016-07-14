@@ -61,6 +61,11 @@ declare global {
   interface EmptyStatement extends AstElement {
     node: 'EmptyStatement';
   }
+
+  interface ThrowStatement extends AstElement {
+    node: 'ThrowStatement';
+    expression: Expression;
+  }
 }
 
 export class IfStatementVisitor extends Visitor<IfStatement> {
@@ -282,5 +287,19 @@ export class EmptyStatementVisitor extends Visitor<EmptyStatement> {
 
   visit(builder: IBuilder) {
     // empty
+  }
+}
+
+export class ThrowStatementVisitor extends Visitor<ThrowStatement> {
+  constructor(parent: IVisitor, node: ThrowStatement) {
+    super(parent, node, 'ThrowStatement');
+  }
+
+  visit(builder: IBuilder) {
+    const expression = ExpressionFactory.create(this, this.node.expression);
+
+    builder.add('throw ');
+    expression.visit(builder);
+    builder.add(';');
   }
 }

@@ -43,6 +43,7 @@ export class EnumDeclarationVisitor extends Visitor<EnumDeclaration> implements 
   variables: any[] = null;
   methods: any[] = null;
   interface = false;
+  isAbstract = false;
 
   constructor(parent: IVisitor, node: EnumDeclaration) {
     super(parent, node, 'EnumDeclaration');

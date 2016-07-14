@@ -36,6 +36,8 @@ export default class BlockFactory {
         return new Statements.CatchClauseVisitor(parent, node as CatchClause);
       case 'EmptyStatement':
         return new Statements.EmptyStatementVisitor(parent, node as EmptyStatement);
+      case 'ThrowStatement':
+        return new Statements.ThrowStatementVisitor(parent, node as ThrowStatement);
 
       default:
         throw new Error('Unsupported block statement: ' + node.node);

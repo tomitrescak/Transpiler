@@ -83,3 +83,40 @@
       }
       a: number = true ? this.d() : 3;
     }
+
+- name: Expressions > Null
+  input: |
+    class tomi {
+      String d = null;
+    }
+  output: |
+    class tomi {
+      d: string = null;
+    }
+
+- name: Expressions > Throw Statement
+  input: |
+    class tomi {
+      void foo() {
+        throw new A(1); foo();
+      }
+    }
+  output: |
+    class tomi {
+      foo(): void {
+        throw new A(1);
+        this.foo();
+      }
+    }
+
+- name: Expressions > Array access
+  input: |
+    class tomi {
+      int[] a;
+      int b = a[0 + b];
+    }
+  output: |
+    class tomi {
+      a: number[] = null;
+      b: number = this.a[0 + this.b];
+    }

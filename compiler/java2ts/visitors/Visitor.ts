@@ -54,7 +54,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
       const callChildName = child.node.node === 'QualifiedName' ? 'qualifier' : 'expression';
 
       // find the owner type, and pass MethodInvocation as the paren of this call
-      let type = this.findVariableType(child, callChildName, 'MethodInvocation');
+      let type = this.findVariableType(child, 'MethodInvocation');
 
       // now find the method in the owner and return type
       const method = type.findMethodInSuperClass(name);
@@ -67,8 +67,11 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
     }
   }
 
-  findVariableType(visitor: IVisitor, childName = 'qualifier', nodeName: (string | string[]) = 'QualifiedName'): ITypeDeclarationVisitor {
-    const child = visitor[childName];
+  findVariableType(visitor: IVisitor, nodeName: (string | string[]) = 'QualifiedName'): ITypeDeclarationVisitor {
+    let child = visitor['qualifier'];
+    if (!child) {
+      child = visitor['expression'];
+    }
     const name = visitor['name'] ? visitor['name'].name : null;
 
     if (child) {
@@ -79,7 +82,7 @@ abstract class Visitor<T extends AstElement> implements IVisitor {
 
       let type = child.node.node === 'MethodInvocation' ?
         this.findMethodType(child) :
-        this.findVariableType(child, callChildName, callNodeName);
+        this.findVariableType(child, callNodeName);
 
       // check if type exists
       if (!type) {

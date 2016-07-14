@@ -28,7 +28,15 @@ export default class SourceMap {
 
   resolveLine(line: number, column: number) {
     // map contains line/column mappings
-    const mappedLine = this.map[line];
+    let mappedLine = this.map[line];
+    if (!mappedLine) {
+      while (--line >= 0) {
+        mappedLine = this.map[line];
+        if (mappedLine) {
+          return mappedLine[mappedLine.length - 1].mapping.row;
+        }
+      }
+    }
 
     // find the closest smallest column
     let mapping: Mapping = null;

@@ -25,6 +25,8 @@ export default class ExpressionFactory {
         return new Expressions.CharacterLiteralVisitor(parent, node as CharacterLiteral);
       case 'NumberLiteral':
         return new Expressions.NumberLiteralVisitor(parent, node as NumberLiteral);
+      case 'NullLiteral':
+        return new Expressions.NullLiteralVisitor(parent, node as NullLiteral);
       case 'InfixExpression':
         return new Expressions.InfixExpressionVisitor(parent, node as InfixExpression);
       case 'ParenthesizedExpression':
@@ -41,6 +43,8 @@ export default class ExpressionFactory {
         return new Expressions.AssignmentVisitor(parent, node as Assignment);
       case 'ConditionalExpression':
         return new Expressions.ConditionalExpressionVisitor(parent, node as ConditionalExpression);
+      case 'ArrayAccess':
+        return new Expressions.ArrayAccessVisitor(parent, node as ArrayAccess);
       default:
         throw new Error(node.node + ' is not implemented');
     }
