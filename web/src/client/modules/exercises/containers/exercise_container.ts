@@ -94,11 +94,13 @@ function findSolution(context: IContext, ownProps: IProps, onData: Function): an
   const schedule = state.schedule.schedules[ownProps.params.scheduleId];
   const world = state.world.worlds[exercise.worldId];
 
+  
+
   // in case there is no solution, we create a new solution
 
   if (!solution) {
     const subscription = state.accounts.user.getSubscription(schedule._id);
-    let filteredFiles = getFiles([exercise, practical, schedule, world]).filter((w) => w.type !== 'library');
+    let filteredFiles = getFiles([exercise, practical, schedule, world]).filter((w) => w.type === 'userCode');
 
     solution = {
       _id: Random.id(),

@@ -54,6 +54,7 @@ export interface IComponentProps {
   schedule: IScheduleDAO;
   world: IWorldDAO;
 
+  fileActions: IFileEditorActions;
   files: ITextFileDAO[];
   user: SystemUser;
 
@@ -80,7 +81,7 @@ export interface IComponent extends IComponentProps, IComponentActions { }
 //   f.source = source;
 // }
 
-export const ExerciseView = ({ context, solution, exercise, practical, schedule, world, files, updateFile }: IComponent) => {
+export const ExerciseView = ({ context, solution, exercise, practical, schedule, world, files, updateFile, fileActions }: IComponent) => {
   let left: HTMLElement;
   let right: HTMLElement;
   let resizeHandle: HTMLElement;
@@ -93,8 +94,8 @@ export const ExerciseView = ({ context, solution, exercise, practical, schedule,
         onMouseDown={() => context.Utils.Ui.resizer(left, right, resizeHandle, evt) } />
       <div ref={(node) => left = node} className={css.editor}>
         <TabbedEditor id={solution._id}
-          updateFile={updateFile.bind(null, solution)}
           files={files}
+          fileActions={fileActions}
           />
         {/*<TabbedTextEditor
             context={context}

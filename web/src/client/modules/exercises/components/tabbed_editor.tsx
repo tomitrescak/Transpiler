@@ -53,7 +53,7 @@ export interface IProps {
   id: string;
   files: ITextFileDAO[];
   fileActions: IFileEditorActions;
-  classes: string;
+  classes?: string;
 }
 
 

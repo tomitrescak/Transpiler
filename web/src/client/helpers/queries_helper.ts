@@ -1,3 +1,5 @@
+import gql from 'graphql-tag';
+
 export const queries = {
   worlds: gql`{
     worlds {

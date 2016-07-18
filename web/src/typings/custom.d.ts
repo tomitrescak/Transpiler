@@ -411,6 +411,11 @@ declare interface IApolloDefinition {
   mutationText?: string;
 }
 
+declare module 'graphql-tag' {
+  let gql: any;
+  export default gql;
+}
+
 declare module 'meteor/tomi:apollo-mantra' {
   interface IConnectFunctions {
     initContainer?: Function;

@@ -8,6 +8,10 @@ import { UiUtils, RouterUtils, ClassUtils } from '../utils/helpers_client';
 import { mutationWithFeedback, addInsertData, addModificationData } from '../helpers/apollo_helpers';
 
 import Config from './config';
+import gql from 'graphql-tag';
+
+// put it in the global scope for now
+global.gql = gql;
 
 // import classnames from 'classnames';
 // import beautify from "js-beautify";

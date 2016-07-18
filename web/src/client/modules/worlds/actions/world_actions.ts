@@ -10,7 +10,7 @@ export const FILE_MOVE_LEFT = 'WORLD: File Move Left';
 export const FILE_MOVE_RIGHT = 'WORLD: File Move Right';
 
 interface Tile {
-  name: string = '';
+  name: string;
 }
 
 export const fileActions = initActions(

@@ -1,7 +1,6 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "basePath": ".",
     "target": "es6",
     "module": "es6",
     "declaration": false,
