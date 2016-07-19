@@ -1,9 +1,10 @@
-import Component, { IComponentProps, IComponentActions } from '../components/exercise_view';
+import Component, { IComponentProps, IComponentActions, EXERCISE_EDITOR } from '../components/exercise_view';
 import { CenteredLoading } from '../../core/components/loading_view';
 import queries from '../../../helpers/queries_helper';
 import { connect, compose, composeAll, loadingContainer, queriesFinished } from 'meteor/tomi:apollo-mantra';
 import * as actions from '../actions/solution_actions';
 import { Random } from 'meteor/random';
+import editorActions from '../../text_editor/actions/text_editor_actions';
 
 interface IProps {
   params: {
@@ -64,7 +65,7 @@ function getFiles(owners: IFileOwner[]) {
     for (let file of owner.files) {
       if (!files.find((f) => f.name === file.name)) {
         // make sure they are properly marked
-        if (file.type === 'library') {
+        if (file.type !== 'userCode') {
           file.readonly = true;
         }
         files.push(file);
@@ -94,8 +95,6 @@ function findSolution(context: IContext, ownProps: IProps, onData: Function): an
   const schedule = state.schedule.schedules[ownProps.params.scheduleId];
   const world = state.world.worlds[exercise.worldId];
 
-  
-
   // in case there is no solution, we create a new solution
 
   if (!solution) {
@@ -119,6 +118,15 @@ function findSolution(context: IContext, ownProps: IProps, onData: Function): an
 
   let files = getFiles([solution, exercise, practical, schedule, world]);
 
+  // init file actions
+  const fileActions = editorActions(EXERCISE_EDITOR, context.Store);
+
+  // dispatch action that initialises editorOptions
+  const editor = context.Store.getState().editor.editors[EXERCISE_EDITOR];
+  if (!editor || editor.ownerId !== solution._id) {
+    fileActions.init(files, solution._id, false);
+  }
+
   onData(null, {
     context,
     user: state.accounts.user,
@@ -127,7 +135,8 @@ function findSolution(context: IContext, ownProps: IProps, onData: Function): an
     schedule,
     practical,
     exercise,
-    world: state.world.worlds[exercise.worldId]
+    world: state.world.worlds[exercise.worldId],
+    fileActions,
   });
 }
 
@@ -183,20 +192,10 @@ function findSolution(context: IContext, ownProps: IProps, onData: Function): an
   // };
 // };
 
-export const mapDispatchToProps = (context: IContext, dispatch: Function, ownProps: IProps): IComponentActions => {
-  let ti: number;
-  return {
-    updateFile: (solution: ISolutionDAO, file: string, source: string) => {
-      if (ti !== undefined) {
-        clearTimeout(ti);
-      }
-      ti = setTimeout(() => {
-        // we are either creating a new file or updating existing one
-        dispatch(actions.changeFile(context, solution._id, file, source));
-      }, 500);
-    }
-  };
-};
+// export const mapDispatchToProps = (context: IContext, dispatch: Function, ownProps: IProps): IComponentActions => {
+//   return {
+//   };
+// };
 
 function checkPractical() {
   console.log('doing');
@@ -205,7 +204,7 @@ function checkPractical() {
 export default composeAll(
   //connect({ mapQueriesToProps, mapStateToProps }),
   compose(findSolution),
-  connect({ mapQueriesToProps, mapDispatchToProps })
+  connect({ mapQueriesToProps })
 )(loadingContainer(Component, CenteredLoading, ['scheduleData', 'practicalData', 'exerciseData', 'solutionData', 'worldData']));
 
 // export default composeAll<IProps>(

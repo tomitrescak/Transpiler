@@ -1,12 +1,14 @@
 import React from 'react';
 
-import TextEditor from '../../exercises/containers/tabbed_editor_container';
+import TextEditor from '../../text_editor/containers/tabbed_editor_container';
 import { Segment, Header2, Header4, Dropdown, Button, Fields, Field, Input, DropdownItem, Tabs, Tab, Link } from 'semanticui-react';
 import jss from '../../../configs/jss';
 
 //////////////////////////////////////////////////////////////////////////////
 // WorldAdminView Component                                                      //
 //////////////////////////////////////////////////////////////////////////////
+
+export const EDITOR_ID = 'WorldEditor';
 
 export interface IComponentActions {
   fileActions: IFileEditorActions;
@@ -33,120 +35,128 @@ const css = jss({
   }
 });
 
-const WorldAdminView = ({ world, context, save, fileActions }: IProps) => {
+//const WorldAdminView = ({ world, context, save, fileActions }: IProps) => {
+export class WorldAdminView extends React.Component<IProps, {}> {
 
-  // for loop variables
-  let tile: ITileDAO;
-  let theme: IThemeDAO;
-  let index: number;
-  // let global: string;
+  render() {
+    let { world, context, save, fileActions } = this.props;
+    // for loop variables
+    let tile: ITileDAO;
+    let theme: IThemeDAO;
+    let index: number;
+    // let global: string;
 
-  context.Utils.Ui.registerSaveListener(() => save(world));
+    context.Utils.Ui.registerSaveListener(() => save(world));
 
-  return (
-    <Segment classes="form">
-      <Header2 icon="world">{ world.name }</Header2>
-      <Field text="world.name">
-        <Input type="text"
-          placeholder="world.name"
-          defaultValue={ world.name } />
-      </Field>
-      {/* FILES */}
-      <div style={{ height: 400, position: 'relative' }}>
-        <TextEditor id={world._id}
-          files={ world.files }
-          fileActions={fileActions}
-          classes="darkTabs"
-           />
-      </div>
-      {/* TILES */}
-      <Segment>
-        <Header4 dividing icon="block layout" text="world.tiles" />
-        <Fields>
-          <Field width={3} text="tile.name" />
-          <Field width={2} text="tile.stamp" />
-          <Field width={6} text="tile.tags" />
-          <Field width={4} text="tile.field" />
-        </Fields>
-        <For each="tile" of={world.tiles} index="index">
-          <TileView key={index} tile={tile} context={context} />
-        </For>
-      </Segment>
+    return (
+      <Segment classes="form">
+        <Header2 icon="world">{world.name}</Header2>
+        <Field text="world.name">
+          <Input type="text"
+            placeholder="world.name"
+            defaultValue={world.name} />
+        </Field>
+        {/* FILES */}
+        <div style={{ height: 400, position: 'relative' }}>
+          <TextEditor
+            id={EDITOR_ID}
+            fileActions={fileActions}
+            classes="darkTabs"
+            />
+        </div>
+        {/* TILES */}
+        <Segment>
+          <Header4 dividing icon="block layout" text="world.tiles" />
+          <Fields>
+            <Field width={3} text="tile.name" />
+            <Field width={2} text="tile.stamp" />
+            <Field width={6} text="tile.tags" />
+            <Field width={4} text="tile.field" />
+          </Fields>
+          <For each="tile" of={world.tiles} index="index">
+            <TileView key={index} tile={tile} context={context} />
+          </For>
+        </Segment>
 
-      {/* THEMES */}
-      <Header4 dividing icon="theme" text="world.themes" />
+        {/* THEMES */}
+        <Header4 dividing icon="theme" text="world.themes" />
 
-      <Tabs id="themes">
-        <For each="theme" index="index" of={world.themes}>
-          <Tab name={theme.name} title={theme.name} key={index}>
-            <Field text="theme.name">
-              <Input placeholder="theme.name" defaultValue={ theme.name } />
-            </Field>
-            <Fields>
-              <Field width={3} text="theme.editorColor">
-                <Input placeholder="theme.editorColor"
-                  defaultValue={theme.worldOptions.editorColor} />
+        <Tabs id="themes">
+          <For each="theme" index="index" of={world.themes}>
+            <Tab name={theme.name} title={theme.name} key={index}>
+              <Field text="theme.name">
+                <Input placeholder="theme.name" defaultValue={theme.name} />
               </Field>
-              <Field width={3} text="theme.lineColor">
-                <Input placeholder="theme.lineColor"
-                  defaultValue={theme.worldOptions.lineColor} />
-              </Field>
-              <Field width={3} text="theme.lineHighlightColor">
-                <Input placeholder="theme.lineHighlightColor"
-                  defaultValue={theme.worldOptions.lineHighlightColor} />
-              </Field>
-              <Field width={3} text="theme.lineWidth">
-                <Input placeholder="theme.lineWidth"
-                  defaultValue={theme.worldOptions.lineWidth.toString() } />
-              </Field>
-              <Field width={3} text="theme.spacing">
-                <input placeholder="theme.spacing"
-                  defaultValue={theme.worldOptions.spacing.toString() } />
-              </Field>
-              <Field width={1}>
-                <label>&nbsp; </label>
-                <Button icon="eyedropper" url="http://colourco.de" target="_blank" />
-              </Field>
-            </Fields>
+              <Fields>
+                <Field width={3} text="theme.editorColor">
+                  <Input placeholder="theme.editorColor"
+                    defaultValue={theme.worldOptions.editorColor} />
+                </Field>
+                <Field width={3} text="theme.lineColor">
+                  <Input placeholder="theme.lineColor"
+                    defaultValue={theme.worldOptions.lineColor} />
+                </Field>
+                <Field width={3} text="theme.lineHighlightColor">
+                  <Input placeholder="theme.lineHighlightColor"
+                    defaultValue={theme.worldOptions.lineHighlightColor} />
+                </Field>
+                <Field width={3} text="theme.lineWidth">
+                  <Input placeholder="theme.lineWidth"
+                    defaultValue={theme.worldOptions.lineWidth.toString()} />
+                </Field>
+                <Field width={3} text="theme.spacing">
+                  <input placeholder="theme.spacing"
+                    defaultValue={theme.worldOptions.spacing.toString()} />
+                </Field>
+                <Field width={1}>
+                  <label>&nbsp; </label>
+                  <Button icon="eyedropper" url="http://colourco.de" target="_blank" />
+                </Field>
+              </Fields>
 
-            <Header4 dividing icon="grid layout" text="theme.tiles" />
+              <Header4 dividing icon="grid layout" text="theme.tiles" />
 
-            <div className={css.tilesContainer}>
-              <For each="themedTile" of={theme.tiles} index="index">
-                <ThemedTileView key={index} tile={themedTile} worldTiles={world.tiles} />
-              </For>
-            </div>
+              <div className={css.tilesContainer}>
+                <For each="themedTile" of={theme.tiles} index="index">
+                  <ThemedTileView key={index} tile={themedTile} worldTiles={world.tiles} />
+                </For>
+              </div>
 
-            <Header4 dividing icon="file outline" text="theme.images" />
+              <Header4 dividing icon="file outline" text="theme.images" />
 
-            {/* <Uploads
+              {/* <Uploads
                       formData={{ id: theme._id }}
                       images={theme.images}
                       saveable={world} /> */}
-          </Tab>
-        </For>
-      </Tabs>
+            </Tab>
+          </For>
+        </Tabs>
 
-      {/* GLOBALS */}
-      <Segment classes="level2">
-        <Header4 dividing icon="cubes" text="world.globals" />
+        {/* GLOBALS */}
+        <Segment classes="level2">
+          <Header4 dividing icon="cubes" text="world.globals" />
 
-        <For each="global" index="index" of={world.globals}>
-          <Fields key={index}>
-            <Field width={15}>
-              <Input type="text" placeholder="world.globalVariable" defaultValue={ global } />
-            </Field>
-            <Field width={15}>
-              <Button color="red" icon="trash" />
-            </Field>
-          </Fields>
-        </For>
+          <For each="global" index="index" of={world.globals}>
+            <Fields key={index}>
+              <Field width={15}>
+                <Input type="text" placeholder="world.globalVariable" defaultValue={global} />
+              </Field>
+              <Field width={15}>
+                <Button color="red" icon="trash" />
+              </Field>
+            </Fields>
+          </For>
 
-        <Button labeled="left" icon="plus" color="primary" text="add" />
+          <Button labeled="left" icon="plus" color="primary" text="add" />
+        </Segment>
       </Segment>
-    </Segment>
 
-  );
+    );
+  }
+
+  componentWillMount() {
+    this.props.fileActions.init(this.props.world.files, this.props.world._id, true);
+  };
 }
 
 
@@ -163,13 +173,13 @@ interface ITileViewProps {
 const TileView = ({tile, context}: ITileViewProps) => (
   <Fields>
     <Field width={3}>
-      <Input placeholder="tile.name" defaultValue={ tile.name } />
+      <Input placeholder="tile.name" defaultValue={tile.name} />
     </Field>
     <Field width={2}>
-      <Input type="text" placeholder="tile.stamp" defaultValue={ tile.stamp}  />
+      <Input type="text" placeholder="tile.stamp" defaultValue={tile.stamp}  />
     </Field>
     <Field width={6}>
-      <Input type="text" placeholder="tile.tags" defaultValue={tile.tags.join(",") } />
+      <Input type="text" placeholder="tile.tags" defaultValue={tile.tags.join(",")} />
     </Field>
     <Field width={4}>
       <Input type="text"
@@ -212,7 +222,7 @@ const ThemedTileView = ({tile, worldTiles}: IThemedTileViewProps) => (
   <div>
     <Fields>
       <Field width={1} style={{ paddingTop: 12 }}>
-        <img src={ tile.url } alt="{ name }" />
+        <img src={tile.url} alt="{ name }" />
       </Field>
       <Field width={4} text="theme.tile">
         <Dropdown id={'tt' + tile.tileId} activation="click" defaultText={tile.name}>
@@ -225,10 +235,10 @@ const ThemedTileView = ({tile, worldTiles}: IThemedTileViewProps) => (
         <Input type="number"
           step="0.01"
           placeholder="theme.scale"
-          defaultValue={ tile.scale.toString() } />
+          defaultValue={tile.scale.toString()} />
       </Field>
       <Field width={8} text="theme.url">
-        <Input type="text" step="0.01" placeholder="theme.url" defaultValue={ tile.url } />
+        <Input type="text" step="0.01" placeholder="theme.url" defaultValue={tile.url} />
       </Field>
       <Field width={1}>
         <Button color="red" icon="trash" />
@@ -236,7 +246,7 @@ const ThemedTileView = ({tile, worldTiles}: IThemedTileViewProps) => (
     </Fields>
 
     <If condition={tile.animations && tile.animations.length}>
-      <AnimationsView tile={ tile} />
+      <AnimationsView tile={tile} />
     </If>
   </div>
 );
@@ -279,7 +289,7 @@ const AnimationView = ({ animation }: IAnimationViewProps) => (
   <Segment classes="level3" style={{ margin: '1rem 0rem' }}>
     <Fields>
       <Field width={14} text="animations.name">
-        <Input placeholder="animation.name" defaultValue={ animation.name } />
+        <Input placeholder="animation.name" defaultValue={animation.name} />
       </Field>
       <Field width={2} label="&nbsp;">
         <Button color="primary" labeled="left" icon="file video outline" text="add" />

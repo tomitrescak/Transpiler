@@ -1,8 +1,7 @@
-export const INIT_SESSION = 'COMPILER: INIT';
-export const START_COMPILATION = 'COMPILER: START';
-export const COMPILATION_ERROR = 'COMPILER: ERROR';
-export const COMPILATION_SUCCESS = 'COMPILER: SUCCESS';
-export const TOGGLE_FILES = 'COMPILER: TOGGLE FILES';
+export const INIT_SESSION = 'COMPILER: Init';
+export const START_COMPILATION = 'COMPILER: Start';
+export const COMPILATION_ERROR = 'COMPILER: Error';
+export const COMPILATION_SUCCESS = 'COMPILER: Success';
 
 declare global {
   interface ICompilerErrors {
@@ -22,16 +21,7 @@ declare global {
     libraries: string[];
     files: String[];
     errors: ICompilerErrors;
-    showAllFiles: boolean;
   }
-}
-
-export function toggleShowAllFiles(sessionId: string, show: boolean) {
-  return {
-    type: TOGGLE_FILES,
-    sessionId,
-    show
-  };
 }
 
 export function initSession(id: string, libraries: string[]) {

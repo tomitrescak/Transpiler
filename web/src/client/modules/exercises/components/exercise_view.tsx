@@ -3,8 +3,9 @@ import EventObject from 'eventobject';
 import jss from '../../../configs/jss';
 // import TabbedTextEditor from "../../text_editor/containers/tabbed_text_editor_container";
 // import BoardEditor from "../../board/components/board_editor_view";
-import TabbedEditor from '../containers/tabbed_editor_container';
+import TabbedEditor from '../../text_editor/containers/tabbed_editor_container';
 
+export const EXERCISE_EDITOR = 'ExerciseEditor';
 
 const css = jss({
   editor: {
@@ -54,7 +55,6 @@ export interface IComponentProps {
   schedule: IScheduleDAO;
   world: IWorldDAO;
 
-  fileActions: IFileEditorActions;
   files: ITextFileDAO[];
   user: SystemUser;
 
@@ -64,7 +64,7 @@ export interface IComponentProps {
 }
 
 export interface IComponentActions {
-  updateFile: (solution: ISolutionDAO, file: string, source: string) => void;
+  fileActions: IFileEditorActions;
 }
 
 export interface IComponent extends IComponentProps, IComponentActions { }
@@ -81,7 +81,7 @@ export interface IComponent extends IComponentProps, IComponentActions { }
 //   f.source = source;
 // }
 
-export const ExerciseView = ({ context, solution, exercise, practical, schedule, world, files, updateFile, fileActions }: IComponent) => {
+export const ExerciseView = ({ context, solution, exercise, practical, schedule, world, files, fileActions }: IComponent) => {
   let left: HTMLElement;
   let right: HTMLElement;
   let resizeHandle: HTMLElement;
@@ -93,8 +93,8 @@ export const ExerciseView = ({ context, solution, exercise, practical, schedule,
         className={css.resizer + ' h50'}
         onMouseDown={() => context.Utils.Ui.resizer(left, right, resizeHandle, evt) } />
       <div ref={(node) => left = node} className={css.editor}>
-        <TabbedEditor id={solution._id}
-          files={files}
+        <TabbedEditor
+          id={EXERCISE_EDITOR}
           fileActions={fileActions}
           />
         {/*<TabbedTextEditor

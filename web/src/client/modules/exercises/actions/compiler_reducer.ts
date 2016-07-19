@@ -9,8 +9,6 @@ export interface ICompilerState {
 
 export function reducer(state: ICompilerState = { sessions: {} }, action: any) {
   switch (action.type) {
-    case TOGGLE_FILES:
-      return update(state, { sessions: { [action.sessionId]: { showAllFiles: { $set: !state.sessions[action.sessionId].showAllFiles } } } });
     case INIT_SESSION:
       if (!state.sessions[action.sessionId]) {
         state.sessions[action.sessionId] = {} as any;

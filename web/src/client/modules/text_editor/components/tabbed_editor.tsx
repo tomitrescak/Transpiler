@@ -1,5 +1,5 @@
 import * as React from 'react';
-import StatusBar  from '../containers/tabbed_editor_status_container';
+import StatusBar from '../containers/tabbed_editor_status_container';
 import jss from '../../../configs/jss';
 import { Tabs, Tab, Button, Buttons, DropdownButton, Menu, MenuItem, Divider } from 'semanticui-react';
 import { CenteredLoading } from '../../core/components/loading_view';
@@ -37,6 +37,9 @@ const css = jss({
       position: 'absolute!important',
       left: '0px',
       top: '40px',
+      margin: '0px!important',
+      'border-radius': '0px',
+      border: '0px'
     }
   },
   toolButtons: {
@@ -54,6 +57,7 @@ export interface IProps {
   files: ITextFileDAO[];
   fileActions: IFileEditorActions;
   classes?: string;
+  showAdminControls: boolean;
 }
 
 
@@ -101,7 +105,7 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
       return <CenteredLoading text="loading.compiler" />;
     }
 
-    const files = this.props.showAllFiles ? this.props.files : this.props.files.filter((f) => !f.readonly);
+    const files = this.props.fileActions.getFiles(this.props.showAllFiles);
     const { context } = this.props;
     let selectedFile: string = this.props.files && this.props.files.length ? this.props.files[0].name : '';
 
@@ -110,30 +114,34 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
     return (
       <span className={this.props.classes}>
         <div className={css.toolButtons}>
-          <Buttons>
-            <Button compact icon="angle left" onClick={() => this.props.fileActions.moveLeft(selectedFile) } />
-            <Button compact icon="angle right" onClick={() => this.props.fileActions.moveRight(selectedFile) } />
-          </Buttons>
-          <Button color="red" compact icon="trash" onClick={() => context.Utils.Ui.confirmDialog(() => this.props.fileActions.removeFile(selectedFile), selectedFile) } style={{marginLeft: '6px'}} />
+          <If condition={this.props.showAdminControls}>
+            <Buttons>
+              <Button compact icon="angle left" onClick={() => this.props.fileActions.moveLeft(selectedFile)} />
+              <Button compact icon="angle right" onClick={() => this.props.fileActions.moveRight(selectedFile)} />
+            </Buttons>
+            <Button color="red" compact icon="trash" onClick={() => context.Utils.Ui.confirmDialog(() => this.props.fileActions.removeFile(selectedFile), selectedFile)} style={{ marginLeft: '6px' }} />
+          </If>
           <DropdownButton color="orange" compact icon="wrench" activation="click" id="editorOptions" pointing="top right">
             <Menu>
-              <MenuItem text="addLibrary" icon="plus"
-                onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'library'), 'promptAddLibrary') } />
-              <MenuItem text="addCode" icon="plus"
-                onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'userCode'), 'promptAddCode') } />
-              <MenuItem text="addInterface" icon="plus"
-                onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'interface'), 'promptAddDefinition') } />
-              <MenuItem text="renameFile" icon="bubble"
-                onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.changeName(selectedFile, fileName), 'promptRenameCode', selectedFile) } />
-              <MenuItem text="changeType" icon="bubble"
-                onClick={() => context.Utils.Ui.promptOptions((fileType: string) => this.props.fileActions.changeType(selectedFile, fileType), 'promptRenameCode', 'Select Type', { 'library': 'Library', 'userCode': 'User Code' }) } />
-              <Divider />
-              <MenuItem text="showAllFiles" onClick={() => this.props.toggleShowAllFiles(!this.props.showAllFiles) } />
+              <If condition={this.props.showAdminControls}>
+                <MenuItem text="addLibrary" icon="plus"
+                  onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'library'), 'promptAddLibrary')} />
+                <MenuItem text="addCode" icon="plus"
+                  onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'userCode'), 'promptAddCode')} />
+                <MenuItem text="addInterface" icon="plus"
+                  onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.addFile(fileName, 'interface'), 'promptAddDefinition')} />
+                <MenuItem text="renameFile" icon="bubble"
+                  onClick={() => context.Utils.Ui.promptText((fileName: string) => this.props.fileActions.changeName(selectedFile, fileName), 'promptRenameCode', selectedFile)} />
+                <MenuItem text="changeType" icon="bubble"
+                  onClick={() => context.Utils.Ui.promptOptions((fileType: string) => this.props.fileActions.changeType(selectedFile, fileType), 'promptRenameCode', 'Select Type', { 'library': 'Library', 'userCode': 'User Code' })} />
+                <Divider />
+              </If>
+              <MenuItem text="showAllFiles" onClick={() => this.props.toggleShowAllFiles(!this.props.showAllFiles)} />
             </Menu>
           </DropdownButton>
         </div>
         <span className={css.container}>
-          <Tabs id={'tabs_' + this.props.id} selected={(tabFile) => selectedFile = tabFile }>
+          <Tabs id={'tabs_' + this.props.id} selected={(tabFile) => selectedFile = tabFile}>
             <For each="file" index="index" of={files}>
               <Tab key={index} name={file.name} title={file.name} icon={icons[file.type]}>
                 <AceEditor
@@ -143,7 +151,7 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
                   mode="java"
                   theme="ambiance"
                   readOnly={file.readonly}
-                  onChange={this.onChange.bind(this, file) }
+                  onChange={this.onChange.bind(this, file)}
                   name={this.props.id + file.name}
                   editorProps={{ $blockScrolling: true }}
                   enableBasicAutocompletion={true}
@@ -151,7 +159,7 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
                   highlightActiveLine={true}
                   showGutter={true}
                   value={file.source}
-                  onLoad={this.loadEditor.bind(this, file) }
+                  onLoad={this.loadEditor.bind(this, file)}
                   />
               </Tab>
             </For>
@@ -162,9 +170,9 @@ export default class TabbedEditor extends React.Component<IComponent, {}> {
     );
   }
 
-  shouldComponentUpdate(nextProps: IComponent) {
-    return this.props.files !== nextProps.files || this.props.showAllFiles !== nextProps.showAllFiles;
-  }
+  // shouldComponentUpdate(nextProps: IComponent) {
+  //   return this.props.files !== nextProps.files || this.props.showAllFiles !== nextProps.showAllFiles;
+  // }
 
   init() {
     console.log('Initialising compiler ...');
