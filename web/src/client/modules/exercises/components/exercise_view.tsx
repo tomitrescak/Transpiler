@@ -3,7 +3,8 @@ import EventObject from 'eventobject';
 import jss from '../../../configs/jss';
 // import TabbedTextEditor from "../../text_editor/containers/tabbed_text_editor_container";
 // import BoardEditor from "../../board/components/board_editor_view";
-import TabbedEditor from '../../text_editor/containers/tabbed_editor_container';
+import TextEditor from '../../text_editor/containers/tabbed_editor_container';
+import ExerciseTabView from './exercise_tabs_view';
 
 export const EXERCISE_EDITOR = 'ExerciseEditor';
 
@@ -69,19 +70,7 @@ export interface IComponentActions {
 
 export interface IComponent extends IComponentProps, IComponentActions { }
 
-// let tfiles = [
-//   { name: 'File1.java', source: 'class B extends A {}', type: 'User' },
-//   { name: 'File2.java', source: 'class C extends B {}', type: 'User' },
-//   { name: 'File3.java', source: 'class A {}', type: 'library', readonly: true },
-//
-// ];
-//
-// function uf(file: string, source: string) {
-//   let f = tfiles.find((g) => g.name === file);
-//   f.source = source;
-// }
-
-export const ExerciseView = ({ context, solution, exercise, practical, schedule, world, files, fileActions }: IComponent) => {
+export const ExerciseView = ({ context, solution, exercise, practical, schedule, user, world, files, fileActions }: IComponent) => {
   let left: HTMLElement;
   let right: HTMLElement;
   let resizeHandle: HTMLElement;
@@ -93,22 +82,14 @@ export const ExerciseView = ({ context, solution, exercise, practical, schedule,
         className={css.resizer + ' h50'}
         onMouseDown={() => context.Utils.Ui.resizer(left, right, resizeHandle, evt) } />
       <div ref={(node) => left = node} className={css.editor}>
-        <TabbedEditor
+        <TextEditor
           id={EXERCISE_EDITOR}
           fileActions={fileActions}
           />
-        {/*<TabbedTextEditor
-            context={context}
-            canModify={false}
-            allowEditLibraries={false}
-            onModelInit={assignEditor.bind(this)}
-            hideLibraries={true}
-            background="blackBackground"
-            files={markingMode && solution.status === "Submitted" && solution.submission ? solution.submission.files : solution.files}
-            uniqueName={solution._id + solution.schedule._id + solution.practical._id + solution.exercise._id} />*/}
       </div>
       <div  ref={(node) => right = node}  className={css.info}>
         <div id="infoContent">
+          <ExerciseTabView exercise={exercise} practical={practical} solution={solution} user={user} />
           {/*<BoardEditor
               schedule={solution.schedule}
               practical={solution.practical}

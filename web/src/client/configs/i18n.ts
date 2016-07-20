@@ -95,6 +95,7 @@ export default function() {
     'changeType': 'Change Type',
     'close': 'Close',
     'columns': 'Columns',
+    'comment': 'Comment',
     'comment.inserted': 'Comment inserted',
     'comments.addComment': 'Add Comment',
     'comments.canUseMarkdown': 'You can use Markdown syntax in comments',

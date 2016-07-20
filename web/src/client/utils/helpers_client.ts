@@ -47,7 +47,7 @@ let saveCallback: Function;
 const saveListener = function(e: KeyboardEvent) {
   if (e.keyCode === 83 && (navigator.platform.match('Mac') ? e.metaKey : e.ctrlKey)) {
     e.preventDefault();
-    saveFunction(); // UiUtils.announceSaved() 
+    saveFunction(); // UiUtils.announceSaved()
     if (saveCallback) {
       saveCallback();
     }
@@ -177,8 +177,8 @@ export const UiUtils = {
   alertError(text: string, params?: Object, options?: Object) {
     sAlert.error(mf(text, params), options);
   },
-  announce(infoText: string, errorText: string, callback?: Meteor.AsyncCallback): Meteor.AsyncCallback {
-    return (error: Meteor.Error, value: any) => {
+  announce(infoText: string, errorText: string, callback?: IAsyncCallback): IAsyncCallback {
+    return (error: IError, value: any) => {
       if (error) {
         if (error.reason != null || error.details != null) {
           sAlert.error(mf(errorText) + ': ' + (error.reason ? error.reason : error.details), { type: 'error' });
@@ -194,16 +194,16 @@ export const UiUtils = {
       }
     };
   },
-  announceCreated(callback?: Meteor.AsyncCallback): Meteor.AsyncCallback {
+  announceCreated(callback?: IAsyncCallback): IAsyncCallback {
     return UiUtils.announce('info.createSuccess', 'info.createError', callback); // mf('info.createSuccess', ''); mf('info.createError', '');
   },
-  announceSaved(callback?: Meteor.AsyncCallback): Meteor.AsyncCallback {
+  announceSaved(callback?: IAsyncCallback): IAsyncCallback {
     return UiUtils.announce('info.saveSuccess', 'info.saveError', callback); // mf('info.saveSuccess', ''); mf('info.saveError', '');
   },
-  announceDeleted(callback?: Meteor.AsyncCallback): Meteor.AsyncCallback {
+  announceDeleted(callback?: IAsyncCallback): IAsyncCallback {
     return UiUtils.announce('info.deleted', 'info.deleteFailed', callback); // mf('info.deleted', ''); mf('info.deleteFailed', '');
   },
-  announceDuplicated(callback?: Meteor.AsyncCallback): Meteor.AsyncCallback {
+  announceDuplicated(callback?: IAsyncCallback): IAsyncCallback {
     return UiUtils.announce('info.duplicated', 'info.duplicateFailed', callback); // mf('info.duplicated', ''); mf('info.duplicateFailed', '');
   },
   showMarkdownModal(raw: string, header?: string): void {
@@ -211,7 +211,7 @@ export const UiUtils = {
     html = html.replace(/<table/g, '<table class=\'ui striped table\'');
 
     // now fill in the data
-    $('#previewModalHeader').html(header ? (header[0] === '?' ? mf(header) : header) : mf('description'));
+    $('#previewModalHeader').html(header ? mf(header) : mf('description'));
 
     let content = raw[0] === '?' ? mf(html) : html;
     content = UiUtils.parseText(content);
@@ -298,8 +298,11 @@ export const UiUtils = {
   deletedDialog() {
     swal(mf('deleted'), mf('recordDeleted'), 'success');
   },
+  parseMarkdown(text: string) {
+    return marked(UiUtils.parseText(text));
+  },
   parseText(text: string) {
-    return text.replace(/img src='/g, 'img src=\'' + config.S3Bucket);
+    return text ? text.replace(/img src='/g, 'img src=\'' + config.S3Bucket) : '';
   }
 };
 

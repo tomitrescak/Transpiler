@@ -1,5 +1,5 @@
 import { getQuery, copyQuery, IQueryResult } from 'meteor/tomi:apollo-mantra';
-import { CHANGE_STATE, CREATE_SOLUTION, CHANGE_FILE } from './solution_actions';
+import { CHANGE_STATE, CREATE_SOLUTION, CHANGE_FILE, INSERT_COMMENT } from './solution_actions';
 import update from 'react-addons-update';
 
 export interface ISolutionState {
@@ -36,6 +36,8 @@ export function reducer(state: ISolutionState = { solutions: {} }, action: any) 
   // action listener
 
   switch (action.type) {
+    case INSERT_COMMENT:
+      return update(state, { solutions: { [action.id]: { comments: { $push: [action.comment.solutionInsertComment] } } } });
     case CHANGE_STATE:
       return update(state, { solutions: { [action.solutionId]: { status: { $set: action.status } } } });
     case CHANGE_FILE:

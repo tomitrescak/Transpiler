@@ -432,6 +432,7 @@ declare module 'meteor/tomi:apollo-mantra' {
     thenCallback?: (data: any, dispatch: Function, state: () => any) => void;
     errorCallback?: (errors: any, dispatch: Function, state: () => any) => void;
     catchCallback?: (error: any, dispatch: Function, state: () => any) => void;
+    finalCallback?: (dispatch: Function, state: () => any) => void;
   }
 
   interface IResult<T> {

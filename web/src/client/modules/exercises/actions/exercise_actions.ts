@@ -23,8 +23,6 @@
 // let actions = new Actions();
 // export default actions;
 
-import store from '../../../configs/store';
-
 export const SEARCH = 'EXERCISE: Search';
 export const CLEAR_SEARCH = 'EXERCISE: Clear Search';
 export const CREATE = 'EXERCISE: Create';
@@ -38,7 +36,7 @@ export function handleSearch(text: string) {
 
 // automatically diapatched actions
 
-export function clearSearch() {
+export function clearSearch(store: IStore) {
   store.dispatch({
     type: CLEAR_SEARCH
   });

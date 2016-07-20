@@ -45,6 +45,7 @@ declare global {
 }
 
 export { default as Achievements } from './achievements_collection';
+export { default as Configuration } from './configuration_collection';
 export { default as Exercises } from './exercises_collection';
 export { default as Notifications } from './notification_collection';
 export { default as Practicals } from './practical_collection';

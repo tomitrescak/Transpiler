@@ -15,7 +15,7 @@ export interface IProps {
   id: string;
   fileActions: IFileEditorActions;
   classes?: string;
-  showAdminControls: boolean;
+  showAdminControls?: boolean;
 }
 
 const mapDispatchToProps = ({ Store }: IContext, dispatch: Function, ownProps: IProps): IComponentActions  => ({

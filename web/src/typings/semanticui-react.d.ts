@@ -120,7 +120,7 @@ declare module "semanticui-react" {
     size?: "mini" | "tiny" | "small" | "medium" | "large" | "huge" | "massive";
   }
 
-  interface IButton extends IColors, ISizes {
+  export interface IButton extends IColors, ISizes {
     classes?: string;
     text?: string;
     basic?: boolean;
@@ -584,6 +584,7 @@ declare module "semanticui-react" {
 
   interface ITabs {
     classes?: string;
+    containerClass?: string;
     id: string;
     children?: any;
     activeTab?: string;
@@ -605,9 +606,11 @@ declare module "semanticui-react" {
     classes?: string;
     children?: any;
     header?: string;
-    id: string;
-    text: string;
-    handler: Function;
+    commentPlaceholder?: string;
+    addButtonText: string;
+    previewButtonText?: string;
+    addComment: (e?: React.SyntheticEvent, comment: string) => void;
+    previewComment?: (comment: string) => void;
   }
 
   export class Comments extends React.Component<IComments, {}> { }
@@ -622,7 +625,8 @@ declare module "semanticui-react" {
     date: string;
     children?: any;
     author: string;
-    actions: IAction[];
+    actions?: IAction[];
+    text?: string;
   }
 
   export class Comment extends React.Component<IComment, {}> { }
